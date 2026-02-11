@@ -1,0 +1,32 @@
+{
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "ejs": "^4.0.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mysql2": "^3.17.0"
+  },
+  "name": "chamaos",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "node --watch index.js" 
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mercy-5120/ChamaOS.git"
+  },
+  "keywords": [],
+  "author": "Mercy Gachau",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mercy-5120/ChamaOS/issues"
+  },
+  "homepage": "https://github.com/mercy-5120/ChamaOS#readme"
+}
