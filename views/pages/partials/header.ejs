@@ -1,0 +1,23 @@
+<header class="brand">
+  <div class="brand-left">
+    <div class="logo">ChamaOS</div>
+    <div class="brand-tagline"><%= typeof brandTagline !== 'undefined' ? brandTagline : 'Community savings. Built together.' %></div>
+  </div>
+  <nav class="nav">
+    <% const defaultNav = [
+      { text: 'Home', href: '/' },
+      { text: 'Services', href: '/services' },
+      { text: 'Login', href: '/login' },
+      { text: 'Get started', href: '/signup', cta: true }
+    ]; %>
+
+    <% var items = (typeof navItems !== 'undefined' && Array.isArray(navItems)) ? navItems : defaultNav; %>
+    <% items.forEach(function(item) { %>
+      <% if (item.cta) { %>
+        <a class="nav-cta" href="<%= item.href %>"><%= item.text %></a>
+      <% } else { %>
+        <a class="nav-link" href="<%= item.href %>"><%= item.text %></a>
+      <% } %>
+    <% }) %>
+  </nav>
+</header>

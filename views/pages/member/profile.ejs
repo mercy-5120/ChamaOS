@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Profile</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <%- include('../partials/header', { brandTagline: 'Member profile', navItems: [ { text: 'Home', href: '/' }, { text: 'Dashboard', href: '/dashboard' } ] }) %>
+
+    <main class="container">
+      <section class="card profile-grid">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="avatar" aria-hidden="true"></div>
+            <div>
+              <div class="profile-name">Jane Doe</div>
+              <div class="small">Member • Umoja chama</div>
+            </div>
+          </div>
+
+          <div class="info-row">
+            <div class="small">Contact</div>
+            <div>jane@example.com • +254 700 000 000</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="small">Activity</div>
+          <h3 class="h2">Recent contributions</h3>
+          <p class="small">
+            You have 2 upcoming contributions and 1 pending payout.
+          </p>
+        </div>
+      </section>
+
+      <%- include('../partials/footer') %>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Login</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <style></style>
+  </head>
+  <body>
+    <%- include('../partials/header', { brandTagline: 'Community saving, together', navItems: [ { text: 'Home', href: '/' }, { text: 'Sign up', href: '/signup' } ] }) %>
+
+    <main class="container">
+      <section class="auth-wrap">
+        <div class="card auth-card">
+          <h3 class="h1">Welcome back</h3>
+          <p class="lead">
+            Log in to manage your chama, contributions and milestones.
+          </p>
+
+          <form action="/auth" method="POST" autocomplete="on">
+            <div class="form-grid">
+              <div>
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" required />
+              </div>
+              <div>
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required />
+              </div>
+            </div>
+
+            <div class="form-foot">
+              <div class="helper">
+                <a href="#" class="link-muted">Forgot password?</a>
+              </div>
+              <button class="btn btn-primary" type="submit">Sign in</button>
+            </div>
+          </form>
+
+          <div class="muted-note">
+            New to ChamaOS?
+            <a href="/signup" class="link-muted">Create an account</a>
+          </div>
+        </div>
+      </section>
+
+      <%- include('../partials/footer') %>
+    </main>
+  </body>
+</html>

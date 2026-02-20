@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Sign up</title>
+    <link rel="stylesheet" href="/css/app.css" />
+
+    <style></style>
+  </head>
+  <body>
+    <%- include('../partials/header', { brandTagline: 'Collective savings. Built together.', navItems: [ { text: 'Home', href: '/' }, { text: 'Login', href: '/login' }, { text: 'Get started', href: '/signup', cta: true } ] }) %>
+
+    <main class="container">
+      <section class="auth-wrap">
+        <div class="card auth-card">
+          <h3 class="h1">Create your Chama account</h3>
+          <p class="lead">
+            Join a community, track contributions and celebrate group
+            milestones.
+          </p>
+
+          <form action="/signup" method="POST" autocomplete="on">
+            <div class="form-grid">
+              <div>
+                <label for="fullname">Full name *</label>
+                <input
+                  id="fullname"
+                  name="fullname"
+                  type="text"
+                  required
+                  placeholder="e.g., Jane Doe"
+                />
+              </div>
+              <div>
+                <label for="phone">Phone number *</label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  placeholder="e.g., +254 700 000 000"
+                />
+              </div>
+              <div>
+                <label for="email">Email address</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="e.g., jane@example.com"
+                />
+              </div>
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="gender">Gender</label>
+                  <select id="gender" name="gender">
+                    <option value="">Select...</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other / Prefer not to say</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="location">Location / Ward</label>
+                  <input
+                    id="location"
+                    name="location"
+                    type="text"
+                    placeholder="e.g., Nairobi"
+                  />
+                </div>
+              </div>
+              <div>
+                <label for="password">Password *</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="Create a strong password"
+                />
+              </div>
+            </div>
+
+            <div class="form-foot">
+              <div class="helper">
+                Already have an account?
+                <a href="/login" class="link-muted">Login</a>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Create account
+              </button>
+            </div>
+          </form>
+
+          <div class="muted-note">
+            By joining you agree to our community guidelines and respect the
+            chama's values.
+          </div>
+        </div>
+
+        <div class="signup-aside">
+          <div class="card">
+            <div class="small">Why ChamaOS</div>
+            <h4 class="h2">
+              A simple, trustworthy place for community finance
+            </h4>
+            <ul class="feature-list">
+              <li>Transparent contributions & records</li>
+              <li>Friendly community features and milestones</li>
+              <li>Safety-first — backed by clear policies</li>
+            </ul>
+            <div class="badges-row">
+              <span class="badge badge-community">Community-first</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <%- include('../partials/footer') %>
+    </main>
+  </body>
+</html>

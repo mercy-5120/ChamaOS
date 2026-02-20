@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Unauthorized</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <style></style>
+  </head>
+  <body>
+      <%- include('../partials/header') %>
+
+    <main class="container">
+      <section class="card error-wrap">
+        <div class="error-card">
+          <div class="error-code">401</div>
+          <div class="error-msg">
+            Unauthorized — you must be signed in to access that page.
+          </div>
+          <div class="error-actions">
+            <a class="btn btn-primary" href="/login">Login</a>
+            <a class="btn btn-ghost" href="/">Return home</a>
+          </div>
+        </div>
+      </section>
+
+      <%- include('../partials/footer') %>
+    </main>
+  </body>
+</html>

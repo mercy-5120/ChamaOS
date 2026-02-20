@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Not found</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+    <%- include('../partials/header', { brandTagline: 'Community savings. Built together.', navItems: [ { text: 'Home', href: '/' }, { text: 'Login', href: '/login' } ] }) %>
+
+    <main class="container">
+      <section class="card error-wrap">
+        <div class="error-card">
+          <div class="error-code">404</div>
+          <div class="error-msg">
+            We can't find the page you're looking for.
+          </div>
+          <div class="error-actions">
+            <a class="btn btn-primary" href="/">Return home</a>
+            <a class="btn btn-ghost" href="#">Contact support</a>
+          </div>
+        </div>
+      </section>
+
+      <%- include('../partials/footer') %>
+    </main>
+  </body>
+</html>
