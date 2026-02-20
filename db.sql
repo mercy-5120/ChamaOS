@@ -20,6 +20,8 @@ CREATE TABLE Users (
     phone_number VARCHAR(15) UNIQUE NOT NULL,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100),
+    gender VARCHAR(10),
+    location VARCHAR(100),
     password_hash VARCHAR(255),
     user_type VARCHAR(20) DEFAULT 'member',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -97,3 +99,5 @@ CREATE TABLE Meeting_Attendance (
     FOREIGN KEY (meeting_id) REFERENCES Meetings(meeting_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 ) ENGINE=InnoDB;
+
+
