@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Meetings</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+
+    <main class="container dashboard-layout">
+      <%- include('../partials/membersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Meetings</h1>
+            <p class="lead">View upcoming meetings and access past minutes</p>
+          </div>
+        </div>
+
+        <!-- UPCOMING MEETINGS -->
+        <section class="dashboard-section">
+          <h2 class="h2">Upcoming Meetings</h2>
+          <div class="card">
+            <div class="meetings-list">
+              <div class="meeting-card">
+                <div class="meeting-status-badge">Upcoming</div>
+                <div class="meeting-content">
+                  <div class="meeting-date-header">
+                    <h4>Monthly General Meeting</h4>
+                    <span class="meeting-date">February 28, 2026</span>
+                  </div>
+                  <p><strong>Time:</strong> 6:00 PM - 8:00 PM (120 minutes)</p>
+                  <p><strong>Venue:</strong> Community Center, Room A</p>
+                  <p><strong>Location Details:</strong> Building B, 2nd Floor, Community Center Complex</p>
+                  
+                  <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0">
+                    <h5>Meeting Agenda:</h5>
+                    <ul style="list-style: none; padding: 0">
+                      <li>Financial updates and monthly reports</li>
+                      <li>Review of loan applications</li>
+                      <li>Member contribution status</li>
+                      <li>Approval of new members</li>
+                      <li>Discussion of group initiatives</li>
+                    </ul>
+                  </div>
+
+                  <div style="margin-top: 15px">
+                    <button class="btn btn-primary" onclick="markAttendance('meeting001')">Mark Attendance</button>
+                    <button class="btn btn-secondary">Add to Calendar</button>
+                    <a href="#" class="btn btn-ghost">Get Directions</a>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin: 25px 0" />
+
+              <div class="meeting-card">
+                <div class="meeting-status-badge" style="background-color: #5b5bff">Finance Committee</div>
+                <div class="meeting-content">
+                  <div class="meeting-date-header">
+                    <h4>Finance Committee Meeting</h4>
+                    <span class="meeting-date">March 7, 2026</span>
+                  </div>
+                  <p><strong>Time:</strong> 5:00 PM - 6:00 PM (60 minutes)</p>
+                  <p><strong>Venue:</strong> Virtual (Zoom)</p>
+                  <p><strong>Meeting Link:</strong> <a href="#" class="link">zoom.us/meeting/123456</a></p>
+                  <p><strong>Attendees:</strong> Finance committee members only</p>
+                  
+                  <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0">
+                    <h5>Meeting Agenda:</h5>
+                    <ul style="list-style: none; padding: 0">
+                      <li>Review loan applications (3 pending)</li>
+                      <li>Budget planning for Q2 2026</li>
+                      <li>Interest rate adjustments</li>
+                      <li>Financial audit report</li>
+                    </ul>
+                  </div>
+
+                  <div style="margin-top: 15px">
+                    <button class="btn btn-primary">Join Zoom Meeting</button>
+                    <button class="btn btn-secondary">Add to Calendar</button>
+                  </div>
+                </div>
+              </div>
+
+              <hr style="margin: 25px 0" />
+
+              <div class="meeting-card">
+                <div class="meeting-status-badge" style="background-color: #9b9b9b">Special Session</div>
+                <div class="meeting-content">
+                  <div class="meeting-date-header">
+                    <h4>Special General Assembly</h4>
+                    <span class="meeting-date">March 15, 2026</span>
+                  </div>
+                  <p><strong>Time:</strong> 2:00 PM - 4:00 PM (120 minutes)</p>
+                  <p><strong>Venue:</strong> Community Center, Main Hall</p>
+                  <p><strong>Note:</strong> ALL members are required to attend</p>
+                  
+                  <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0">
+                    <h5>Meeting Agenda:</h5>
+                    <ul style="list-style: none; padding: 0">
+                      <li>Election of new leadership</li>
+                      <li>Constitutional amendments</li>
+                      <li>Strategic planning for 2026</li>
+                    </ul>
+                  </div>
+
+                  <div style="margin-top: 15px">
+                    <button class="btn btn-primary" onclick="markAttendance('meeting003')">Mark Attendance</button>
+                    <button class="btn btn-secondary">Add to Calendar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PAST MEETINGS & MINUTES -->
+        <section class="dashboard-section">
+          <h2 class="h2">Past Meeting Minutes</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Meeting</th>
+                  <th>Attendees</th>
+                  <th>Minutes</th>
+                  <th>Decisions</th>
+                  <th>Download</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jan 31, 2026</td>
+                  <td>Monthly General Meeting</td>
+                  <td>18/22</td>
+                  <td>
+                    <a href="#" class="link" onclick="viewMinutes('jan31')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="link" onclick="viewDecisions('jan31')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="btn btn-small btn-ghost">PDF</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Jan 15, 2026</td>
+                  <td>Finance Committee</td>
+                  <td>5/5</td>
+                  <td>
+                    <a href="#" class="link" onclick="viewMinutes('jan15')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="link" onclick="viewDecisions('jan15')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="btn btn-small btn-ghost">PDF</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Dec 30, 2025</td>
+                  <td>Monthly General Meeting</td>
+                  <td>20/22</td>
+                  <td>
+                    <a href="#" class="link" onclick="viewMinutes('dec30')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="link" onclick="viewDecisions('dec30')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="btn btn-small btn-ghost">PDF</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Dec 15, 2025</td>
+                  <td>Finance Committee</td>
+                  <td>4/5</td>
+                  <td>
+                    <a href="#" class="link" onclick="viewMinutes('dec15')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="link" onclick="viewDecisions('dec15')">View</a>
+                  </td>
+                  <td>
+                    <a href="#" class="btn btn-small btn-ghost">PDF</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ATTENDANCE HISTORY -->
+        <section class="dashboard-section">
+          <h2 class="h2">Your Attendance</h2>
+          <div class="card">
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">Total Meetings</div>
+                <div class="metric-value">12</div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-label">Attended</div>
+                <div class="metric-value value-success">11</div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-label">Attendance Rate</div>
+                <div class="metric-value value-success">92%</div>
+              </div>
+
+              <div class="metric-card">
+                <div class="metric-label">Absent</div>
+                <div class="metric-value">1</div>
+              </div>
+            </div>
+
+            <table class="table" style="margin-top: 25px">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Meeting</th>
+                  <th>Your Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jan 31, 2026</td>
+                  <td>Monthly General Meeting</td>
+                  <td><span class="badge badge-success">Present</span></td>
+                </tr>
+                <tr>
+                  <td>Jan 15, 2026</td>
+                  <td>Finance Committee</td>
+                  <td><span class="badge badge-danger">Absent</span></td>
+                </tr>
+                <tr>
+                  <td>Dec 30, 2025</td>
+                  <td>Monthly General Meeting</td>
+                  <td><span class="badge badge-success">Present</span></td>
+                </tr>
+                <tr>
+                  <td>Dec 15, 2025</td>
+                  <td>Finance Committee</td>
+                  <td><span class="badge badge-success">Present</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div style="margin-top: 30px; padding-bottom: 30px">
+          <a href="/member/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      function markAttendance(meetingId) {
+        alert('Attendance marked for meeting: ' + meetingId);
+      }
+
+      function viewMinutes(meetingId) {
+        alert('Viewing minutes for meeting: ' + meetingId);
+      }
+
+      function viewDecisions(meetingId) {
+        alert('Viewing decisions for meeting: ' + meetingId);
+      }
+    </script>
+
+    <%- include('../partials/footer') %>
+  </body>
+</html>

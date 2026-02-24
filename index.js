@@ -122,8 +122,44 @@ app.post("/auth", (req, res) => {
   );
 });
 
-app.get("/dashboard", (req, res) => {
+app.get("/admin/dashboard", (req, res) => {
   res.render("pages/admin/dashboard.ejs");
+});
+
+//Member Routes
+app.get("/member/dashboard", (req, res) => {
+  res.render("pages/member/dashboard.ejs");
+});
+
+app.get("/member/contributions", (req, res) => {
+  res.render("pages/member/contributions.ejs");
+});
+
+app.get("/member/loans", (req, res) => {
+  res.render("pages/member/loans.ejs");
+});
+
+app.get("/member/meetings", (req, res) => {
+  res.render("pages/member/meetings.ejs");
+});
+
+app.get("/member/group", (req, res) => {
+  res.render("pages/member/group.ejs");
+});
+
+app.get("/member/profile", (req, res) => {
+  res.render("pages/member/profile.ejs");
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.log("Error destroying session: " + err.message);
+      res.status(500).render("pages/user/500.ejs");
+    } else {
+      res.redirect("/login");
+    }
+  });
 });
 
 //404 Handler - This should be the last route handler to catch all unmatched routes

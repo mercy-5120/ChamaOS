@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — My Contributions</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+
+    <main class="container dashboard-layout">
+      <%- include('../partials/membersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">My Contributions</h1>
+            <p class="lead">View your contribution history and schedule</p>
+          </div>
+        </div>
+
+        <!-- CONTRIBUTION STATISTICS -->
+        <section class="dashboard-section">
+          <h2 class="h2">Contribution Statistics</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Paid</div>
+              <div class="metric-value value-success">KES 45,000</div>
+              <div class="small" style="margin-top: 8px">9 contributions</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Average Contribution</div>
+              <div class="metric-value value-deep">KES 5,000</div>
+              <div class="small" style="margin-top: 8px">Per month</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Payment Status</div>
+              <div class="metric-value value-info">On Track</div>
+              <div class="small" style="margin-top: 8px">No missed payments</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CONTRIBUTION HISTORY -->
+        <section class="dashboard-section">
+          <h2 class="h2">Contribution History</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Payment Method</th>
+                  <th>Status</th>
+                  <th>Reference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jan 20, 2026</td>
+                  <td>KES 5,000</td>
+                  <td>M-Pesa</td>
+                  <td><span class="badge badge-success">Confirmed</span></td>
+                  <td>#TXN20260120</td>
+                </tr>
+                <tr>
+                  <td>Jan 13, 2026</td>
+                  <td>KES 5,000</td>
+                  <td>Bank Transfer</td>
+                  <td><span class="badge badge-success">Confirmed</span></td>
+                  <td>#TXN20260113</td>
+                </tr>
+                <tr>
+                  <td>Dec 30, 2025</td>
+                  <td>KES 5,000</td>
+                  <td>M-Pesa</td>
+                  <td><span class="badge badge-success">Confirmed</span></td>
+                  <td>#TXN20251230</td>
+                </tr>
+                <tr>
+                  <td>Dec 23, 2025</td>
+                  <td>KES 5,000</td>
+                  <td>Cash</td>
+                  <td><span class="badge badge-success">Confirmed</span></td>
+                  <td>#TXN20251223</td>
+                </tr>
+                <tr>
+                  <td>Dec 16, 2025</td>
+                  <td>KES 5,000</td>
+                  <td>M-Pesa</td>
+                  <td><span class="badge badge-success">Confirmed</span></td>
+                  <td>#TXN20251216</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- CONTRIBUTION SCHEDULE -->
+        <section class="dashboard-section">
+          <h2 class="h2">Contribution Schedule</h2>
+          <div class="card">
+            <div style="margin-bottom: 20px">
+              <h4>Expected vs Actual Contributions (2026)</h4>
+            </div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Expected Amount</th>
+                  <th>Actual Amount</th>
+                  <th>Status</th>
+                  <th>Due Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>February</td>
+                  <td>KES 5,000</td>
+                  <td>-</td>
+                  <td><span class="badge badge-warning">Pending</span></td>
+                  <td>Feb 28, 2026</td>
+                </tr>
+                <tr>
+                  <td>January</td>
+                  <td>KES 5,000</td>
+                  <td>KES 5,000</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td>Jan 31, 2026</td>
+                </tr>
+                <tr>
+                  <td>December</td>
+                  <td>KES 5,000</td>
+                  <td>KES 5,000</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td>Dec 31, 2025</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- PAYMENT REMINDERS -->
+        <section class="dashboard-section">
+          <h2 class="h2">Payment Reminders</h2>
+          <div class="card reminder-box">
+            <div class="reminder-alert reminder-alert-warning">
+              <strong>⏰ Upcoming Payment</strong>
+              <p>Your next contribution of KES 5,000 is due on <strong>February 28, 2026</strong></p>
+              <p>Payment methods: M-Pesa, Bank Transfer, or Cash deposit</p>
+            </div>
+            
+            <div style="margin-top: 20px">
+              <h4>Payment Methods</h4>
+              <ul style="list-style: none; padding: 0">
+                <li style="margin-bottom: 10px">
+                  <strong>M-Pesa:</strong> Send to +254 700 XXX XXX (Group Account)
+                </li>
+                <li style="margin-bottom: 10px">
+                  <strong>Bank Transfer:</strong> Account: 12345678, Bank Name (Acc Holder: Umoja Chama Group)
+                </li>
+                <li style="margin-bottom: 10px">
+                  <strong>Cash:</strong> Deposit at our office, Monday-Friday 9AM-5PM
+                </li>
+              </ul>
+            </div>
+
+            <div style="margin-top: 20px">
+              <label style="display: flex; align-items: center; gap: 10px">
+                <input type="checkbox" /> Enable payment reminders via SMS
+              </label>
+              <label style="display: flex; align-items: center; gap: 10px; margin-top: 10px">
+                <input type="checkbox" checked /> Enable payment reminders via Email
+              </label>
+            </div>
+
+            <div style="margin-top: 20px">
+              <button class="btn btn-primary">Save Preferences</button>
+            </div>
+          </div>
+        </section>
+
+        <div style="margin-top: 30px; padding-bottom: 30px">
+          <a href="/member/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+      </section>
+    </main>
+
+    <%- include('../partials/footer') %>
+  </body>
+</html>

@@ -3,39 +3,402 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ChamaOS — Profile</title>
+    <title>ChamaOS — Member Profile</title>
     <link rel="stylesheet" href="/css/app.css" />
   </head>
   <body>
-    <%- include('../partials/header', { brandTagline: 'Member profile', navItems: [ { text: 'Home', href: '/' }, { text: 'Dashboard', href: '/dashboard' } ] }) %>
 
-    <main class="container">
-      <section class="card profile-grid">
-        <div class="profile-card">
-          <div class="profile-header">
-            <div class="avatar" aria-hidden="true"></div>
-            <div>
-              <div class="profile-name">Jane Doe</div>
-              <div class="small">Member • Umoja chama</div>
+    <main class="container dashboard-layout">
+      <%- include('../partials/membersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">My Profile</h1>
+            <p class="lead">Manage your personal information and preferences</p>
+          </div>
+        </div>
+
+        <!-- PROFILE OVERVIEW -->
+        <section class="dashboard-section">
+          <h2 class="h2">Profile Information</h2>
+          <div class="card profile-overview">
+            <div class="profile-header-section">
+              <div class="avatar-large" style="width: 100px; height: 100px; border-radius: 50%; background: #ddd; margin-bottom: 20px;"></div>
+              <div>
+                <h3>Jane Doe</h3>
+                <p class="small">Member ID: #MEM20200115</p>
+                <p class="small">Member Since: January 15, 2020</p>
+                <p class="small">Status: <span class="badge badge-success">Active</span></p>
+              </div>
+            </div>
+
+            <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #e0e0e0">
+              <div class="info-grid">
+                <div class="info-item">
+                  <strong>Email:</strong>
+                  <p>jane.doe@example.com</p>
+                </div>
+                <div class="info-item">
+                  <strong>Phone:</strong>
+                  <p>+254 700 000 000</p>
+                </div>
+                <div class="info-item">
+                  <strong>National ID:</strong>
+                  <p>123456789</p>
+                </div>
+                <div class="info-item">
+                  <strong>Date of Birth:</strong>
+                  <p>March 15, 1990</p>
+                </div>
+                <div class="info-item">
+                  <strong>Address:</strong>
+                  <p>123 Main Street, Nairobi, Kenya</p>
+                </div>
+                <div class="info-item">
+                  <strong>City:</strong>
+                  <p>Nairobi</p>
+                </div>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div class="info-row">
-            <div class="small">Contact</div>
-            <div>jane@example.com • +254 700 000 000</div>
+        <!-- TABS FOR SECTIONS -->
+        <section class="dashboard-section">
+          <div class="tabs">
+            <button class="tab-button active" onclick="switchTab('edit-info')">Edit Information</button>
+            <button class="tab-button" onclick="switchTab('change-password')">Change Password</button>
+            <button class="tab-button" onclick="switchTab('notifications')">Notifications</button>
           </div>
-        </div>
 
-        <div class="card">
-          <div class="small">Activity</div>
-          <h3 class="h2">Recent contributions</h3>
-          <p class="small">
-            You have 2 upcoming contributions and 1 pending payout.
-          </p>
+          <!-- EDIT PERSONAL INFORMATION -->
+          <div id="edit-info" class="tab-content card" style="display: block">
+            <h3>Update Personal Information</h3>
+            <form style="margin-top: 20px">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="first-name">First Name</label>
+                  <input type="text" id="first-name" value="Jane" />
+                </div>
+
+                <div class="form-group">
+                  <label for="last-name">Last Name</label>
+                  <input type="text" id="last-name" value="Doe" />
+                </div>
+
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <input type="email" id="email" value="jane.doe@example.com" />
+                </div>
+
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <input type="tel" id="phone" value="+254 700 000 000" />
+                </div>
+
+                <div class="form-group">
+                  <label for="dob">Date of Birth</label>
+                  <input type="date" id="dob" value="1990-03-15" />
+                </div>
+
+                <div class="form-group">
+                  <label for="national-id">National ID Number</label>
+                  <input type="text" id="national-id" value="123456789" disabled />
+                </div>
+
+                <div class="form-group">
+                  <label for="address">Residential Address</label>
+                  <input type="text" id="address" value="123 Main Street, Nairobi" />
+                </div>
+
+                <div class="form-group">
+                  <label for="city">City</label>
+                  <input type="text" id="city" value="Nairobi" />
+                </div>
+
+                <div class="form-group">
+                  <label for="country">Country</label>
+                  <input type="text" id="country" value="Kenya" />
+                </div>
+
+                <div class="form-group">
+                  <label for="occupation">Occupation</label>
+                  <input type="text" id="occupation" placeholder="Your occupation" />
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 20px">
+                <label for="emergency-contact">Emergency Contact Name</label>
+                <input type="text" id="emergency-contact" placeholder="Full name" />
+              </div>
+
+              <div class="form-group">
+                <label for="emergency-phone">Emergency Contact Phone</label>
+                <input type="tel" id="emergency-phone" placeholder="Phone number" />
+              </div>
+
+              <div style="margin-top: 25px">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Cancel</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- CHANGE PASSWORD -->
+          <div id="change-password" class="tab-content card" style="display: none">
+            <h3>Change Your Password</h3>
+            <form style="margin-top: 20px">
+              <div class="form-group">
+                <label for="current-password">Current Password</label>
+                <input type="password" id="current-password" placeholder="Enter your current password" required />
+              </div>
+
+              <div class="form-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" placeholder="Enter a new password" required />
+                <p class="small" style="margin-top: 8px; color: #666">
+                  Password must be at least 8 characters long and include uppercase, lowercase, numbers, and symbols.
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label for="confirm-password">Confirm New Password</label>
+                <input type="password" id="confirm-password" placeholder="Re-enter your new password" required />
+              </div>
+
+              <div style="margin-top: 25px">
+                <button type="submit" class="btn btn-primary">Update Password</button>
+                <button type="button" class="btn btn-secondary" onclick="resetPasswordForm()">Cancel</button>
+              </div>
+
+              <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid #e0e0e0">
+                <h4>Password History</h4>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Changed Date</th>
+                      <th>Changed By</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>January 10, 2026</td>
+                      <td>You</td>
+                    </tr>
+                    <tr>
+                      <td>October 5, 2025</td>
+                      <td>You</td>
+                    </tr>
+                    <tr>
+                      <td>June 15, 2025</td>
+                      <td>You</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </form>
+          </div>
+
+          <!-- NOTIFICATIONS -->
+          <div id="notifications" class="tab-content card" style="display: none">
+            <h3>Notification Preferences</h3>
+            
+            <div style="margin-top: 20px">
+              <h4>Recent Notifications</h4>
+              <div class="notification-list">
+                <div class="notification-item" style="padding: 15px; border: 1px solid #e0e0e0; margin-bottom: 15px; border-radius: 4px">
+                  <div class="notification-header" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px">
+                    <div>
+                      <strong>💰 Contribution Reminder</strong>
+                      <p class="small">February 24, 2026 at 6:00 PM</p>
+                    </div>
+                    <span class="badge badge-info">Unread</span>
+                  </div>
+                  <p>Your monthly contribution of KES 5,000 is due on February 28, 2026</p>
+                </div>
+
+                <div class="notification-item" style="padding: 15px; border: 1px solid #e0e0e0; margin-bottom: 15px; border-radius: 4px">
+                  <div class="notification-header" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px">
+                    <div>
+                      <strong>📅 Meeting Scheduled</strong>
+                      <p class="small">February 22, 2026 at 3:00 PM</p>
+                    </div>
+                  </div>
+                  <p>The next general meeting is scheduled for February 28, 2026 at 6:00 PM</p>
+                </div>
+
+                <div class="notification-item" style="padding: 15px; border: 1px solid #e0e0e0; margin-bottom: 15px; border-radius: 4px">
+                  <div class="notification-header" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px">
+                    <div>
+                      <strong>📊 Loan Application Updated</strong>
+                      <p class="small">February 20, 2026 at 2:15 PM</p>
+                    </div>
+                  </div>
+                  <p>Your loan application #APP20260215 is under review by the finance committee</p>
+                </div>
+
+                <div class="notification-item" style="padding: 15px; border: 1px solid #e0e0e0; margin-bottom: 15px; border-radius: 4px">
+                  <div class="notification-header" style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px">
+                    <div>
+                      <strong>✅ Contribution Confirmed</strong>
+                      <p class="small">January 21, 2026 at 9:30 AM</p>
+                    </div>
+                  </div>
+                  <p>Your contribution of KES 5,000 has been received and confirmed</p>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e0e0e0">
+              <h4>Notification Settings</h4>
+              
+              <div style="margin-top: 15px">
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px">
+                  <input type="checkbox" checked /> Email notifications for contribution reminders
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px">
+                  <input type="checkbox" checked /> SMS notifications for urgent updates
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px">
+                  <input type="checkbox" checked /> Email notifications for meeting schedules
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px">
+                  <input type="checkbox" checked /> Email notifications for loan status updates
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px">
+                  <input type="checkbox" /> SMS notifications for all updates
+                </label>
+
+                <label style="display: flex; align-items: center; gap: 10px; margin-bottom: 15px">
+                  <input type="checkbox" checked /> In-app notifications
+                </label>
+              </div>
+
+              <div style="margin-top: 25px">
+                <button class="btn btn-primary">Save Notification Settings</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div style="margin-top: 30px; padding-bottom: 30px">
+          <a href="/member/dashboard" class="btn btn-secondary">Back to Dashboard</a>
         </div>
       </section>
-
-      <%- include('../partials/footer') %>
     </main>
+
+    <style>
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #e0e0e0;
+      }
+
+      .tab-button {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.3s ease;
+      }
+
+      .tab-button.active {
+        color: #2c3e50;
+        border-bottom-color: #2c3e50;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-group label {
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group select,
+      .form-group textarea {
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .info-item strong {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      .info-item p {
+        color: #666;
+      }
+
+      @media (max-width: 768px) {
+        .form-grid,
+        .info-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+
+    <script>
+      function switchTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.tab-content').forEach(tab => {
+          tab.style.display = 'none';
+        });
+
+        // Remove active class from all buttons
+        document.querySelectorAll('.tab-button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+
+        // Show selected tab
+        document.getElementById(tabName).style.display = 'block';
+
+        // Add active class to clicked button
+        event.target.classList.add('active');
+      }
+
+      function resetForm() {
+        document.querySelector('form').reset();
+      }
+
+      function resetPasswordForm() {
+        document.querySelectorAll('#change-password input').forEach(input => {
+          input.value = '';
+        });
+      }
+    </script>
+
+    <%- include('../partials/footer') %>
   </body>
 </html>

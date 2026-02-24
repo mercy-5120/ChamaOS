@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Loans</title>
+    <link rel="stylesheet" href="/css/app.css" />
+  </head>
+  <body>
+
+    <main class="container dashboard-layout">
+      <%- include('../partials/membersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Loans</h1>
+            <p class="lead">Apply for loans and track your repayments</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="toggleLoanForm()">Apply for New Loan</button>
+          </div>
+        </div>
+
+        <!-- LOAN APPLICATION FORM -->
+        <section class="dashboard-section" id="loan-form-section" style="display: none">
+          <h2 class="h2">Apply for a New Loan</h2>
+          <div class="card">
+            <form>
+              <div class="form-group">
+                <label for="loan-amount">Loan Amount (KES)</label>
+                <input type="number" id="loan-amount" placeholder="Enter amount" min="1000" max="100000" required />
+              </div>
+
+              <div class="form-group">
+                <label for="loan-reason">Reason for Loan</label>
+                <select id="loan-reason" required>
+                  <option value="">-- Select a reason --</option>
+                  <option value="business">Business Investment</option>
+                  <option value="education">Education</option>
+                  <option value="health">Health/Medical</option>
+                  <option value="property">Property/Housing</option>
+                  <option value="emergency">Emergency</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="loan-reason-detail">Detailed Description</label>
+                <textarea id="loan-reason-detail" placeholder="Provide more details about your loan request" rows="4"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label for="repayment-period">Repayment Period (months)</label>
+                <select id="repayment-period" required>
+                  <option value="">-- Select period --</option>
+                  <option value="3">3 months</option>
+                  <option value="6">6 months</option>
+                  <option value="12">12 months</option>
+                  <option value="24">24 months</option>
+                </select>
+              </div>
+
+              <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0">
+                <p><strong>Maximum Loan Amount:</strong> KES 100,000</p>
+                <p><strong>Interest Rate:</strong> 5% per annum</p>
+                <p><strong>Processing Fee:</strong> KES 500</p>
+              </div>
+
+              <div style="margin-top: 20px">
+                <button type="submit" class="btn btn-primary">Submit Application</button>
+                <button type="button" class="btn btn-secondary" onclick="toggleLoanForm()">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ACTIVE LOANS -->
+        <section class="dashboard-section">
+          <h2 class="h2">Active Loans</h2>
+          <div class="card">
+            <div class="loan-item">
+              <div class="loan-header">
+                <div>
+                  <h4>Loan #LOAN001</h4>
+                  <p class="small">Business Investment Loan</p>
+                </div>
+                <span class="badge badge-info">Active</span>
+              </div>
+
+              <div class="loan-details-grid">
+                <div class="loan-detail">
+                  <strong>Amount Borrowed:</strong>
+                  <p>KES 30,000</p>
+                </div>
+                <div class="loan-detail">
+                  <strong>Amount Repaid:</strong>
+                  <p>KES 12,000 (40%)</p>
+                </div>
+                <div class="loan-detail">
+                  <strong>Remaining Balance:</strong>
+                  <p>KES 18,000</p>
+                </div>
+                <div class="loan-detail">
+                  <strong>Interest Rate:</strong>
+                  <p>5% per annum</p>
+                </div>
+                <div class="loan-detail">
+                  <strong>Issued Date:</strong>
+                  <p>November 15, 2025</p>
+                </div>
+                <div class="loan-detail">
+                  <strong>Due Date:</strong>
+                  <p>May 15, 2026</p>
+                </div>
+              </div>
+
+              <div style="margin-top: 20px">
+                <button class="btn btn-primary" onclick="toggleRepaymentSchedule('loan001')">View Repayment Schedule</button>
+              </div>
+
+              <div id="loan001-schedule" style="display: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0">
+                <h5>Repayment Schedule</h5>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Due Date</th>
+                      <th>Installment Amount</th>
+                      <th>Principal</th>
+                      <th>Interest</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Nov 15, 2025</td>
+                      <td>KES 6,250</td>
+                      <td>KES 6,000</td>
+                      <td>KES 250</td>
+                      <td><span class="badge badge-success">Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td>Dec 15, 2025</td>
+                      <td>KES 6,250</td>
+                      <td>KES 6,000</td>
+                      <td>KES 250</td>
+                      <td><span class="badge badge-success">Paid</span></td>
+                    </tr>
+                    <tr>
+                      <td>Jan 15, 2026</td>
+                      <td>KES 6,250</td>
+                      <td>KES 6,000</td>
+                      <td>KES 250</td>
+                      <td><span class="badge badge-warning">Pending</span></td>
+                    </tr>
+                    <tr>
+                      <td>Feb 15, 2026</td>
+                      <td>KES 6,250</td>
+                      <td>KES 6,000</td>
+                      <td>KES 250</td>
+                      <td><span class="badge badge-warning">Upcoming</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- LOAN APPLICATIONS -->
+        <section class="dashboard-section">
+          <h2 class="h2">Loan Applications</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Application ID</th>
+                  <th>Amount</th>
+                  <th>Purpose</th>
+                  <th>Applied Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#APP20260215</td>
+                  <td>KES 50,000</td>
+                  <td>Education</td>
+                  <td>Feb 15, 2026</td>
+                  <td><span class="badge badge-warning">Pending Review</span></td>
+                  <td><a href="#" class="btn btn-small btn-ghost">View</a></td>
+                </tr>
+                <tr>
+                  <td>#APP20260101</td>
+                  <td>KES 30,000</td>
+                  <td>Business</td>
+                  <td>Jan 1, 2026</td>
+                  <td><span class="badge badge-success">Approved</span></td>
+                  <td><a href="#" class="btn btn-small btn-ghost">View</a></td>
+                </tr>
+                <tr>
+                  <td>#APP20251215</td>
+                  <td>KES 25,000</td>
+                  <td>Emergency</td>
+                  <td>Dec 15, 2025</td>
+                  <td><span class="badge badge-danger">Rejected</span></td>
+                  <td><a href="#" class="btn btn-small btn-ghost">View</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- LOAN HISTORY -->
+        <section class="dashboard-section">
+          <h2 class="h2">Loan History</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Loan ID</th>
+                  <th>Amount</th>
+                  <th>Purpose</th>
+                  <th>Issued Date</th>
+                  <th>Repaid Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#LOAN0001</td>
+                  <td>KES 20,000</td>
+                  <td>Property</td>
+                  <td>May 1, 2025</td>
+                  <td>August 15, 2025</td>
+                  <td><span class="badge badge-success">Fully Repaid</span></td>
+                </tr>
+                <tr>
+                  <td>#LOAN0002</td>
+                  <td>KES 15,000</td>
+                  <td>Health</td>
+                  <td>July 10, 2025</td>
+                  <td>September 30, 2025</td>
+                  <td><span class="badge badge-success">Fully Repaid</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div style="margin-top: 30px; padding-bottom: 30px">
+          <a href="/member/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      function toggleLoanForm() {
+        const form = document.getElementById('loan-form-section');
+        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+      }
+
+      function toggleRepaymentSchedule(loanId) {
+        const schedule = document.getElementById(loanId + '-schedule');
+        schedule.style.display = schedule.style.display === 'none' ? 'block' : 'none';
+      }
+    </script>
+
+    <%- include('../partials/footer') %>
+  </body>
+</html>
