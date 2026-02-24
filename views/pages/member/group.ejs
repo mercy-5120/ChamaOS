@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>ChamaOS — Group Information</title>
     <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/member.css" />
   </head>
   <body>
-
     <main class="container dashboard-layout">
       <%- include('../partials/membersidebar') %>
 
@@ -25,7 +25,9 @@
           <div class="card group-overview">
             <div class="group-header">
               <h3>Umoja Chama Group</h3>
-              <p class="small">A community savings and lending group formed in 2020</p>
+              <p class="small">
+                A community savings and lending group formed in 2020
+              </p>
             </div>
 
             <div class="group-stats">
@@ -47,9 +49,19 @@
               </div>
             </div>
 
-            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0">
+            <div
+              style="
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid #e0e0e0;
+              "
+            >
               <h4>Group Mission</h4>
-              <p>To support our community members by fostering a culture of savings, mutual aid, and sustainable economic growth through collective financial management.</p>
+              <p>
+                To support our community members by fostering a culture of
+                savings, mutual aid, and sustainable economic growth through
+                collective financial management.
+              </p>
             </div>
           </div>
         </section>
@@ -61,7 +73,9 @@
             <div class="metric-card">
               <div class="metric-label">Total Savings</div>
               <div class="metric-value value-success">KES 2,345,000</div>
-              <div class="small" style="margin-top: 8px">Combined contributions</div>
+              <div class="small" style="margin-top: 8px">
+                Combined contributions
+              </div>
             </div>
 
             <div class="metric-card">
@@ -89,7 +103,17 @@
           <h2 class="h2">Member Directory</h2>
           <div class="card">
             <div style="margin-bottom: 20px">
-              <input type="text" placeholder="Search members by name, phone..." class="search-input" style="width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 4px" />
+              <input
+                type="text"
+                placeholder="Search members by name, phone..."
+                class="search-input"
+                style="
+                  width: 100%;
+                  padding: 10px;
+                  border: 1px solid #e0e0e0;
+                  border-radius: 4px;
+                "
+              />
             </div>
 
             <table class="table">
@@ -111,7 +135,7 @@
                   <td><span class="badge badge-primary">Chairperson</span></td>
                   <td>Jan 2020</td>
                   <td>
-                    <a href="tel:+254700123456" class="link">Call</a> • 
+                    <a href="tel:+254700123456" class="link">Call</a> •
                     <a href="mailto:jane@example.com" class="link">Email</a>
                   </td>
                 </tr>
@@ -122,7 +146,7 @@
                   <td><span class="badge badge-success">Treasurer</span></td>
                   <td>Mar 2020</td>
                   <td>
-                    <a href="tel:+254701234567" class="link">Call</a> • 
+                    <a href="tel:+254701234567" class="link">Call</a> •
                     <a href="mailto:john@example.com" class="link">Email</a>
                   </td>
                 </tr>
@@ -133,7 +157,7 @@
                   <td><span class="badge badge-info">Secretary</span></td>
                   <td>Feb 2020</td>
                   <td>
-                    <a href="tel:+254702345678" class="link">Call</a> • 
+                    <a href="tel:+254702345678" class="link">Call</a> •
                     <a href="mailto:mary@example.com" class="link">Email</a>
                   </td>
                 </tr>
@@ -141,10 +165,12 @@
                   <td>Peter Kipchoge</td>
                   <td>+254 703 456 789</td>
                   <td>peter@example.com</td>
-                  <td><span class="badge badge-secondary">Regular Member</span></td>
+                  <td>
+                    <span class="badge badge-secondary">Regular Member</span>
+                  </td>
                   <td>May 2020</td>
                   <td>
-                    <a href="tel:+254703456789" class="link">Call</a> • 
+                    <a href="tel:+254703456789" class="link">Call</a> •
                     <a href="mailto:peter@example.com" class="link">Email</a>
                   </td>
                 </tr>
@@ -152,16 +178,20 @@
                   <td>Alice Wambui</td>
                   <td>+254 704 567 890</td>
                   <td>alice@example.com</td>
-                  <td><span class="badge badge-secondary">Regular Member</span></td>
+                  <td>
+                    <span class="badge badge-secondary">Regular Member</span>
+                  </td>
                   <td>Apr 2020</td>
                   <td>
-                    <a href="tel:+254704567890" class="link">Call</a> • 
+                    <a href="tel:+254704567890" class="link">Call</a> •
                     <a href="mailto:alice@example.com" class="link">Email</a>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <p class="small" style="margin-top: 15px">Showing 5 of 22 members. <a href="#" class="link">View all</a></p>
+            <p class="small" style="margin-top: 15px">
+              Showing 5 of 22 members. <a href="#" class="link">View all</a>
+            </p>
           </div>
         </section>
 
@@ -171,7 +201,10 @@
           <div class="card">
             <div class="accordion">
               <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
+                <button
+                  class="accordion-header"
+                  onclick="toggleAccordion(this)"
+                >
                   <strong>Membership Requirements</strong>
                   <span>+</span>
                 </button>
@@ -183,7 +216,9 @@
                       <li>✓ Must reside in the community</li>
                       <li>✓ Must have a valid national ID</li>
                       <li>✓ Must pay application fee of KES 500</li>
-                      <li>✓ Must commit to monthly contributions of KES 5,000</li>
+                      <li>
+                        ✓ Must commit to monthly contributions of KES 5,000
+                      </li>
                       <li>✓ Must attend at least 80% of meetings</li>
                     </ul>
                   </div>
@@ -191,7 +226,10 @@
               </div>
 
               <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
+                <button
+                  class="accordion-header"
+                  onclick="toggleAccordion(this)"
+                >
                   <strong>Contribution Policies</strong>
                   <span>+</span>
                 </button>
@@ -200,17 +238,27 @@
                     <h5>Contribution Rules:</h5>
                     <ul style="list-style: none; padding: 0">
                       <li>✓ Minimum contribution: KES 5,000 per month</li>
-                      <li>✓ Payment must be made by the last Friday of each month</li>
+                      <li>
+                        ✓ Payment must be made by the last Friday of each month
+                      </li>
                       <li>✓ Late payment penalty: 2% per week</li>
-                      <li>✓ Accepted payment methods: M-Pesa, Bank Transfer, Cash</li>
-                      <li>✓ Contributions are non-refundable except for loan defaults</li>
+                      <li>
+                        ✓ Accepted payment methods: M-Pesa, Bank Transfer, Cash
+                      </li>
+                      <li>
+                        ✓ Contributions are non-refundable except for loan
+                        defaults
+                      </li>
                     </ul>
                   </div>
                 </div>
               </div>
 
               <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
+                <button
+                  class="accordion-header"
+                  onclick="toggleAccordion(this)"
+                >
                   <strong>Loan Policy</strong>
                   <span>+</span>
                 </button>
@@ -218,19 +266,30 @@
                   <div class="accordion-body">
                     <h5>Loan Terms:</h5>
                     <ul style="list-style: none; padding: 0">
-                      <li>✓ Maximum loan amount: 3x monthly contributions (KES 15,000)</li>
+                      <li>
+                        ✓ Maximum loan amount: 3x monthly contributions (KES
+                        15,000)
+                      </li>
                       <li>✓ Interest rate: 5% per annum</li>
                       <li>✓ Repayment period: 3-24 months</li>
                       <li>✓ Processing fee: KES 500 per application</li>
-                      <li>✓ Loan approval: Requires committee review (7-10 days)</li>
-                      <li>✓ Late payment penalty: 1% per week on outstanding balance</li>
+                      <li>
+                        ✓ Loan approval: Requires committee review (7-10 days)
+                      </li>
+                      <li>
+                        ✓ Late payment penalty: 1% per week on outstanding
+                        balance
+                      </li>
                     </ul>
                   </div>
                 </div>
               </div>
 
               <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
+                <button
+                  class="accordion-header"
+                  onclick="toggleAccordion(this)"
+                >
                   <strong>Meeting Conduct</strong>
                   <span>+</span>
                 </button>
@@ -238,7 +297,9 @@
                   <div class="accordion-body">
                     <h5>Meeting Rules:</h5>
                     <ul style="list-style: none; padding: 0">
-                      <li>✓ General meetings held on last Friday of each month</li>
+                      <li>
+                        ✓ General meetings held on last Friday of each month
+                      </li>
                       <li>✓ Minimum quorum: 50% of members</li>
                       <li>✓ Meeting starts at 6:00 PM sharp</li>
                       <li>✓ All members have equal voting rights</li>
@@ -250,7 +311,10 @@
               </div>
 
               <div class="accordion-item">
-                <button class="accordion-header" onclick="toggleAccordion(this)">
+                <button
+                  class="accordion-header"
+                  onclick="toggleAccordion(this)"
+                >
                   <strong>Code of Conduct</strong>
                   <span>+</span>
                 </button>
@@ -263,7 +327,10 @@
                       <li>✓ Participate actively in group activities</li>
                       <li>✓ Keep confidential information private</li>
                       <li>✓ Maintain professional conduct at all times</li>
-                      <li>✓ Breach of conduct may result in suspension or expulsion</li>
+                      <li>
+                        ✓ Breach of conduct may result in suspension or
+                        expulsion
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -305,7 +372,9 @@
         </section>
 
         <div style="margin-top: 30px; padding-bottom: 30px">
-          <a href="/member/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+          <a href="/member/dashboard" class="btn btn-secondary"
+            >Back to Dashboard</a
+          >
         </div>
       </section>
     </main>
@@ -313,24 +382,23 @@
     <script>
       function toggleAccordion(header) {
         const content = header.nextElementSibling;
-        const isOpen = content.style.display !== 'none';
-        
+        const isOpen = content.style.display !== "none";
+
         // Close all other accordion items
-        document.querySelectorAll('.accordion-content').forEach(item => {
-          item.style.display = 'none';
+        document.querySelectorAll(".accordion-content").forEach((item) => {
+          item.style.display = "none";
         });
-        document.querySelectorAll('.accordion-header span').forEach(span => {
-          span.textContent = '+';
+        document.querySelectorAll(".accordion-header span").forEach((span) => {
+          span.textContent = "+";
         });
 
         // Toggle current item
         if (!isOpen) {
-          content.style.display = 'block';
-          header.querySelector('span').textContent = '−';
+          content.style.display = "block";
+          header.querySelector("span").textContent = "−";
         }
       }
     </script>
 
-    <%- include('../partials/footer') %>
   </body>
 </html>

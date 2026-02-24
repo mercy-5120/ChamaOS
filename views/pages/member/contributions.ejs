@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>ChamaOS — My Contributions</title>
     <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/member.css" />
   </head>
   <body>
-
     <main class="container dashboard-layout">
       <%- include('../partials/membersidebar') %>
 
@@ -38,7 +38,9 @@
             <div class="metric-card">
               <div class="metric-label">Payment Status</div>
               <div class="metric-value value-info">On Track</div>
-              <div class="small" style="margin-top: 8px">No missed payments</div>
+              <div class="small" style="margin-top: 8px">
+                No missed payments
+              </div>
             </div>
           </div>
         </section>
@@ -148,21 +150,27 @@
           <div class="card reminder-box">
             <div class="reminder-alert reminder-alert-warning">
               <strong>⏰ Upcoming Payment</strong>
-              <p>Your next contribution of KES 5,000 is due on <strong>February 28, 2026</strong></p>
+              <p>
+                Your next contribution of KES 5,000 is due on
+                <strong>February 28, 2026</strong>
+              </p>
               <p>Payment methods: M-Pesa, Bank Transfer, or Cash deposit</p>
             </div>
-            
+
             <div style="margin-top: 20px">
               <h4>Payment Methods</h4>
               <ul style="list-style: none; padding: 0">
                 <li style="margin-bottom: 10px">
-                  <strong>M-Pesa:</strong> Send to +254 700 XXX XXX (Group Account)
+                  <strong>M-Pesa:</strong> Send to +254 700 XXX XXX (Group
+                  Account)
                 </li>
                 <li style="margin-bottom: 10px">
-                  <strong>Bank Transfer:</strong> Account: 12345678, Bank Name (Acc Holder: Umoja Chama Group)
+                  <strong>Bank Transfer:</strong> Account: 12345678, Bank Name
+                  (Acc Holder: Umoja Chama Group)
                 </li>
                 <li style="margin-bottom: 10px">
-                  <strong>Cash:</strong> Deposit at our office, Monday-Friday 9AM-5PM
+                  <strong>Cash:</strong> Deposit at our office, Monday-Friday
+                  9AM-5PM
                 </li>
               </ul>
             </div>
@@ -171,8 +179,16 @@
               <label style="display: flex; align-items: center; gap: 10px">
                 <input type="checkbox" /> Enable payment reminders via SMS
               </label>
-              <label style="display: flex; align-items: center; gap: 10px; margin-top: 10px">
-                <input type="checkbox" checked /> Enable payment reminders via Email
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  margin-top: 10px;
+                "
+              >
+                <input type="checkbox" checked /> Enable payment reminders via
+                Email
               </label>
             </div>
 
@@ -183,11 +199,12 @@
         </section>
 
         <div style="margin-top: 30px; padding-bottom: 30px">
-          <a href="/member/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+          <a href="/member/dashboard" class="btn btn-secondary"
+            >Back to Dashboard</a
+          >
         </div>
       </section>
     </main>
 
-    <%- include('../partials/footer') %>
   </body>
 </html>

@@ -23,9 +23,10 @@ app.use(
 );
 let isLoggedIn;
 let loggedInUser;
-const privateRoutes = ["/admin/dashboard", "/member/profile", "/home"];
+const privateRoutes = ["/admin/dashboard",
+  
+];
 app.use((req, res, next) => {
-  console.log("Middleware function executed!");
   if (req.session.user) {
     isLoggedIn = true;
     loggedInUser = req.session.user;
@@ -127,8 +128,8 @@ app.get("/admin/dashboard", (req, res) => {
 });
 
 //Member Routes
-app.get("/member/dashboard", (req, res) => {
-  res.render("pages/member/dashboard.ejs");
+app.get("/member/memberdashboard", (req, res) => {
+  res.render("pages/member/memberdashboard.ejs");
 });
 
 app.get("/member/contributions", (req, res) => {

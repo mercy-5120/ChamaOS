@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>ChamaOS — Meetings</title>
     <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/member.css" />
   </head>
   <body>
-
     <main class="container dashboard-layout">
       <%- include('../partials/membersidebar') %>
 
@@ -33,9 +33,18 @@
                   </div>
                   <p><strong>Time:</strong> 6:00 PM - 8:00 PM (120 minutes)</p>
                   <p><strong>Venue:</strong> Community Center, Room A</p>
-                  <p><strong>Location Details:</strong> Building B, 2nd Floor, Community Center Complex</p>
-                  
-                  <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0">
+                  <p>
+                    <strong>Location Details:</strong> Building B, 2nd Floor,
+                    Community Center Complex
+                  </p>
+
+                  <div
+                    style="
+                      margin-top: 15px;
+                      padding-top: 15px;
+                      border-top: 1px solid #e0e0e0;
+                    "
+                  >
                     <h5>Meeting Agenda:</h5>
                     <ul style="list-style: none; padding: 0">
                       <li>Financial updates and monthly reports</li>
@@ -47,7 +56,12 @@
                   </div>
 
                   <div style="margin-top: 15px">
-                    <button class="btn btn-primary" onclick="markAttendance('meeting001')">Mark Attendance</button>
+                    <button
+                      class="btn btn-primary"
+                      onclick="markAttendance('meeting001')"
+                    >
+                      Mark Attendance
+                    </button>
                     <button class="btn btn-secondary">Add to Calendar</button>
                     <a href="#" class="btn btn-ghost">Get Directions</a>
                   </div>
@@ -57,7 +71,12 @@
               <hr style="margin: 25px 0" />
 
               <div class="meeting-card">
-                <div class="meeting-status-badge" style="background-color: #5b5bff">Finance Committee</div>
+                <div
+                  class="meeting-status-badge"
+                  style="background-color: #5b5bff"
+                >
+                  Finance Committee
+                </div>
                 <div class="meeting-content">
                   <div class="meeting-date-header">
                     <h4>Finance Committee Meeting</h4>
@@ -65,10 +84,21 @@
                   </div>
                   <p><strong>Time:</strong> 5:00 PM - 6:00 PM (60 minutes)</p>
                   <p><strong>Venue:</strong> Virtual (Zoom)</p>
-                  <p><strong>Meeting Link:</strong> <a href="#" class="link">zoom.us/meeting/123456</a></p>
-                  <p><strong>Attendees:</strong> Finance committee members only</p>
-                  
-                  <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0">
+                  <p>
+                    <strong>Meeting Link:</strong>
+                    <a href="#" class="link">zoom.us/meeting/123456</a>
+                  </p>
+                  <p>
+                    <strong>Attendees:</strong> Finance committee members only
+                  </p>
+
+                  <div
+                    style="
+                      margin-top: 15px;
+                      padding-top: 15px;
+                      border-top: 1px solid #e0e0e0;
+                    "
+                  >
                     <h5>Meeting Agenda:</h5>
                     <ul style="list-style: none; padding: 0">
                       <li>Review loan applications (3 pending)</li>
@@ -88,7 +118,12 @@
               <hr style="margin: 25px 0" />
 
               <div class="meeting-card">
-                <div class="meeting-status-badge" style="background-color: #9b9b9b">Special Session</div>
+                <div
+                  class="meeting-status-badge"
+                  style="background-color: #9b9b9b"
+                >
+                  Special Session
+                </div>
                 <div class="meeting-content">
                   <div class="meeting-date-header">
                     <h4>Special General Assembly</h4>
@@ -96,9 +131,17 @@
                   </div>
                   <p><strong>Time:</strong> 2:00 PM - 4:00 PM (120 minutes)</p>
                   <p><strong>Venue:</strong> Community Center, Main Hall</p>
-                  <p><strong>Note:</strong> ALL members are required to attend</p>
-                  
-                  <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0">
+                  <p>
+                    <strong>Note:</strong> ALL members are required to attend
+                  </p>
+
+                  <div
+                    style="
+                      margin-top: 15px;
+                      padding-top: 15px;
+                      border-top: 1px solid #e0e0e0;
+                    "
+                  >
                     <h5>Meeting Agenda:</h5>
                     <ul style="list-style: none; padding: 0">
                       <li>Election of new leadership</li>
@@ -108,7 +151,12 @@
                   </div>
 
                   <div style="margin-top: 15px">
-                    <button class="btn btn-primary" onclick="markAttendance('meeting003')">Mark Attendance</button>
+                    <button
+                      class="btn btn-primary"
+                      onclick="markAttendance('meeting003')"
+                    >
+                      Mark Attendance
+                    </button>
                     <button class="btn btn-secondary">Add to Calendar</button>
                   </div>
                 </div>
@@ -138,10 +186,14 @@
                   <td>Monthly General Meeting</td>
                   <td>18/22</td>
                   <td>
-                    <a href="#" class="link" onclick="viewMinutes('jan31')">View</a>
+                    <a href="#" class="link" onclick="viewMinutes('jan31')"
+                      >View</a
+                    >
                   </td>
                   <td>
-                    <a href="#" class="link" onclick="viewDecisions('jan31')">View</a>
+                    <a href="#" class="link" onclick="viewDecisions('jan31')"
+                      >View</a
+                    >
                   </td>
                   <td>
                     <a href="#" class="btn btn-small btn-ghost">PDF</a>
@@ -152,10 +204,14 @@
                   <td>Finance Committee</td>
                   <td>5/5</td>
                   <td>
-                    <a href="#" class="link" onclick="viewMinutes('jan15')">View</a>
+                    <a href="#" class="link" onclick="viewMinutes('jan15')"
+                      >View</a
+                    >
                   </td>
                   <td>
-                    <a href="#" class="link" onclick="viewDecisions('jan15')">View</a>
+                    <a href="#" class="link" onclick="viewDecisions('jan15')"
+                      >View</a
+                    >
                   </td>
                   <td>
                     <a href="#" class="btn btn-small btn-ghost">PDF</a>
@@ -166,10 +222,14 @@
                   <td>Monthly General Meeting</td>
                   <td>20/22</td>
                   <td>
-                    <a href="#" class="link" onclick="viewMinutes('dec30')">View</a>
+                    <a href="#" class="link" onclick="viewMinutes('dec30')"
+                      >View</a
+                    >
                   </td>
                   <td>
-                    <a href="#" class="link" onclick="viewDecisions('dec30')">View</a>
+                    <a href="#" class="link" onclick="viewDecisions('dec30')"
+                      >View</a
+                    >
                   </td>
                   <td>
                     <a href="#" class="btn btn-small btn-ghost">PDF</a>
@@ -180,10 +240,14 @@
                   <td>Finance Committee</td>
                   <td>4/5</td>
                   <td>
-                    <a href="#" class="link" onclick="viewMinutes('dec15')">View</a>
+                    <a href="#" class="link" onclick="viewMinutes('dec15')"
+                      >View</a
+                    >
                   </td>
                   <td>
-                    <a href="#" class="link" onclick="viewDecisions('dec15')">View</a>
+                    <a href="#" class="link" onclick="viewDecisions('dec15')"
+                      >View</a
+                    >
                   </td>
                   <td>
                     <a href="#" class="btn btn-small btn-ghost">PDF</a>
@@ -255,25 +319,25 @@
         </section>
 
         <div style="margin-top: 30px; padding-bottom: 30px">
-          <a href="/member/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+          <a href="/member/dashboard" class="btn btn-secondary"
+            >Back to Dashboard</a
+          >
         </div>
       </section>
     </main>
 
     <script>
       function markAttendance(meetingId) {
-        alert('Attendance marked for meeting: ' + meetingId);
+        alert("Attendance marked for meeting: " + meetingId);
       }
 
       function viewMinutes(meetingId) {
-        alert('Viewing minutes for meeting: ' + meetingId);
+        alert("Viewing minutes for meeting: " + meetingId);
       }
 
       function viewDecisions(meetingId) {
-        alert('Viewing decisions for meeting: ' + meetingId);
+        alert("Viewing decisions for meeting: " + meetingId);
       }
     </script>
-
-    <%- include('../partials/footer') %>
   </body>
 </html>
