@@ -23,9 +23,7 @@ app.use(
 );
 let isLoggedIn;
 let loggedInUser;
-const privateRoutes = ["/admin/dashboard",
-  
-];
+const privateRoutes = ["/admin/dashboard"];
 app.use((req, res, next) => {
   if (req.session.user) {
     isLoggedIn = true;
@@ -150,6 +148,35 @@ app.get("/member/group", (req, res) => {
 
 app.get("/member/profile", (req, res) => {
   res.render("pages/member/profile.ejs");
+});
+
+// Treasurer Routes
+app.get("/treasurer/dashboard", (req, res) => {
+  res.render("pages/treasurer/dashboard.ejs");
+});
+
+app.get("/treasurer/contributions", (req, res) => {
+  res.render("pages/treasurer/contributions.ejs");
+});
+
+app.get("/treasurer/loans", (req, res) => {
+  res.render("pages/treasurer/loans.ejs");
+});
+
+app.get("/treasurer/members", (req, res) => {
+  res.render("pages/treasurer/members.ejs");
+});
+
+app.get("/treasurer/reconciliation", (req, res) => {
+  res.render("pages/treasurer/reconciliation.ejs");
+});
+
+app.get("/treasurer/reports", (req, res) => {
+  res.render("pages/treasurer/reports.ejs");
+});
+
+app.get("/treasurer/settings", (req, res) => {
+  res.render("pages/treasurer/settings.ejs");
 });
 
 app.get("/logout", (req, res) => {

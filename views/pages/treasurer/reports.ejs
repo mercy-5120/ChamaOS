@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Reports</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/treasurer.css" />
+  </head>
+  <body>
+
+    <main class="container dashboard-layout">
+      <%- include('../partials/treasurersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Reports</h1>
+            <p class="lead">Generate financial reports and exports.</p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Available Reports</h2>
+          <div class="card">
+            <ul>
+              <li><a class="link" href="#">Trial Balance</a></li>
+              <li><a class="link" href="#">Income/Expense Statement</a></li>
+              <li><a class="link" href="#">Member Statements (PDF)</a></li>
+              <li><a class="link" href="#">Export CSV / Excel</a></li>
+            </ul>
+          </div>
+        </section>
+
+      </section>
+    </main>
+
+  </body>
+</html>

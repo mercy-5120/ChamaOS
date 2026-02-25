@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Members (Treasurer)</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/treasurer.css" />
+  </head>
+  <body>
+
+    <main class="container dashboard-layout">
+      <%- include('../partials/treasurersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Members</h1>
+            <p class="lead">Individual statements, contribution & loan history.</p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Member Directory</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Member Since</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jane Doe</td>
+                  <td>+254 700 123 456</td>
+                  <td>jane@example.com</td>
+                  <td>Jan 2020</td>
+                  <td><a class="btn btn-small btn-ghost">View</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </section>
+    </main>
+
+  </body>
+</html>

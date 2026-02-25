@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Loans (Treasurer)</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/treasurer.css" />
+  </head>
+  <body>
+
+    <main class="container dashboard-layout">
+      <%- include('../partials/treasurersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Loans</h1>
+            <p class="lead">View applications, disbursements, and repayments.</p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Pending Applications</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Application ID</th>
+                  <th>Member</th>
+                  <th>Amount</th>
+                  <th>Applied</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#APP20260215</td>
+                  <td>Mary Johnson</td>
+                  <td>KES 50,000</td>
+                  <td>Feb 15, 2026</td>
+                  <td><span class="badge badge-warning">Pending</span></td>
+                  <td><a class="btn btn-small btn-primary">Review</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Active Loans Portfolio</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Loan ID</th>
+                  <th>Borrower</th>
+                  <th>Amount</th>
+                  <th>Balance</th>
+                  <th>Due Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#LOAN001</td>
+                  <td>Peter Kipchoge</td>
+                  <td>KES 30,000</td>
+                  <td>KES 18,000</td>
+                  <td>May 15, 2026</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </section>
+    </main>
+
+  </body>
+</html>

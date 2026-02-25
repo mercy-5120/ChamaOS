@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Treasurer Dashboard</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/treasurer.css" />
+  </head>
+  <body>
+
+    <main class="container dashboard-layout">
+      <%- include('../partials/treasurersidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Treasurer Dashboard</h1>
+            <p class="lead">Group cash position, loans, approvals and recent activity.</p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Overview</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Contributions</div>
+              <div class="metric-value value-success">KES 2,345,000</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Available Cash</div>
+              <div class="metric-value value-deep">KES 520,000</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Outstanding Loans</div>
+              <div class="metric-value value-warning">KES 850,000</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Pending Approvals</div>
+              <div class="metric-value value-info">6</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Recent Transactions</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Member</th>
+                  <th>Amount</th>
+                  <th>Method</th>
+                  <th>Reference</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Feb 24, 2026</td>
+                  <td>Jane Doe</td>
+                  <td>KES 5,000</td>
+                  <td>M-Pesa</td>
+                  <td>#TXN20260224</td>
+                </tr>
+                <tr>
+                  <td>Feb 22, 2026</td>
+                  <td>John Smith</td>
+                  <td>KES 10,000</td>
+                  <td>Bank Transfer</td>
+                  <td>#TXN20260222</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <div style="margin-top: 30px">
+          <a href="/treasurer/contributions" class="btn btn-secondary">Manage Contributions</a>
+          <a href="/treasurer/loans" class="btn btn-secondary">Manage Loans</a>
+        </div>
+      </section>
+    </main>
+
+  </body>
+</html>
