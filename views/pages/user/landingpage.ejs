@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ChamaOS — Services</title>
     <link rel="stylesheet" href="/css/app.css" />
     <style>
@@ -12,7 +12,11 @@
         background-position: center;
         background-attachment: fixed;
         position: relative;
+        width: 100%;
+        min-height: 700px;
+        border-radius: 0;
       }
+      
       .hero-with-bg::before {
         content: "";
         position: absolute;
@@ -27,196 +31,318 @@
         );
         z-index: 1;
       }
+      
       .container-overlay {
         position: relative;
         z-index: 2;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      
+      .hero-content {
+        text-align: center;
+        color: #fff;
+        padding: 80px 20px;
+      }
+      
+      .hero-content h1,
+      .hero-content p {
+        color: #fff;
+      }
+      
+      .hero-content p {
+        opacity: 0.95;
+      }
+      
+      .hero-ctas {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+      }
+      
+      .about-content {
+       display: flex;      /* Puts the image and text side-by-side */
+       gap: 30px;          /* Adds space between the image and the text block */
+       align-items: flex-start; /* Aligns items to the top (remove if you want center) */
+     }
+
+    .about-image {
+      max-width: 350px;   /* Adjust this to your preferred size */
+     height: auto;       /* Keeps the image proportions */
+    width: 100%;        /* Makes it responsive on small screens */
+    border-radius: 10px;
+    margin: 27px 10px 10px 10px;
+    }
+
+     .about-text {
+      flex: 1;            /* Allows the text block to take up the remaining space */
+    }
+      
+      .values-content {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      
+x
+      
+      .get-involved {
+        text-align: center;
+        margin-top: 18px;
+      }
+      
+      .btn-margin {
+        margin-left: 10px;
+      }
+      
+      .features-grid {
+        margin: 32px auto;
+        max-width: 1200px;
+        padding: 0 20px;
+      }
+      
+      .features-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+      }
+      
+      .service-section {
+        margin: 40px auto;
+        max-width: 1200px;
+        padding: 0 20px;
+      }
+      
+      .service-section h2 {
+        text-align: center;
+      }
+      
+      .service-card {
+        margin-top: 16px;
+      }
+      
+      .cta-section {
+        margin: 40px auto;
+        max-width: 1200px;
+        padding: 0 20px;
+      }
+      
+      .cta-container {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+      }
+      
+      .cta-side-card {
+        margin-top: 15px;
+      }
+      
+      .margin-top-15 {
+        margin-top: 15px;
+      }
+      
+      .margin-top-24 {
+        margin-top: 24px;
+      }
+      
+      .margin-top-32 {
+        margin-top: 32px;
+      }
+      
+      .text-center {
+        text-align: center;
+      }
+      .cards-container {
+  display: flex;
+  flex-wrap: wrap;      /* Allows cards to wrap on smaller screens */
+  gap: 5px;            /* Adds space between cards */
+  margin-top: 20px;     /* Optional: adds space below the heading */
+}
+      
+      .values-card{
+        width: 24%;
       }
     </style>
   </head>
   <body>
     <%- include('../partials/header', { brandTagline: 'Community savings. Built together.' }) %>
 
-    <main class="container">
-      <section
-        class="card hero hero-with-bg"
-        style="
-          min-height: 500px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        "
-      >
-        <div class="container-overlay" style="max-width: 1000px; width: 100%">
-          <div class="hero-content" style="text-align: center; color: #fff">
-            <h1 class="h1" style="color: #fff">
+    <main>
+      <section class="card hero hero-with-bg">
+        <div class="container-overlay">
+          <div class="hero-content">
+            <h1 class="h1">
               ChamaOS — community finance made simple
             </h1>
-            <p class="lead" style="color: #fff; opacity: 0.95">
+            <p class="lead">
               A warm, trustworthy platform for chamas to collect contributions,
               manage records and celebrate shared milestones — designed for
               groups that save together.
             </p>
-            <div class="hero-ctas" style="justify-content: center">
-              <a class="btn btn-primary" href="/signup"
-                >Get started — create a chama</a
-              >
+            <div class="hero-ctas">
+              <a class="btn btn-primary" href="/signup">Get started — create a chama</a>
               <a class="btn btn-secondary" href="/login">Sign in</a>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="features-grid" style="margin-top: 32px">
-        <div class="card">
-          <div class="feature-icon">👥</div>
-          <div class="small">Group management</div>
-          <h3 class="h2">Create & manage chamas</h3>
-          <p class="small">
-            Define groups, roles and contribution schedules with simple controls
-            and clear permissions.
+    <section class="about-section" id="about">
+  <div class="about-content">
+    <img src="/images/about.png" alt="A logo of a person" class="about-image">
+    <div class="about-text"> <!-- New wrapper for all the text -->
+      <h2 class="h1">About ChamaOS</h2>
+      <p>
+        ChamaOS empowers communities to save together with confidence. We believe that when groups 
+        have the right tools, transparency, and trust, they can achieve remarkable financial goals. 
+        Our platform makes it easy for chamas to manage contributions, track progress, and celebrate 
+        shared milestones.
+      </p>
+      <p class="margin-top-15">
+        Chamas have been a cornerstone of community finance in East Africa for generations. Millions 
+        of people depend on these informal savings groups to build wealth, manage emergencies, and 
+        invest in their futures. Yet many chamas still rely on manual record-keeping, phone calls, 
+        and spreadsheets, making it easy for misunderstandings and errors to damage trust.
+      </p>
+      <p class="margin-top-15">
+        ChamaOS was born from a simple idea: what if we gave chamas the tools that were previously 
+        only available to formal institutions? Clear records, automated reminders, secure access 
+        controls, and transparent financial tracking. We started building ChamaOS to bring modern 
+        financial technology to the communities that matter most.
+      </p>
+    </div>
+  </div>
+</section>
+      <section class="about-section" style="margin-top: 24px; padding: 20px;">
+        <div class="values-content">
+          <h1 class="h1">Our Values</h1>
+
+          <div class="cards-container">
+          <div class="card values-card">
+            <h3 class="h3">🤝 Community First</h3>
+            <p>We design every feature with chama members in mind. Our success is measured by theirs.</p>
+          </div>
+          
+          <div class="card values-card">
+            <h3 class="h3">🔓 Transparency</h3>
+            <p>Financial clarity builds trust. We make it easy for groups to see and share what matters most.</p>
+          </div>
+          
+          <div class="card values-card">
+            <h3 class="h3">🛡️ Security</h3>
+            <p>Your data is safe with us. We use industry-standard encryption and access controls.</p>
+          </div>
+          
+          <div class="card values-card">
+            <h3 class="h3">⚡ Simple</h3>
+            <p>Financial tools should be easy to use, not complicated. We believe in elegant simplicity.</p>
+          </div>
+          </div>
+
+          <h1 class="h1 margin-top-24">Get Involved</h1>
+          
+          <p>
+            Whether you're the treasurer of a chama, a member looking for transparency, or a supporter 
+            of community finance, there's a place for you in our community. Join ChamaOS today and help 
+            us build the future of community savings.
           </p>
-        </div>
-
-        <div class="card">
-          <div class="feature-icon">📝</div>
-          <div class="small">Contribution tracking</div>
-          <h3 class="h2">Records & reminders</h3>
-          <p class="small">
-            Automatic contribution tracking, reminders and receipts — all
-            exportable for audits and transparency.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="feature-icon">🎯</div>
-          <div class="small">Milestones</div>
-          <h3 class="h2">Celebrate progress</h3>
-          <p class="small">
-            Track goals, schedule payouts and reward members when the group
-            reaches financial milestones.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="feature-icon">🔒</div>
-          <div class="small">Security</div>
-          <h3 class="h2">Safe & auditable</h3>
-          <p class="small">
-            Role-based access, clear audit logs and exportable reports keep
-            funds and relationships secure.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="feature-icon">📊</div>
-          <div class="small">Insights</div>
-          <h3 class="h2">Simple analytics</h3>
-          <p class="small">
-            Clear dashboards and quick reports to help chamas understand growth
-            and plan their next steps.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="feature-icon">🤝</div>
-          <div class="small">Community</div>
-          <h3 class="h2">Connect & grow</h3>
-          <p class="small">
-            Forums, events and shared milestones help groups learn from one
-            another and strengthen trust.
-          </p>
-        </div>
-      </section>
-
-      <section class="service-section">
-        <h2 class="h1">All services at a glance</h2>
-
-        <div class="card" style="margin-top: 16px">
-          <h3 class="service-title">Group & Member Management</h3>
-          <ul class="service-list">
-            <li>Create and invite members to chamas</li>
-            <li>Define group rules, contribution amounts and schedules</li>
-            <li>Assign roles: admin, treasurer, member, auditor</li>
-            <li>Flexible permissions and approval workflows</li>
-            <li>Member profiles with contribution history</li>
-          </ul>
-        </div>
-
-        <div class="card" style="margin-top: 16px">
-          <h3 class="service-title">Contribution & Payment Tracking</h3>
-          <ul class="service-list">
-            <li>Automatic payment reminders and due dates</li>
-            <li>Record, verify and confirm contributions</li>
-            <li>Digital receipts & transaction history</li>
-            <li>Export records for audits and tax purposes</li>
-            <li>Payment status dashboard by member</li>
-          </ul>
-        </div>
-
-        <div class="card" style="margin-top: 16px">
-          <h3 class="service-title">Financial Goals & Milestones</h3>
-          <ul class="service-list">
-            <li>Set and track group savings goals</li>
-            <li>Schedule and automate payouts to members</li>
-            <li>Milestone celebrations with member notifications</li>
-            <li>Transparent fund allocation & distribution</li>
-            <li>Goal progress dashboards</li>
-          </ul>
-        </div>
-
-        <div class="card" style="margin-top: 16px">
-          <h3 class="service-title">Analytics & Reporting</h3>
-          <ul class="service-list">
-            <li>Group savings trends and growth metrics</li>
-            <li>Member contribution analysis</li>
-            <li>Gender, location and demographic breakdowns</li>
-            <li>Customizable reports and exports (CSV, PDF)</li>
-            <li>Admin dashboards with real-time KPIs</li>
-          </ul>
-        </div>
-
-        <div class="card" style="margin-top: 16px">
-          <h3 class="service-title">Security & Trust</h3>
-          <ul class="service-list">
-            <li>Role-based access control (RBAC)</li>
-            <li>Comprehensive audit logs of all actions</li>
-            <li>Data encryption and secure storage</li>
-            <li>Community guidelines enforcement</li>
-            <li>Anonymous reporting for disputes</li>
-          </ul>
-        </div>
-
-        <div class="card" style="margin-top: 16px">
-          <h3 class="service-title">Community Features</h3>
-          <ul class="service-list">
-            <li>Group forums and discussion boards</li>
-            <li>Member-to-member messaging</li>
-            <li>Event scheduling and coordination</li>
-            <li>Knowledge sharing and best practices</li>
-            <li>Celebrate wins and group achievements</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="cta-section">
-        <div class="card cta-left">
-          <h3 class="h2">Ready to start?</h3>
-          <p class="small">
-            Join ChamaOS today and bring your group's savings to life. Create a
-            chama in under a minute.
-          </p>
-          <div class="cta-action">
+          
+          <div class="get-involved">
             <a class="btn btn-primary" href="/signup">Create a chama now</a>
-          </div>
-        </div>
-
-        <div class="cta-side">
-          <div class="card small">
-            Have questions? <a class="link-muted" href="#">Contact support</a>
+            <a class="btn btn-secondary btn-margin" href="/login">Sign in</a>
           </div>
         </div>
       </section>
-      <!--footer-->
+
+      <section class="features-grid" id="features">
+        <div class="features-container">
+          <div class="card">
+            <img src="/images/groups.png" alt="Group management" class="feature-icon" />
+            <div class="small">Group management</div>
+            <h3 class="h2">Create & manage chamas</h3>
+            <p class="small">
+              Define groups, roles and contribution schedules with simple controls
+              and clear permissions.
+            </p>
+          </div>
+
+          <div class="card">
+            <img src="/images/signing-a-document.png" alt="Contribution tracking" class="feature-icon" />
+            <div class="small">Contribution tracking</div>
+            <h3 class="h2">Records & reminders</h3>
+            <p class="small">
+              Automatic contribution tracking, reminders and receipts — all
+              exportable for audits and transparency.
+            </p>
+          </div>
+
+          <div class="card">
+            <img src="/images/goal.png" alt="Milestones" class="feature-icon" />
+            <div class="small">Milestones</div>
+            <h3 class="h2">Celebrate progress</h3>
+            <p class="small">
+              Track goals, schedule payouts and reward members when the group
+              reaches financial milestones.
+            </p>
+          </div>
+
+          <div class="card">
+            <img src="/images/lock.png" alt="Security" class="feature-icon" />
+            <div class="small">Security</div>
+            <h3 class="h2">Safe & auditable</h3>
+            <p class="small">
+              Role-based access, clear audit logs and exportable reports keep
+              funds and relationships secure.
+            </p>
+          </div>
+
+          <div class="card">
+            <img src="/images/bargraph.png" alt="Insights" class="feature-icon" />
+            <div class="small">Insights</div>
+            <h3 class="h2">Simple analytics</h3>
+            <p class="small">
+              Clear dashboards and quick reports to help chamas understand growth
+              and plan their next steps.
+            </p>
+          </div>
+
+          <div class="card">
+            <img src="/images/handshake.png" alt="Community" class="feature-icon" />
+            <div class="small">Community</div>
+            <h3 class="h2">Connect & grow</h3>
+            <p class="small">
+              Forums, events and shared milestones help groups learn from one
+              another and strengthen trust.
+            </p>
+          </div>
+        </div>
+      </section>
+
+     
+      <section class="cta-section">
+        <div class="cta-container">
+          <div class="card cta-left">
+            <h3 class="h2">Ready to start?</h3>
+            <p class="small">
+              Join ChamaOS today and bring your group's savings to life. Create a
+              chama in under a minute.
+            </p>
+            <div class="cta-action">
+              <a class="btn btn-primary" href="/signup">Create a chama now</a>
+            </div>
+          </div>
+
+          <div>
+            <div class="card small">
+              Have questions? <a class="link-muted" href="#">Contact support</a>
+            </div>
+            <div class="card small cta-side-card">
+              <a class="link-muted" href="/about">Learn more about us</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
       <%- include('../partials/footer') %>
     </main>
   </body>

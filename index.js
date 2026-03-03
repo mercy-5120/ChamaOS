@@ -52,6 +52,10 @@ app.get("/services", (req, res) => {
   res.render("pages/user/services.ejs");
 });
 
+app.get("/about", (req, res) => {
+  res.render("pages/user/about.ejs");
+});
+
 app.get("/home", (req, res) => {
   res.render("pages/member/home.ejs");
 });
