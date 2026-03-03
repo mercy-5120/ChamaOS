@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Calendar</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/secretary.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/secretarysidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Group Calendar</h1>
+            <p class="lead">
+              View and schedule meetings, events, and important dates.
+            </p>
+          </div>
+          <div>
+            <button class="btn btn-primary" data-action="create-event">
+              + Schedule Event
+            </button>
+          </div>
+        </div>
+
+        <!-- Schedule Events -->
+        <section class="dashboard-section">
+          <h2 class="h2">Schedule New Event</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="event-title" class="form-label"
+                    >Event Title *</label
+                  >
+                  <input
+                    type="text"
+                    id="event-title"
+                    class="form-control"
+                    placeholder="e.g., Monthly General Meeting"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="event-type" class="form-label"
+                    >Event Type *</label
+                  >
+                  <select id="event-type" class="form-control" required>
+                    <option value="">-- Select type --</option>
+                    <option value="meeting">Meeting</option>
+                    <option value="welfare">Welfare Event</option>
+                    <option value="investment">Investment Activity</option>
+                    <option value="training">Training</option>
+                    <option value="social">Social Event</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="event-date" class="form-label">Date *</label>
+                  <input
+                    type="date"
+                    id="event-date"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="event-start" class="form-label"
+                    >Start Time *</label
+                  >
+                  <input
+                    type="time"
+                    id="event-start"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="event-end" class="form-label">End Time</label>
+                  <input type="time" id="event-end" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="event-location" class="form-label"
+                    >Location/Venue *</label
+                  >
+                  <input
+                    type="text"
+                    id="event-location"
+                    class="form-control"
+                    placeholder="Community Hall / Office / Online"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="event-description" class="form-label"
+                    >Description</label
+                  >
+                  <textarea
+                    id="event-description"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Event details, agenda, or instructions..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="event-notify" class="form-label"
+                    >Send Notification</label
+                  >
+                  <select id="event-notify" class="form-control">
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="event-remind" class="form-label"
+                    >Reminder (Days Before)</label
+                  >
+                  <input
+                    type="number"
+                    id="event-remind"
+                    class="form-control"
+                    value="1"
+                    min="0"
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Schedule Event
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Calendar View -->
+        <section class="dashboard-section">
+          <h2 class="h2">March 2026 Calendar</h2>
+          <div class="card">
+            <div class="calendar-controls">
+              <button class="btn btn-secondary btn-sm">← Previous</button>
+              <span class="calendar-month">March 2026</span>
+              <button class="btn btn-secondary btn-sm">Next →</button>
+            </div>
+
+            <div class="calendar-grid">
+              <div class="calendar-header">
+                <div class="day-header">Sun</div>
+                <div class="day-header">Mon</div>
+                <div class="day-header">Tue</div>
+                <div class="day-header">Wed</div>
+                <div class="day-header">Thu</div>
+                <div class="day-header">Fri</div>
+                <div class="day-header">Sat</div>
+              </div>
+
+              <div class="calendar-body">
+                <!-- Empty days from previous month -->
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day">1</div>
+
+                <!-- March days -->
+                <div class="calendar-day">2</div>
+                <div class="calendar-day">3</div>
+                <div class="calendar-day">4</div>
+                <div class="calendar-day">5</div>
+                <div class="calendar-day">6</div>
+                <div class="calendar-day">7</div>
+                <div class="calendar-day">8</div>
+
+                <div class="calendar-day">9</div>
+                <div class="calendar-day">10</div>
+                <div class="calendar-day">11</div>
+                <div class="calendar-day">12</div>
+                <div class="calendar-day">13</div>
+                <div class="calendar-day">14</div>
+                <div class="calendar-day event-day">
+                  15 <span class="event-badge">Welfare</span>
+                </div>
+
+                <div class="calendar-day">16</div>
+                <div class="calendar-day">17</div>
+                <div class="calendar-day">18</div>
+                <div class="calendar-day">19</div>
+                <div class="calendar-day">20</div>
+                <div class="calendar-day event-day">
+                  21 <span class="event-badge">Board Mtg</span>
+                </div>
+                <div class="calendar-day">22</div>
+
+                <div class="calendar-day">23</div>
+                <div class="calendar-day">24</div>
+                <div class="calendar-day">25</div>
+                <div class="calendar-day">26</div>
+                <div class="calendar-day">27</div>
+                <div class="calendar-day event-day">
+                  28 <span class="event-badge">Gen Mtg</span>
+                </div>
+                <div class="calendar-day">29</div>
+
+                <div class="calendar-day">30</div>
+                <div class="calendar-day">31</div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+                <div class="calendar-day empty"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Upcoming Events -->
+        <section class="dashboard-section">
+          <h2 class="h2">Upcoming Events</h2>
+          <div class="card">
+            <div class="events-list">
+              <div class="event-item">
+                <div class="event-time">
+                  <div class="event-date">15</div>
+                  <div class="event-month">Mar</div>
+                </div>
+                <div class="event-details">
+                  <h4>Welfare Committee Meeting</h4>
+                  <p class="text-muted">3:30 PM | Community Hall</p>
+                  <p class="event-description">
+                    Discuss welfare fund disbursement and member support
+                  </p>
+                </div>
+                <div class="event-actions">
+                  <button class="btn btn-sm btn-secondary">Edit</button>
+                  <button class="btn btn-sm btn-outline">Cancel</button>
+                </div>
+              </div>
+
+              <div class="event-item">
+                <div class="event-time">
+                  <div class="event-date">21</div>
+                  <div class="event-month">Mar</div>
+                </div>
+                <div class="event-details">
+                  <h4>Board Meeting</h4>
+                  <p class="text-muted">10:00 AM | Office</p>
+                  <p class="event-description">
+                    Review group performance and discuss strategic initiatives
+                  </p>
+                </div>
+                <div class="event-actions">
+                  <button class="btn btn-sm btn-secondary">Edit</button>
+                  <button class="btn btn-sm btn-outline">Cancel</button>
+                </div>
+              </div>
+
+              <div class="event-item">
+                <div class="event-time">
+                  <div class="event-date">28</div>
+                  <div class="event-month">Mar</div>
+                </div>
+                <div class="event-details">
+                  <h4>Monthly General Meeting</h4>
+                  <p class="text-muted">2:00 PM | Community Hall</p>
+                  <p class="event-description">
+                    Regular monthly meeting. Agenda to be shared via email
+                  </p>
+                </div>
+                <div class="event-actions">
+                  <button class="btn btn-sm btn-secondary">Edit</button>
+                  <button class="btn btn-sm btn-outline">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Set Reminders for Important Dates -->
+        <section class="dashboard-section">
+          <h2 class="h2">Reminders for Important Dates</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="reminder-type" class="form-label"
+                    >Reminder Type *</label
+                  >
+                  <select id="reminder-type" class="form-control" required>
+                    <option value="">-- Select type --</option>
+                    <option value="birthday">Member Birthday</option>
+                    <option value="anniversary">Membership Anniversary</option>
+                    <option value="deadline">Important Deadline</option>
+                    <option value="payment">Payment Due</option>
+                    <option value="review">Policy Review</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="reminder-date" class="form-label">Date *</label>
+                  <input
+                    type="date"
+                    id="reminder-date"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="reminder-notify-before" class="form-label"
+                    >Notify Me (Days Before)</label
+                  >
+                  <input
+                    type="number"
+                    id="reminder-notify-before"
+                    class="form-control"
+                    value="3"
+                    min="1"
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="reminder-freq" class="form-label"
+                    >Frequency</label
+                  >
+                  <select id="reminder-freq" class="form-control">
+                    <option value="once">Once Only</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="monthly">Monthly</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="reminder-description" class="form-label"
+                    >Description</label
+                  >
+                  <textarea
+                    id="reminder-description"
+                    class="form-control"
+                    rows="2"
+                    placeholder="What should we remember?"
+                  ></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Set Reminder
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Active Reminders -->
+        <section class="dashboard-section">
+          <h2 class="h2">Active Reminders</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Description</th>
+                  <th>Date</th>
+                  <th>Notify Before</th>
+                  <th>Frequency</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="badge badge-info">Birthday</span></td>
+                  <td>John Mwangi's Birthday</td>
+                  <td>March 15</td>
+                  <td>3 days</td>
+                  <td>Yearly</td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">Delete</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-warning">Deadline</span></td>
+                  <td>Annual Report Submission</td>
+                  <td>March 15</td>
+                  <td>7 days</td>
+                  <td>Yearly</td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">Delete</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><span class="badge badge-primary">Anniversary</span></td>
+                  <td>Jane Omondi's Membership Anniversary</td>
+                  <td>February 10</td>
+                  <td>3 days</td>
+                  <td>Yearly</td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">Delete</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

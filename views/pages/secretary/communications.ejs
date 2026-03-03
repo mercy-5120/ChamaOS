@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Communications</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/secretary.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/secretarysidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Group Communications</h1>
+            <p class="lead">
+              Send announcements, emails, SMS, newsletters, and manage contacts.
+            </p>
+          </div>
+        </div>
+
+        <!-- Send Group Announcements -->
+        <section class="dashboard-section">
+          <h2 class="h2">Send Group Announcement</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="announce-title" class="form-label"
+                    >Announcement Title *</label
+                  >
+                  <input
+                    type="text"
+                    id="announce-title"
+                    class="form-control"
+                    placeholder="e.g., Important: Next Meeting Updated"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="announce-content" class="form-label"
+                    >Announcement Content *</label
+                  >
+                  <textarea
+                    id="announce-content"
+                    class="form-control rich-editor"
+                    rows="6"
+                    placeholder="Enter announcement details..."
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="announce-priority" class="form-label"
+                    >Priority</label
+                  >
+                  <select id="announce-priority" class="form-control">
+                    <option value="normal">Normal</option>
+                    <option value="high">High (Urgent)</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="announce-date" class="form-label"
+                    >Schedule For</label
+                  >
+                  <input type="date" id="announce-date" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label">Recipients</label>
+                  <div class="recipient-selection">
+                    <label class="checkbox-item">
+                      <input type="checkbox" checked /> All Members
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" /> Committee Members Only
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" /> Active Members
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Send Announcement
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Send Email Notifications -->
+        <section class="dashboard-section">
+          <h2 class="h2">Send Email Notifications</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="email-subject" class="form-label"
+                    >Email Subject *</label
+                  >
+                  <input
+                    type="text"
+                    id="email-subject"
+                    class="form-control"
+                    placeholder="e.g., Meeting Reminder: February 28"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="email-recipients" class="form-label"
+                    >Recipients *</label
+                  >
+                  <input
+                    type="text"
+                    id="email-recipients"
+                    class="form-control"
+                    placeholder="Select or type email addresses"
+                    required
+                  />
+                  <p class="text-muted text-sm">
+                    Start typing to see suggestions or paste multiple emails
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="email-body" class="form-label"
+                    >Email Body *</label
+                  >
+                  <textarea
+                    id="email-body"
+                    class="form-control rich-editor"
+                    rows="6"
+                    placeholder="Enter email content..."
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="email-attach" class="form-label"
+                    >Attachments</label
+                  >
+                  <input
+                    type="file"
+                    id="email-attach"
+                    class="form-control"
+                    multiple
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Send Email</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Send SMS Reminders -->
+        <section class="dashboard-section">
+          <h2 class="h2">Send SMS Reminders</h2>
+          <div class="card form-card">
+            <div class="info-banner">
+              <p class="text-info">
+                SMS integration available for connected services. Contact admin
+                to setup.
+              </p>
+            </div>
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="sms-recipients" class="form-label"
+                    >Recipients *</label
+                  >
+                  <select id="sms-recipients" class="form-control" required>
+                    <option value="">-- Select recipients --</option>
+                    <option value="all">All Members with Phone Numbers</option>
+                    <option value="meeting">
+                      Members invited to next meeting
+                    </option>
+                    <option value="overdue">
+                      Members with overdue contributions
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="sms-message" class="form-label"
+                    >Message (160 Characters) *</label
+                  >
+                  <textarea
+                    id="sms-message"
+                    class="form-control"
+                    rows="3"
+                    maxlength="160"
+                    placeholder="Enter SMS message..."
+                    required
+                  ></textarea>
+                  <p class="text-muted text-sm">
+                    <span id="char-count">0</span>/160 characters
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="sms-schedule" class="form-label"
+                    >Schedule For</label
+                  >
+                  <input
+                    type="datetime-local"
+                    id="sms-schedule"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Send SMS</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Create and Send Newsletters -->
+        <section class="dashboard-section">
+          <h2 class="h2">Create and Send Newsletter</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="newsletter-title" class="form-label"
+                    >Newsletter Title *</label
+                  >
+                  <input
+                    type="text"
+                    id="newsletter-title"
+                    class="form-control"
+                    placeholder="e.g., February 2026 Newsletter"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="newsletter-month" class="form-label"
+                    >Month/Period</label
+                  >
+                  <input
+                    type="month"
+                    id="newsletter-month"
+                    class="form-control"
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="newsletter-send" class="form-label"
+                    >Send Date</label
+                  >
+                  <input
+                    type="date"
+                    id="newsletter-send"
+                    class="form-control"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="newsletter-content" class="form-label"
+                    >Newsletter Content *</label
+                  >
+                  <textarea
+                    id="newsletter-content"
+                    class="form-control rich-editor"
+                    rows="8"
+                    placeholder="Add sections: Highlights, Upcoming events, Financial updates, etc..."
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label">Include Sections</label>
+                  <div class="section-checkboxes">
+                    <label class="checkbox-item">
+                      <input type="checkbox" checked /> Meeting Summary
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" checked /> Upcoming Events
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" checked /> Financial Summary
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" /> Member Spotlight
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" /> Important Announcements
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Send Newsletter
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Manage Contact List -->
+        <section class="dashboard-section">
+          <h2 class="h2">Contact List Management</h2>
+          <div class="card">
+            <div class="search-filter-bar">
+              <div class="search-box">
+                <input
+                  type="text"
+                  placeholder="Search members..."
+                  class="form-control"
+                />
+              </div>
+              <div class="filter-controls">
+                <select class="form-control form-control-sm">
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Status</th>
+                  <th>Last Contact</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>John Mwangi</strong></td>
+                  <td>john.mwangi@email.com</td>
+                  <td>+254 712 345 678</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>Feb 28, 2026</td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">Message</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Jane Omondi</strong></td>
+                  <td>jane.omondi@email.com</td>
+                  <td>+254 713 456 789</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>Feb 25, 2026</td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">Message</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Peter Kipchoge</strong></td>
+                  <td>peter.kipchoge@email.com</td>
+                  <td>+254 714 567 890</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>Feb 28, 2026</td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">Message</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      // Character counter for SMS
+      document
+        .getElementById("sms-message")
+        ?.addEventListener("input", function () {
+          document.getElementById("char-count").textContent = this.value.length;
+        });
+    </script>
+  </body>
+</html>

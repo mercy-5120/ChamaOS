@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Document Management</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/secretary.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/secretarysidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Document Management</h1>
+            <p class="lead">
+              Upload, categorize, and manage group documents with version
+              control.
+            </p>
+          </div>
+          <div>
+            <button class="btn btn-primary" data-action="upload-doc">
+              + Upload Document
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload Documents -->
+        <section class="dashboard-section">
+          <h2 class="h2">Upload Group Documents</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="doc-name" class="form-label"
+                    >Document Name *</label
+                  >
+                  <input
+                    type="text"
+                    id="doc-name"
+                    class="form-control"
+                    placeholder="e.g., Annual Financial Report 2025"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="doc-category" class="form-label"
+                    >Category *</label
+                  >
+                  <select id="doc-category" class="form-control" required>
+                    <option value="">-- Select category --</option>
+                    <option value="financial">Financial</option>
+                    <option value="governance">Governance</option>
+                    <option value="welfare">Welfare</option>
+                    <option value="reports">Reports</option>
+                    <option value="policies">Policies</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="doc-access" class="form-label"
+                    >Access Level *</label
+                  >
+                  <select id="doc-access" class="form-control" required>
+                    <option value="">-- Select access --</option>
+                    <option value="public">Public to Group</option>
+                    <option value="restricted">Restricted (Admin Only)</option>
+                    <option value="committee">Committee Only</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="doc-description" class="form-label"
+                    >Description</label
+                  >
+                  <textarea
+                    id="doc-description"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Describe the document content..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="doc-file" class="form-label">Upload File *</label>
+                  <div class="file-upload">
+                    <input
+                      type="file"
+                      id="doc-file"
+                      class="form-control"
+                      required
+                    />
+                    <p class="text-muted text-sm">
+                      Max size: 50MB. Supported: PDF, Word, Excel, PowerPoint
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Upload Document
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Document Search & Filter -->
+        <section class="dashboard-section">
+          <h2 class="h2">Document Repository</h2>
+          <div class="card">
+            <div class="search-filter-bar">
+              <div class="search-box">
+                <input
+                  type="text"
+                  placeholder="Search by name, date, or category..."
+                  class="form-control"
+                />
+              </div>
+              <div class="filter-controls">
+                <select class="form-control form-control-sm">
+                  <option value="">All Categories</option>
+                  <option value="financial">Financial</option>
+                  <option value="governance">Governance</option>
+                  <option value="welfare">Welfare</option>
+                  <option value="reports">Reports</option>
+                  <option value="policies">Policies</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="documents-list">
+              <!-- Document Item -->
+              <div class="doc-item">
+                <div class="doc-header">
+                  <h4>Annual Financial Report 2025</h4>
+                  <div class="doc-meta">
+                    <span class="badge badge-primary">Financial</span>
+                    <span class="access-level public">Public to Group</span>
+                    <span class="doc-date">Feb 28, 2026</span>
+                  </div>
+                </div>
+                <div class="doc-info">
+                  <p class="text-muted">
+                    Comprehensive financial overview for the year 2025,
+                    including income, expenses, and fund allocations.
+                  </p>
+                  <span class="text-muted text-sm"
+                    >Size: 2.4 MB | Format: PDF</span
+                  >
+                </div>
+                <div class="doc-actions">
+                  <a href="#" class="link">Download</a>
+                  <a href="#" class="link">View</a>
+                  <a href="#" class="link">Version History</a>
+                  <a href="#" class="link">Edit Access</a>
+                </div>
+              </div>
+
+              <!-- Document Item -->
+              <div class="doc-item">
+                <div class="doc-header">
+                  <h4>Group Constitution (Updated)</h4>
+                  <div class="doc-meta">
+                    <span class="badge badge-secondary">Governance</span>
+                    <span class="access-level restricted">Restricted</span>
+                    <span class="doc-date">Feb 25, 2026</span>
+                  </div>
+                </div>
+                <div class="doc-info">
+                  <p class="text-muted">
+                    Latest version of group rules and regulations, updated
+                    February 2026.
+                  </p>
+                  <span class="text-muted text-sm"
+                    >Size: 1.8 MB | Format: Word</span
+                  >
+                </div>
+                <div class="doc-actions">
+                  <a href="#" class="link">Download</a>
+                  <a href="#" class="link">View</a>
+                  <a href="#" class="link">Version History</a>
+                  <a href="#" class="link">Edit Access</a>
+                </div>
+              </div>
+
+              <!-- Document Item -->
+              <div class="doc-item">
+                <div class="doc-header">
+                  <h4>Meeting Minutes - February 2026</h4>
+                  <div class="doc-meta">
+                    <span class="badge badge-info">Reports</span>
+                    <span class="access-level public">Public to Group</span>
+                    <span class="doc-date">Feb 28, 2026</span>
+                  </div>
+                </div>
+                <div class="doc-info">
+                  <p class="text-muted">
+                    Official meeting minutes from all meetings held in February
+                    2026.
+                  </p>
+                  <span class="text-muted text-sm"
+                    >Size: 856 KB | Format: PDF</span
+                  >
+                </div>
+                <div class="doc-actions">
+                  <a href="#" class="link">Download</a>
+                  <a href="#" class="link">View</a>
+                  <a href="#" class="link">Version History</a>
+                  <a href="#" class="link">Edit Access</a>
+                </div>
+              </div>
+
+              <!-- Document Item -->
+              <div class="doc-item">
+                <div class="doc-header">
+                  <h4>Welfare Fund Policy</h4>
+                  <div class="doc-meta">
+                    <span class="badge badge-success">Policies</span>
+                    <span class="access-level public">Public to Group</span>
+                    <span class="doc-date">Feb 20, 2026</span>
+                  </div>
+                </div>
+                <div class="doc-info">
+                  <p class="text-muted">
+                    Policy guidelines for accessing the group's welfare fund.
+                  </p>
+                  <span class="text-muted text-sm"
+                    >Size: 612 KB | Format: PDF</span
+                  >
+                </div>
+                <div class="doc-actions">
+                  <a href="#" class="link">Download</a>
+                  <a href="#" class="link">View</a>
+                  <a href="#" class="link">Version History</a>
+                  <a href="#" class="link">Edit Access</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Version Control -->
+        <section class="dashboard-section">
+          <h2 class="h2">Document Version History</h2>
+          <div class="card form-card">
+            <div class="form-row">
+              <div class="form-col">
+                <label for="version-doc" class="form-label"
+                  >Select Document</label
+                >
+                <select id="version-doc" class="form-control">
+                  <option value="">-- Select a document --</option>
+                  <option value="afr">Annual Financial Report 2025</option>
+                  <option value="gc">Group Constitution</option>
+                  <option value="mm">Meeting Minutes - February 2026</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="version-history">
+              <div class="version-item">
+                <div class="version-header">
+                  <h4>Version 3 (Current)</h4>
+                  <span class="text-muted text-sm"
+                    >Updated Feb 28, 2026 by John Mwangi</span
+                  >
+                </div>
+                <div class="version-actions">
+                  <a href="#" class="link">Download</a>
+                  <a href="#" class="link">View</a>
+                </div>
+              </div>
+              <div class="version-item">
+                <div class="version-header">
+                  <h4>Version 2</h4>
+                  <span class="text-muted text-sm"
+                    >Updated Feb 20, 2026 by Jane Omondi</span
+                  >
+                </div>
+                <div class="version-actions">
+                  <a href="#" class="link">Download</a>
+                  <a href="#" class="link">View</a>
+                </div>
+              </div>
+              <div class="version-item">
+                <div class="version-header">
+                  <h4>Version 1 (Original)</h4>
+                  <span class="text-muted text-sm">Created Feb 5, 2026</span>
+                </div>
+                <div class="version-actions">
+                  <a href="#" class="link">Download</a>
+                  <a href="#" class="link">View</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

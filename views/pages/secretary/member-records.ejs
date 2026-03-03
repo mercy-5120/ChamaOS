@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Member Records</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/secretary.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/secretarysidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Member Records</h1>
+            <p class="lead">
+              Maintain member register, track attendance, and manage contact
+              details.
+            </p>
+          </div>
+          <div>
+            <button class="btn btn-primary" data-action="add-member">
+              + Add Member
+            </button>
+          </div>
+        </div>
+
+        <!-- Add New Member -->
+        <section class="dashboard-section">
+          <h2 class="h2">Add New Member</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="member-fname" class="form-label"
+                    >First Name *</label
+                  >
+                  <input
+                    type="text"
+                    id="member-fname"
+                    class="form-control"
+                    placeholder="First name"
+                    required
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="member-lname" class="form-label"
+                    >Last Name *</label
+                  >
+                  <input
+                    type="text"
+                    id="member-lname"
+                    class="form-control"
+                    placeholder="Last name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="member-email" class="form-label">Email *</label>
+                  <input
+                    type="email"
+                    id="member-email"
+                    class="form-control"
+                    placeholder="email@example.com"
+                    required
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="member-phone" class="form-label"
+                    >Phone Number *</label
+                  >
+                  <input
+                    type="tel"
+                    id="member-phone"
+                    class="form-control"
+                    placeholder="+254 712 345 678"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="member-id-no" class="form-label">ID Number</label>
+                  <input
+                    type="text"
+                    id="member-id-no"
+                    class="form-control"
+                    placeholder="Member ID"
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="member-dob" class="form-label"
+                    >Date of Birth</label
+                  >
+                  <input type="date" id="member-dob" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="member-join" class="form-label"
+                    >Join Date *</label
+                  >
+                  <input
+                    type="date"
+                    id="member-join"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="member-role" class="form-label">Role</label>
+                  <select id="member-role" class="form-control">
+                    <option value="">-- Select role --</option>
+                    <option value="member">Member</option>
+                    <option value="chairman">Chairman</option>
+                    <option value="secretary">Secretary</option>
+                    <option value="treasurer">Treasurer</option>
+                    <option value="auditor">Auditor</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Add Member</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Member Register -->
+        <section class="dashboard-section">
+          <h2 class="h2">Member Register</h2>
+          <div class="card">
+            <div class="search-filter-bar">
+              <div class="search-box">
+                <input
+                  type="text"
+                  placeholder="Search members by name..."
+                  class="form-control"
+                />
+              </div>
+              <div class="filter-controls">
+                <select class="form-control form-control-sm">
+                  <option value="">All Members</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Join Date</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>John Mwangi</strong></td>
+                  <td>john.mwangi@email.com</td>
+                  <td>+254 712 345 678</td>
+                  <td>Jan 15, 2024</td>
+                  <td>Treasurer</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">View</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Jane Omondi</strong></td>
+                  <td>jane.omondi@email.com</td>
+                  <td>+254 713 456 789</td>
+                  <td>Feb 10, 2024</td>
+                  <td>Member</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">View</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Peter Kipchoge</strong></td>
+                  <td>peter.kipchoge@email.com</td>
+                  <td>+254 714 567 890</td>
+                  <td>Mar 5, 2024</td>
+                  <td>Chairman</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">View</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Mary Kiplagat</strong></td>
+                  <td>mary.kiplagat@email.com</td>
+                  <td>+254 715 678 901</td>
+                  <td>Mar 20, 2024</td>
+                  <td>Member</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>
+                    <a href="#" class="link">Edit</a>
+                    <a href="#" class="link">View</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Track Important Dates -->
+        <section class="dashboard-section">
+          <h2 class="h2">Important Member Dates</h2>
+          <div class="card">
+            <div class="tabs">
+              <button class="tab-btn active" data-tab="birthdays">
+                Birthdays
+              </button>
+              <button class="tab-btn" data-tab="anniversaries">
+                Join Anniversaries
+              </button>
+            </div>
+
+            <div class="tab-content active" id="birthdays">
+              <div class="dates-grid">
+                <div class="date-card">
+                  <div class="date-item">
+                    <h4>John Mwangi</h4>
+                    <p class="date-value">March 15</p>
+                    <p class="text-muted">Birthday</p>
+                    <button class="btn btn-sm btn-primary">
+                      Send Greeting
+                    </button>
+                  </div>
+                </div>
+                <div class="date-card">
+                  <div class="date-item">
+                    <h4>Jane Omondi</h4>
+                    <p class="date-value">March 22</p>
+                    <p class="text-muted">Birthday</p>
+                    <button class="btn btn-sm btn-primary">
+                      Send Greeting
+                    </button>
+                  </div>
+                </div>
+                <div class="date-card">
+                  <div class="date-item">
+                    <h4>Peter Kipchoge</h4>
+                    <p class="date-value">April 5</p>
+                    <p class="text-muted">Birthday</p>
+                    <button class="btn btn-sm btn-primary">
+                      Send Greeting
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-content" id="anniversaries">
+              <div class="dates-grid">
+                <div class="date-card">
+                  <div class="date-item">
+                    <h4>John Mwangi</h4>
+                    <p class="date-value">01 Year</p>
+                    <p class="text-muted">Joined: Jan 15, 2024</p>
+                    <button class="btn btn-sm btn-primary">Celebrate</button>
+                  </div>
+                </div>
+                <div class="date-card">
+                  <div class="date-item">
+                    <h4>Jane Omondi</h4>
+                    <p class="date-value">01 Year</p>
+                    <p class="text-muted">Joined: Feb 10, 2024</p>
+                    <button class="btn btn-sm btn-primary">Celebrate</button>
+                  </div>
+                </div>
+                <div class="date-card">
+                  <div class="date-item">
+                    <h4>Peter Kipchoge</h4>
+                    <p class="date-value">01 Year</p>
+                    <p class="text-muted">Joined: Mar 5, 2024</p>
+                    <button class="btn btn-sm btn-primary">Celebrate</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Record Member Attendance -->
+        <section class="dashboard-section">
+          <h2 class="h2">Record Member Attendance</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="attendance-meeting" class="form-label"
+                    >Select Meeting *</label
+                  >
+                  <select id="attendance-meeting" class="form-control" required>
+                    <option value="">-- Select a meeting --</option>
+                    <option value="mgm">
+                      Monthly General Meeting (Feb 28, 2026)
+                    </option>
+                    <option value="bm">Board Meeting (Feb 21, 2026)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="attendance-list">
+                <div class="attendance-item">
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> John Mwangi
+                  </label>
+                </div>
+                <div class="attendance-item">
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> Jane Omondi
+                  </label>
+                </div>
+                <div class="attendance-item">
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> Peter Kipchoge
+                  </label>
+                </div>
+                <div class="attendance-item">
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> Mary Kiplagat
+                  </label>
+                </div>
+                <div class="attendance-item">
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> David Kariuki
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Save Attendance
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Update Contact Details -->
+        <section class="dashboard-section">
+          <h2 class="h2">Update Member Contact Details</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="update-member" class="form-label"
+                    >Select Member *</label
+                  >
+                  <select id="update-member" class="form-control" required>
+                    <option value="">-- Select a member --</option>
+                    <option value="jm">John Mwangi</option>
+                    <option value="jo">Jane Omondi</option>
+                    <option value="pk">Peter Kipchoge</option>
+                    <option value="mk">Mary Kiplagat</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="update-email" class="form-label">Email</label>
+                  <input type="email" id="update-email" class="form-control" />
+                </div>
+                <div class="form-col">
+                  <label for="update-phone" class="form-label"
+                    >Phone Number</label
+                  >
+                  <input type="tel" id="update-phone" class="form-control" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="update-address" class="form-label">Address</label>
+                  <textarea
+                    id="update-address"
+                    class="form-control"
+                    rows="2"
+                    placeholder="Street address, city, postal code"
+                  ></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Update Contact Details
+              </button>
+            </form>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      // Tab switching
+      document.querySelectorAll(".tab-btn").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".tab-btn")
+            .forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((c) => c.classList.remove("active"));
+          this.classList.add("active");
+          document.getElementById(this.dataset.tab).classList.add("active");
+        });
+      });
+    </script>
+  </body>
+</html>

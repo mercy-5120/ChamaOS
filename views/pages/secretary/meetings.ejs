@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Meeting Management</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/secretary.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/secretarysidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Meeting Management</h1>
+            <p class="lead">
+              Create, record, and track all group meetings and action items.
+            </p>
+          </div>
+          <div>
+            <button class="btn btn-primary" data-action="create-meeting">
+              + New Meeting
+            </button>
+          </div>
+        </div>
+
+        <!-- Create New Meeting Section -->
+        <section class="dashboard-section">
+          <h2 class="h2">Create New Meeting Record</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="meeting-title" class="form-label"
+                    >Meeting Title *</label
+                  >
+                  <input
+                    type="text"
+                    id="meeting-title"
+                    class="form-control"
+                    placeholder="e.g., Monthly General Meeting"
+                    required
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="meeting-date" class="form-label"
+                    >Meeting Date *</label
+                  >
+                  <input
+                    type="date"
+                    id="meeting-date"
+                    class="form-control"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="meeting-time" class="form-label"
+                    >Meeting Time *</label
+                  >
+                  <input
+                    type="time"
+                    id="meeting-time"
+                    class="form-control"
+                    required
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="meeting-location" class="form-label"
+                    >Location *</label
+                  >
+                  <input
+                    type="text"
+                    id="meeting-location"
+                    class="form-control"
+                    placeholder="e.g., Community Hall"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="meeting-agenda" class="form-label"
+                    >Agenda *</label
+                  >
+                  <textarea
+                    id="meeting-agenda"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Enter meeting agenda items..."
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Create Meeting
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- All Meetings -->
+        <section class="dashboard-section">
+          <h2 class="h2">All Meetings</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Meeting Title</th>
+                  <th>Date & Time</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Monthly General Meeting</strong></td>
+                  <td>Feb 28, 2026 | 2:00 PM</td>
+                  <td>Community Hall</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td class="action-links">
+                    <a href="#" class="link">Minutes</a>
+                    <a href="#" class="link">Attendance</a>
+                    <a href="#" class="link">Items</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Board Meeting</strong></td>
+                  <td>Feb 21, 2026 | 10:00 AM</td>
+                  <td>Office</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td class="action-links">
+                    <a href="#" class="link">Minutes</a>
+                    <a href="#" class="link">Attendance</a>
+                    <a href="#" class="link">Items</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Finance Committee Review</strong></td>
+                  <td>Feb 14, 2026 | 3:00 PM</td>
+                  <td>Office</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td class="action-links">
+                    <a href="#" class="link">Minutes</a>
+                    <a href="#" class="link">Attendance</a>
+                    <a href="#" class="link">Items</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Record Meeting Minutes -->
+        <section class="dashboard-section">
+          <h2 class="h2">Record Meeting Minutes</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="minute-meeting" class="form-label"
+                    >Select Meeting *</label
+                  >
+                  <select id="minute-meeting" class="form-control" required>
+                    <option value="">-- Select a meeting --</option>
+                    <option value="mgm">
+                      Monthly General Meeting (Feb 28, 2026)
+                    </option>
+                    <option value="bm">Board Meeting (Feb 21, 2026)</option>
+                    <option value="fcr">
+                      Finance Committee Review (Feb 14, 2026)
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="meeting-minutes" class="form-label"
+                    >Meeting Minutes (Rich Text) *</label
+                  >
+                  <textarea
+                    id="meeting-minutes"
+                    class="form-control rich-editor"
+                    rows="8"
+                    placeholder="Record detailed meeting minutes..."
+                    required
+                  ></textarea>
+                  <p class="text-muted text-sm">
+                    Supports: Bold, Italics, Lists, Links
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="meeting-decisions" class="form-label"
+                    >Decisions Made</label
+                  >
+                  <textarea
+                    id="meeting-decisions"
+                    class="form-control"
+                    rows="4"
+                    placeholder="List key decisions..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Save Minutes
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Track Action Items -->
+        <section class="dashboard-section">
+          <h2 class="h2">Action Items from Meetings</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Action Item</th>
+                  <th>Assigned To</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Submit monthly financial report</td>
+                  <td>John Mwangi (Treasurer)</td>
+                  <td>Mar 5, 2026</td>
+                  <td><span class="badge badge-info">In Progress</span></td>
+                  <td><a href="#" class="link">Update</a></td>
+                </tr>
+                <tr>
+                  <td>Prepare annual audit report</td>
+                  <td>Jane Omondi (Auditor)</td>
+                  <td>Mar 15, 2026</td>
+                  <td><span class="badge badge-warning">Pending</span></td>
+                  <td><a href="#" class="link">Update</a></td>
+                </tr>
+                <tr>
+                  <td>Update group constitution</td>
+                  <td>Peter Kipchoge (Chairman)</td>
+                  <td>Mar 10, 2026</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td><a href="#" class="link">View</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Mark Attendance -->
+        <section class="dashboard-section">
+          <h2 class="h2">Mark Attendance</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="attend-meeting" class="form-label"
+                    >Select Meeting *</label
+                  >
+                  <select id="attend-meeting" class="form-control" required>
+                    <option value="">-- Select a meeting --</option>
+                    <option value="mgm">
+                      Monthly General Meeting (Feb 28, 2026)
+                    </option>
+                    <option value="bm">Board Meeting (Feb 21, 2026)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="attendance-grid">
+                <h3 class="h3">Select Members Present</h3>
+                <div class="member-checklist">
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> John Mwangi
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> Jane Omondi
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> Peter Kipchoge
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> Mary Kiplagat
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> David Kariuki
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" /> Sarah Muthoni
+                  </label>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Save Attendance
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Upload Meeting Attachments -->
+        <section class="dashboard-section">
+          <h2 class="h2">Upload Meeting Attachments</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="attach-meeting" class="form-label"
+                    >Select Meeting *</label
+                  >
+                  <select id="attach-meeting" class="form-control" required>
+                    <option value="">-- Select a meeting --</option>
+                    <option value="mgm">
+                      Monthly General Meeting (Feb 28, 2026)
+                    </option>
+                    <option value="bm">Board Meeting (Feb 21, 2026)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="attachments" class="form-label"
+                    >Upload Documents/Spreadsheets</label
+                  >
+                  <div class="file-upload">
+                    <input
+                      type="file"
+                      id="attachments"
+                      class="form-control"
+                      multiple
+                      accept=".pdf,.doc,.docx,.xls,.xlsx"
+                    />
+                    <p class="text-muted text-sm">
+                      Accepted: PDF, Word, Excel documents
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Upload Attachments
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Send Meeting Invitations -->
+        <section class="dashboard-section">
+          <h2 class="h2">Send Meeting Invitations</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="invite-meeting" class="form-label"
+                    >Select Meeting *</label
+                  >
+                  <select id="invite-meeting" class="form-control" required>
+                    <option value="">-- Select a meeting --</option>
+                    <option value="mgm">
+                      Monthly General Meeting (Mar 28, 2026)
+                    </option>
+                    <option value="bm">Board Meeting (Mar 21, 2026)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label">Recipients</label>
+                  <div class="recipient-tags">
+                    <div class="tag">
+                      All Members
+                      <button type="button" class="tag-remove">&times;</button>
+                    </div>
+                  </div>
+                  <p class="text-muted text-sm">
+                    Email invitations will be sent to all active members
+                  </p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="invite-message" class="form-label"
+                    >Invitation Message</label
+                  >
+                  <textarea
+                    id="invite-message"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Customize invitation message..."
+                  ></textarea>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary">
+                Send Invitations
+              </button>
+            </form>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

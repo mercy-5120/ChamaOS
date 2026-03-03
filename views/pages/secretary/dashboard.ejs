@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Secretary Dashboard</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/secretary.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/secretarysidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Secretary Dashboard</h1>
+            <p class="lead">
+              Manage meetings, documents, communications, and member records.
+            </p>
+          </div>
+        </div>
+
+        <!-- Dashboard Overview Section -->
+        <section class="dashboard-section">
+          <h2 class="h2">Overview</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Recent Meetings</div>
+              <div class="metric-value value-info">3</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Upcoming Meetings</div>
+              <div class="metric-value value-warning">2</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Pending Documents</div>
+              <div class="metric-value value-coral">5</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Total Members</div>
+              <div class="metric-value value-success">24</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Meetings -->
+        <section class="dashboard-section">
+          <div class="section-header">
+            <h2 class="h2">Recent Meetings (Last 3)</h2>
+            <a href="/secretary/meetings" class="btn btn-link">View All</a>
+          </div>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Meeting Title</th>
+                  <th>Date</th>
+                  <th>Attendees</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Monthly General Meeting</strong></td>
+                  <td>Feb 28, 2026</td>
+                  <td>18/24 members</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td><a href="#" class="link">View Minutes</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Board Meeting</strong></td>
+                  <td>Feb 21, 2026</td>
+                  <td>8/8 members</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td><a href="#" class="link">View Minutes</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Finance Committee Review</strong></td>
+                  <td>Feb 14, 2026</td>
+                  <td>5/5 members</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                  <td><a href="#" class="link">View Minutes</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Upcoming Meetings -->
+        <section class="dashboard-section">
+          <div class="section-header">
+            <h2 class="h2">Upcoming Meetings (Next 3)</h2>
+            <a href="/secretary/calendar" class="btn btn-link">View Calendar</a>
+          </div>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Meeting Title</th>
+                  <th>Scheduled Date</th>
+                  <th>Time</th>
+                  <th>Location</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Monthly General Meeting</strong></td>
+                  <td>Mar 28, 2026</td>
+                  <td>2:00 PM</td>
+                  <td>Community Hall</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-primary"
+                      >Send Invitations</a
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Board Meeting</strong></td>
+                  <td>Mar 21, 2026</td>
+                  <td>10:00 AM</td>
+                  <td>Office</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-primary"
+                      >Send Invitations</a
+                    >
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Welfare Committee Meeting</strong></td>
+                  <td>Mar 15, 2026</td>
+                  <td>3:30 PM</td>
+                  <td>Community Hall</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-primary"
+                      >Send Invitations</a
+                    >
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Pending Documents -->
+        <section class="dashboard-section">
+          <div class="section-header">
+            <h2 class="h2">Pending Documents to Upload</h2>
+            <a href="/secretary/documents" class="btn btn-link">Manage All</a>
+          </div>
+          <div class="card documents-list">
+            <div class="document-item">
+              <div class="document-info">
+                <h4>Annual Financial Report 2025</h4>
+                <p class="text-muted">
+                  Due: Mar 15, 2026 | Category: Financial
+                </p>
+              </div>
+              <div class="document-actions">
+                <span class="badge badge-warning">Pending</span>
+                <a href="#" class="btn btn-sm btn-primary">Upload</a>
+              </div>
+            </div>
+            <div class="document-item">
+              <div class="document-info">
+                <h4>Updated Group Constitution</h4>
+                <p class="text-muted">
+                  Due: Mar 10, 2026 | Category: Governance
+                </p>
+              </div>
+              <div class="document-actions">
+                <span class="badge badge-warning">Pending</span>
+                <a href="#" class="btn btn-sm btn-primary">Upload</a>
+              </div>
+            </div>
+            <div class="document-item">
+              <div class="document-info">
+                <h4>Meeting Minutes - February 2026</h4>
+                <p class="text-muted">
+                  Due: Mar 5, 2026 | Category: Governance
+                </p>
+              </div>
+              <div class="document-actions">
+                <span class="badge badge-warning">Pending</span>
+                <a href="#" class="btn btn-sm btn-primary">Upload</a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Attendance Statistics -->
+        <section class="dashboard-section">
+          <div class="section-header">
+            <h2 class="h2">Attendance Statistics</h2>
+            <a href="/secretary/member-records" class="btn btn-link"
+              >View Details</a
+            >
+          </div>
+          <div class="card">
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-label">Average Attendance Rate</div>
+                <div class="stat-value">75%</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill" style="width: 75%"></div>
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Members Present (Last Meeting)</div>
+                <div class="stat-value">18/24</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill" style="width: 75%"></div>
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Members Absent (Last Meeting)</div>
+                <div class="stat-value">6/24</div>
+                <div class="stat-bar">
+                  <div class="stat-bar-fill" style="width: 25%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="dashboard-section">
+          <h2 class="h2">Quick Actions</h2>
+          <div class="action-buttons">
+            <a href="/secretary/meetings" class="btn btn-primary"
+              >Create New Meeting</a
+            >
+            <a href="/secretary/documents" class="btn btn-primary"
+              >Upload Documents</a
+            >
+            <a href="/secretary/communications" class="btn btn-primary"
+              >Send Announcement</a
+            >
+            <a href="/secretary/calendar" class="btn btn-secondary"
+              >View Calendar</a
+            >
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
