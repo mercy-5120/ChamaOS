@@ -183,6 +183,31 @@ app.get("/treasurer/settings", (req, res) => {
   res.render("pages/treasurer/settings.ejs");
 });
 
+// Secretary Routes
+app.get("/secretary/dashboard", (req, res) => {
+  res.render("pages/secretary/dashboard.ejs");
+});
+
+app.get("/secretary/meetings", (req, res) => {
+  res.render("pages/secretary/meetings.ejs");
+});
+
+app.get("/secretary/documents", (req, res) => {
+  res.render("pages/secretary/documents.ejs");
+});
+
+app.get("/secretary/communications", (req, res) => {
+  res.render("pages/secretary/communications.ejs");
+});
+
+app.get("/secretary/member-records", (req, res) => {
+  res.render("pages/secretary/member-records.ejs");
+});
+
+app.get("/secretary/calendar", (req, res) => {
+  res.render("pages/secretary/calendar.ejs");
+});
+
 app.get("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
