@@ -85,9 +85,9 @@
                   border-top: 1px solid #e0e0e0;
                 "
               >
-                <p><strong>Maximum Loan Amount:</strong> KES 100,000</p>
-                <p><strong>Interest Rate:</strong> 5% per annum</p>
-                <p><strong>Processing Fee:</strong> KES 500</p>
+                <p><strong>Maximum Loan Amount:</strong> Not set</p>
+                <p><strong>Interest Rate:</strong> Not set</p>
+                <p><strong>Processing Fee:</strong> Not set</p>
               </div>
 
               <div style="margin-top: 20px">
@@ -110,104 +110,7 @@
         <section class="dashboard-section">
           <h2 class="h2">Active Loans</h2>
           <div class="card">
-            <div class="loan-item">
-              <div class="loan-header">
-                <div>
-                  <h4>Loan #LOAN001</h4>
-                  <p class="small">Business Investment Loan</p>
-                </div>
-                <span class="badge badge-info">Active</span>
-              </div>
-
-              <div class="loan-details-grid">
-                <div class="loan-detail">
-                  <strong>Amount Borrowed:</strong>
-                  <p>KES 30,000</p>
-                </div>
-                <div class="loan-detail">
-                  <strong>Amount Repaid:</strong>
-                  <p>KES 12,000 (40%)</p>
-                </div>
-                <div class="loan-detail">
-                  <strong>Remaining Balance:</strong>
-                  <p>KES 18,000</p>
-                </div>
-                <div class="loan-detail">
-                  <strong>Interest Rate:</strong>
-                  <p>5% per annum</p>
-                </div>
-                <div class="loan-detail">
-                  <strong>Issued Date:</strong>
-                  <p>November 15, 2025</p>
-                </div>
-                <div class="loan-detail">
-                  <strong>Due Date:</strong>
-                  <p>May 15, 2026</p>
-                </div>
-              </div>
-
-              <div style="margin-top: 20px">
-                <button
-                  class="btn btn-primary"
-                  onclick="toggleRepaymentSchedule('loan001')"
-                >
-                  View Repayment Schedule
-                </button>
-              </div>
-
-              <div
-                id="loan001-schedule"
-                style="
-                  display: none;
-                  margin-top: 20px;
-                  padding-top: 20px;
-                  border-top: 1px solid #e0e0e0;
-                "
-              >
-                <h5>Repayment Schedule</h5>
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Due Date</th>
-                      <th>Installment Amount</th>
-                      <th>Principal</th>
-                      <th>Interest</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Nov 15, 2025</td>
-                      <td>KES 6,250</td>
-                      <td>KES 6,000</td>
-                      <td>KES 250</td>
-                      <td><span class="badge badge-success">Paid</span></td>
-                    </tr>
-                    <tr>
-                      <td>Dec 15, 2025</td>
-                      <td>KES 6,250</td>
-                      <td>KES 6,000</td>
-                      <td>KES 250</td>
-                      <td><span class="badge badge-success">Paid</span></td>
-                    </tr>
-                    <tr>
-                      <td>Jan 15, 2026</td>
-                      <td>KES 6,250</td>
-                      <td>KES 6,000</td>
-                      <td>KES 250</td>
-                      <td><span class="badge badge-warning">Pending</span></td>
-                    </tr>
-                    <tr>
-                      <td>Feb 15, 2026</td>
-                      <td>KES 6,250</td>
-                      <td>KES 6,000</td>
-                      <td>KES 250</td>
-                      <td><span class="badge badge-warning">Upcoming</span></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <p>No active loans available.</p>
           </div>
         </section>
 
@@ -228,30 +131,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>#APP20260215</td>
-                  <td>KES 50,000</td>
-                  <td>Education</td>
-                  <td>Feb 15, 2026</td>
-                  <td>
-                    <span class="badge badge-warning">Pending Review</span>
-                  </td>
-                  <td><a href="#" class="btn btn-small btn-ghost">View</a></td>
-                </tr>
-                <tr>
-                  <td>#APP20260101</td>
-                  <td>KES 30,000</td>
-                  <td>Business</td>
-                  <td>Jan 1, 2026</td>
-                  <td><span class="badge badge-success">Approved</span></td>
-                  <td><a href="#" class="btn btn-small btn-ghost">View</a></td>
-                </tr>
-                <tr>
-                  <td>#APP20251215</td>
-                  <td>KES 25,000</td>
-                  <td>Emergency</td>
-                  <td>Dec 15, 2025</td>
-                  <td><span class="badge badge-danger">Rejected</span></td>
-                  <td><a href="#" class="btn btn-small btn-ghost">View</a></td>
+                  <td colspan="6">No loan applications available.</td>
                 </tr>
               </tbody>
             </table>
@@ -275,20 +155,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>#LOAN0001</td>
-                  <td>KES 20,000</td>
-                  <td>Property</td>
-                  <td>May 1, 2025</td>
-                  <td>August 15, 2025</td>
-                  <td><span class="badge badge-success">Fully Repaid</span></td>
-                </tr>
-                <tr>
-                  <td>#LOAN0002</td>
-                  <td>KES 15,000</td>
-                  <td>Health</td>
-                  <td>July 10, 2025</td>
-                  <td>September 30, 2025</td>
-                  <td><span class="badge badge-success">Fully Repaid</span></td>
+                  <td colspan="6">No loan history available.</td>
                 </tr>
               </tbody>
             </table>
