@@ -28,6 +28,19 @@
   color: #999;
 }
 
+.page-header div:first-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.page-header div:first-child > .h1,
+.page-header div:first-child > .lead {
+  margin-left: 0;
+  padding-left: 0;
+  text-indent: 0;
+}
+
 /* Chairperson sidebar */
 .chairperson-sidebar {
   position: sticky;
