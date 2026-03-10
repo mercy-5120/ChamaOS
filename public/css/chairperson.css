@@ -1,0 +1,254 @@
+@import url("/css/member.css");
+
+/* Chairperson overrides and custom styles */
+
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-content {
+  padding: 28px;
+  background: var(--soft-cream);
+}
+
+.page-header div:first-child h1,
+.page-header .h1 {
+  margin: 0 0 8px 0 !important;
+  color: var(--deep-teal);
+  font-size: 32px;
+}
+
+.page-header .lead {
+  margin: 0 !important;
+  color: #999;
+}
+
+/* Chairperson sidebar */
+.chairperson-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 65, 80, 0.98),
+    rgba(6, 45, 55, 0.95)
+  );
+  color: white;
+  box-shadow: 2px 0 12px rgba(9, 18, 28, 0.15);
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.chairperson-sidebar .sidebar-container {
+  padding: 24px 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chairperson-sidebar .sidebar-header {
+  padding: 0 24px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chairperson-sidebar .sidebar-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.chairperson-sidebar .sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 12px;
+}
+
+.chairperson-sidebar .sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.chairperson-sidebar .sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.25s ease;
+  font-weight: 600;
+}
+
+.chairperson-sidebar .sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  padding-left: 18px;
+}
+
+.chairperson-sidebar .sidebar-link.active {
+  background: rgba(244, 185, 66, 0.12);
+  color: var(--warm-gold);
+  border-left: 4px solid var(--warm-gold);
+}
+
+.chairperson-sidebar .sidebar-footer {
+  padding: 20px 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chairperson-sidebar .logout-link {
+  display: block;
+  text-align: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255, 107, 107, 0.12);
+  color: #ffb3b3;
+  text-decoration: none;
+}
+
+/* Chairperson page helpers */
+.form-card {
+  background: white;
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-1);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-col.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--deep-teal);
+  margin-bottom: 8px;
+}
+
+.form-control {
+  padding: 10px 12px;
+  border: 1px solid rgba(11, 79, 108, 0.12);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+}
+
+.form-control:focus {
+  outline: 2px solid var(--warm-gold);
+  border-color: var(--warm-gold);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.stat-box {
+  background: #f8f4e9;
+  padding: 16px;
+  border-radius: 8px;
+  border-left: 4px solid var(--warm-gold);
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--deep-teal);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.link {
+  color: var(--warm-gold);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-success {
+  background: rgba(42, 111, 75, 0.12);
+  color: var(--forest-green);
+}
+
+.badge-warning {
+  background: rgba(244, 185, 66, 0.12);
+  color: #d9860a;
+}
+
+.badge-info {
+  background: rgba(91, 155, 255, 0.12);
+  color: #5b9bff;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--deep-teal);
+  color: var(--deep-teal);
+}
+
+@media (max-width: 1024px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chairperson-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 250px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .chairperson-sidebar.active {
+    transform: translateX(0);
+  }
+}

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Chairperson Member Oversight</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/chairperson.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/chairpersonsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Member Oversight</h1>
+            <p class="lead">
+              Review member status, approvals, attendance, and disciplinary
+              records.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Pending Join Requests</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Requested On</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mercy Njeri</td>
+                  <td>+254 712 000 222</td>
+                  <td>Mar 01, 2026</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-primary">Approve</a>
+                    <a href="#" class="btn btn-sm btn-outline">Decline</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Daniel Otieno</td>
+                  <td>+254 733 222 111</td>
+                  <td>Feb 27, 2026</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-primary">Approve</a>
+                    <a href="#" class="btn btn-sm btn-outline">Decline</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Active Members</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Attendance</th>
+                  <th>Contribution Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Jane Muthoni</td>
+                  <td>Member</td>
+                  <td>8/10 meetings</td>
+                  <td><span class="badge badge-success">Up to Date</span></td>
+                  <td><a href="#" class="link">Assign Committee</a></td>
+                </tr>
+                <tr>
+                  <td>Peter Mwangi</td>
+                  <td>Member</td>
+                  <td>5/10 meetings</td>
+                  <td><span class="badge badge-warning">Overdue</span></td>
+                  <td><a href="#" class="link">Add Note</a></td>
+                </tr>
+                <tr>
+                  <td>Ann Wanjiru</td>
+                  <td>Member</td>
+                  <td>10/10 meetings</td>
+                  <td><span class="badge badge-success">Up to Date</span></td>
+                  <td><a href="#" class="link">Promote</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Disciplinary Records</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Issue</th>
+                  <th>Reported On</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Peter Mwangi</td>
+                  <td>Repeated missed contributions</td>
+                  <td>Feb 20, 2026</td>
+                  <td><span class="badge badge-info">Follow-up</span></td>
+                  <td><a href="#" class="link">Resolve</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

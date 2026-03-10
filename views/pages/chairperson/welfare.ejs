@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Chairperson Welfare</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/chairperson.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/chairpersonsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Welfare Oversight</h1>
+            <p class="lead">
+              Review welfare requests, approvals, and welfare event planning.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Pending Welfare Requests</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Request Type</th>
+                  <th>Amount</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Anne Wanjiku</td>
+                  <td>Medical Emergency</td>
+                  <td>KES 15,000</td>
+                  <td>Mar 02, 2026</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-primary">Approve</a>
+                    <a href="#" class="btn btn-sm btn-outline">Decline</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Mark Ochieng</td>
+                  <td>Bereavement Support</td>
+                  <td>KES 20,000</td>
+                  <td>Mar 01, 2026</td>
+                  <td>
+                    <a href="#" class="btn btn-sm btn-primary">Approve</a>
+                    <a href="#" class="btn btn-sm btn-outline">Decline</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Welfare Fund Status</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Current Welfare Balance</div>
+              <div class="metric-value value-deep">KES 180,000</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Disbursed This Quarter</div>
+              <div class="metric-value value-warning">KES 45,000</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Open Requests</div>
+              <div class="metric-value value-info">2</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Welfare Events</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label class="form-label" for="event-name">Event Name</label>
+                  <input
+                    id="event-name"
+                    class="form-control"
+                    type="text"
+                    placeholder="Family Day"
+                  />
+                </div>
+                <div class="form-col">
+                  <label class="form-label" for="event-date">Date</label>
+                  <input id="event-date" class="form-control" type="date" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="event-notes">Notes</label>
+                  <textarea
+                    id="event-notes"
+                    class="form-control"
+                    rows="3"
+                    placeholder="Event objective and plan..."
+                  ></textarea>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Create Welfare Event
+              </button>
+            </form>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

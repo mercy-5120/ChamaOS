@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Chairperson Dashboard</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/chairperson.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/chairpersonsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Chairperson Dashboard</h1>
+            <p class="lead">
+              Monitor group health, member activity, and key governance
+              priorities.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Overview</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Group Health Score</div>
+              <div class="metric-value value-success">84%</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Active Members</div>
+              <div class="metric-value value-deep">24/28</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Pending Issues</div>
+              <div class="metric-value value-warning">4</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Upcoming Events</div>
+              <div class="metric-value value-info">3</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Recent Group Activities</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Activity</th>
+                  <th>Owner</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mar 02, 2026</td>
+                  <td>Loan policy amendment draft submitted</td>
+                  <td>Governance Committee</td>
+                  <td><span class="badge badge-info">In Review</span></td>
+                </tr>
+                <tr>
+                  <td>Mar 01, 2026</td>
+                  <td>Monthly contribution report published</td>
+                  <td>Treasurer</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                </tr>
+                <tr>
+                  <td>Feb 28, 2026</td>
+                  <td>General meeting held and minutes submitted</td>
+                  <td>Secretary</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Quick Actions</h2>
+          <div class="action-buttons">
+            <a href="/chairperson/members" class="btn btn-primary"
+              >Review Members</a
+            >
+            <a href="/chairperson/governance" class="btn btn-primary"
+              >Update Governance</a
+            >
+            <a href="/chairperson/meetings" class="btn btn-secondary"
+              >Schedule Special Meeting</a
+            >
+            <a href="/chairperson/reports" class="btn btn-secondary"
+              >View Executive Reports</a
+            >
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

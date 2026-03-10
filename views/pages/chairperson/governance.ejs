@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Chairperson Governance</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/chairperson.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/chairpersonsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Governance</h1>
+            <p class="lead">
+              Manage bylaws, committees, policies, and compliance tracking.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Constitution & Bylaws</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="amendment-title"
+                    >Amendment Title</label
+                  >
+                  <input
+                    id="amendment-title"
+                    class="form-control"
+                    type="text"
+                    placeholder="e.g. Loan Default Handling Clause"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="amendment-details"
+                    >Details</label
+                  >
+                  <textarea
+                    id="amendment-details"
+                    class="form-control"
+                    rows="5"
+                    placeholder="Write the proposed amendment..."
+                  ></textarea>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Save Amendment Draft
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Committee Management</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Committee</th>
+                  <th>Lead</th>
+                  <th>Members</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Finance Committee</td>
+                  <td>John Kariuki</td>
+                  <td>5</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td><a href="#" class="link">Update</a></td>
+                </tr>
+                <tr>
+                  <td>Welfare Committee</td>
+                  <td>Mary Njeri</td>
+                  <td>4</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td><a href="#" class="link">Update</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Policy Compliance</h2>
+          <div class="card">
+            <div class="stats-grid">
+              <div class="stat-box">
+                <div class="stat-label">Policy Adherence</div>
+                <div class="stat-value">91%</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Open Compliance Issues</div>
+                <div class="stat-value">2</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-label">Resolved This Month</div>
+                <div class="stat-value">6</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

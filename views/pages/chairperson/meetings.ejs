@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Chairperson Meetings</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/chairperson.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/chairpersonsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Meeting Management</h1>
+            <p class="lead">
+              Call special meetings, set agenda, and track execution of
+              decisions.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Schedule Special Meeting</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label class="form-label" for="meeting-title"
+                    >Meeting Title</label
+                  >
+                  <input
+                    id="meeting-title"
+                    class="form-control"
+                    type="text"
+                    placeholder="Special Budget Review"
+                  />
+                </div>
+                <div class="form-col">
+                  <label class="form-label" for="meeting-date">Date</label>
+                  <input id="meeting-date" class="form-control" type="date" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col">
+                  <label class="form-label" for="meeting-time">Time</label>
+                  <input id="meeting-time" class="form-control" type="time" />
+                </div>
+                <div class="form-col">
+                  <label class="form-label" for="meeting-location"
+                    >Location</label
+                  >
+                  <input
+                    id="meeting-location"
+                    class="form-control"
+                    type="text"
+                    placeholder="Community Hall"
+                  />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="meeting-agenda">Agenda</label>
+                  <textarea
+                    id="meeting-agenda"
+                    class="form-control"
+                    rows="4"
+                    placeholder="List agenda points..."
+                  ></textarea>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Schedule Meeting
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Decision Tracking</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Decision</th>
+                  <th>Owner</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Finalize investment policy update</td>
+                  <td>Governance Committee</td>
+                  <td>Mar 10, 2026</td>
+                  <td><span class="badge badge-warning">In Progress</span></td>
+                </tr>
+                <tr>
+                  <td>Prepare AGM communication pack</td>
+                  <td>Secretary</td>
+                  <td>Mar 08, 2026</td>
+                  <td><span class="badge badge-info">Pending</span></td>
+                </tr>
+                <tr>
+                  <td>Complete defaulter follow-up list</td>
+                  <td>Treasurer</td>
+                  <td>Mar 05, 2026</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
