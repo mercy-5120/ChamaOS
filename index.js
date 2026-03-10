@@ -23,7 +23,7 @@ app.use(
 );
 let isLoggedIn;
 let loggedInUser;
-const privateRoutes = ["/admin/dashboard"];
+const privateRoutes = [];
 app.use((req, res, next) => {
   if (req.session.user) {
     isLoggedIn = true;
@@ -129,6 +129,22 @@ app.get("/admin/dashboard", (req, res) => {
   res.render("pages/admin/dashboard.ejs");
 });
 
+app.get("/admin/groups-users", (req, res) => {
+  res.render("pages/admin/groups-users.ejs");
+});
+
+app.get("/admin/billing-config", (req, res) => {
+  res.render("pages/admin/billing-config.ejs");
+});
+
+app.get("/admin/content-support", (req, res) => {
+  res.render("pages/admin/content-support.ejs");
+});
+
+app.get("/admin/security-analytics", (req, res) => {
+  res.render("pages/admin/security-analytics.ejs");
+});
+
 //Member Routes
 app.get("/member/memberdashboard", (req, res) => {
   res.render("pages/member/memberdashboard.ejs");
@@ -206,6 +222,31 @@ app.get("/secretary/member-records", (req, res) => {
 
 app.get("/secretary/calendar", (req, res) => {
   res.render("pages/secretary/calendar.ejs");
+});
+
+// Chairperson Routes
+app.get("/chairperson/dashboard", (req, res) => {
+  res.render("pages/chairperson/dashboard.ejs");
+});
+
+app.get("/chairperson/members", (req, res) => {
+  res.render("pages/chairperson/members.ejs");
+});
+
+app.get("/chairperson/governance", (req, res) => {
+  res.render("pages/chairperson/governance.ejs");
+});
+
+app.get("/chairperson/meetings", (req, res) => {
+  res.render("pages/chairperson/meetings.ejs");
+});
+
+app.get("/chairperson/welfare", (req, res) => {
+  res.render("pages/chairperson/welfare.ejs");
+});
+
+app.get("/chairperson/reports", (req, res) => {
+  res.render("pages/chairperson/reports.ejs");
 });
 
 app.get("/logout", (req, res) => {
