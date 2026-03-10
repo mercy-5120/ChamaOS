@@ -1,101 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>ChamaOS — Dashboard</title>
-  <link rel="stylesheet" href="/css/app.css">
-</head>
-<body>
-  <%- include('../partials/header', { brandTagline: 'Admin dashboard', navItems: [ { text: 'Home', href: '/' }, { text: 'Logout', href: '/login' } ] }) %>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — System Admin Dashboard</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/adminsidebar') %>
 
-  <main class="container">
-    <section class="card">
-      <div class="page-header-row">
-        <div>
-          <h2 class="h1">Overview</h2>
-          <p class="lead">Key metrics for community health and growth.</p>
-        </div>
-        <div class="actions">
-          <a class="btn btn-primary" href="#">New chama</a>
-          <a class="btn btn-ghost" href="#">Export</a>
-        </div>
-      </div>
-
-      <div class="kpi-row kpi-spaced">
-        <div class="kpi">
-          <div class="label">Total users</div>
-          <div class="value"><%= allUsers ? allUsers.length : 0 %></div>
-        </div>
-        <div class="kpi">
-          <div class="label">Male</div>
-          <div class="value success-number"><%= maleFemaleCount ? maleFemaleCount.male : 0 %></div>
-        </div>
-        <div class="kpi">
-          <div class="label">Female</div>
-          <div class="value value-lavender"><%= maleFemaleCount ? maleFemaleCount.female : 0 %></div>
-        </div>
-      </div>
-
-      <div class="split-row">
-        <div class="card col-1">
-          <div class="panel-flex">
-            <div>
-              <div class="small">Member split</div>
-              <canvas id="genderChart" width="300" height="200"></canvas>
-            </div>
-            <div class="text-right">
-              <div class="small">Active chamas</div>
-              <div class="active-value">6</div>
-            </div>
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">System Admin Dashboard</h1>
+            <p class="lead">
+              Platform overview for operations, health, subscriptions, and
+              growth.
+            </p>
           </div>
         </div>
 
-        <div class="card col-2">
-          <div class="panel-flex">
-            <div>
-              <div class="small">Latest members</div>
-              <h3 class="h2">Recent signups</h3>
+        <section class="dashboard-section">
+          <h2 class="h2">Dashboard Overview</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Groups</div>
+              <div class="metric-value value-deep">156</div>
             </div>
-            <div>
-              <div class="badge badge-community">Community</div>
+            <div class="metric-card">
+              <div class="metric-label">Total Users</div>
+              <div class="metric-value value-success">3,240</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">System Uptime</div>
+              <div class="metric-value value-info">99.94%</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Monthly Revenue</div>
+              <div class="metric-value value-warning">KES 124,500</div>
             </div>
           </div>
+        </section>
 
-          <table class="table" aria-describedby="recent-members">
-            <thead>
-              <tr><th>Name</th><th>Email</th><th>Ward</th><th>Gender</th></tr>
-            </thead>
-            <tbody>
-              <% if (allUsers && allUsers.length > 0) { %>
-                <% for (let i = 0; i < Math.min(allUsers.length, 6); i++) { const u = allUsers[i]; %>
-                  <tr>
-                    <td><%= u.full_name || u.fullname || '—' %></td>
-                    <td><%= u.email %></td>
-                    <td><%= u.ward || u.location || '—' %></td>
-                    <td><span class="badge <%= (u.gender==='male')? 'badge-success' : (u.gender==='female')? 'badge-community' : 'badge-alert' %>"><%= u.gender || '—' %></span></td>
-                  </tr>
-                <% } %>
-              <% } else { %>
-                <tr><td colspan="4">No members yet</td></tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+        <section class="dashboard-section">
+          <h2 class="h2">System Health & Recent Registrations</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Event</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>10:30 AM</td>
+                  <td>New group registered: Baraka Chama</td>
+                  <td>Registration</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                </tr>
+                <tr>
+                  <td>10:12 AM</td>
+                  <td>Failed login attempts from one IP</td>
+                  <td>Security</td>
+                  <td><span class="badge badge-warning">Flagged</span></td>
+                </tr>
+                <tr>
+                  <td>09:48 AM</td>
+                  <td>Premium subscription payment received</td>
+                  <td>Billing</td>
+                  <td><span class="badge badge-success">Completed</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-    <%- include('../partials/footer') %>
-  </main>
-
-  <script id="server-data" type="application/json"><%- chartData || '{}' %></script>
-  <script>
-    try {
-      const chartData = JSON.parse(document.getElementById('server-data').textContent || '{}');
-      const finalChartData = (chartData && chartData.labels && chartData.labels.length) ? chartData : { labels: [], datasets: [] };
-      const ctx = document.getElementById('genderChart').getContext('2d');
-      new Chart(ctx, { type: 'doughnut', data: finalChartData, options: { plugins: { legend: { position: 'bottom' } } } });
-    } catch(e) { console.warn('Chart render skipped', e); }
-  </script>
-</body>
+        <section class="dashboard-section">
+          <h2 class="h2">Quick Access</h2>
+          <div class="action-buttons">
+            <a href="/admin/groups-users" class="btn btn-primary"
+              >Manage Groups & Users</a
+            >
+            <a href="/admin/billing-config" class="btn btn-secondary"
+              >Billing & Config</a
+            >
+            <a href="/admin/content-support" class="btn btn-secondary"
+              >Content & Support</a
+            >
+            <a href="/admin/security-analytics" class="btn btn-secondary"
+              >Security & Analytics</a
+            >
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
 </html>

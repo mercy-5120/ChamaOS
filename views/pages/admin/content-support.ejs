@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Admin Content & Support</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/adminsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Content Management & Support</h1>
+            <p class="lead">
+              Manage platform content, documentation, announcements, tutorials,
+              and support tickets.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Platform Content</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label class="form-label" for="content-page">Page</label>
+                  <select id="content-page" class="form-control">
+                    <option>Homepage</option>
+                    <option>About</option>
+                    <option>FAQ</option>
+                    <option>Help Docs</option>
+                    <option>Tutorials</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="content-body">Content</label>
+                  <textarea
+                    id="content-body"
+                    class="form-control"
+                    rows="6"
+                    placeholder="Update selected content here..."
+                  ></textarea>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Publish Update
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">System Announcements</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="announcement"
+                    >Announcement Message</label
+                  >
+                  <textarea
+                    id="announcement"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Write platform-wide announcement..."
+                  ></textarea>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Post Announcement
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Support Tickets</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Ticket</th>
+                  <th>User</th>
+                  <th>Issue</th>
+                  <th>Assigned To</th>
+                  <th>Status</th>
+                  <th>Resolution Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>#SUP-1024</td>
+                  <td>Ann Njeri</td>
+                  <td>Cannot reset password</td>
+                  <td>Support Agent 1</td>
+                  <td><span class="badge badge-warning">Open</span></td>
+                  <td>14h</td>
+                </tr>
+                <tr>
+                  <td>#SUP-1021</td>
+                  <td>John K.</td>
+                  <td>M-Pesa callback mismatch</td>
+                  <td>Support Agent 2</td>
+                  <td><span class="badge badge-success">Resolved</span></td>
+                  <td>3h</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

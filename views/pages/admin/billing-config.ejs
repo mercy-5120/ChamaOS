@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Admin Billing & Config</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/adminsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Subscription, Billing & Configuration</h1>
+            <p class="lead">
+              Manage plans, payments, invoices, refunds, and system settings.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Pricing Plans</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Free</div>
+              <div class="metric-value value-info">KES 0</div>
+              <div class="small">Basic features</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Premium</div>
+              <div class="metric-value value-success">KES 2,500/mo</div>
+              <div class="small">Full group tools</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Enterprise</div>
+              <div class="metric-value value-deep">KES 7,500/mo</div>
+              <div class="small">Advanced integrations</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Billing Operations</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Invoice</th>
+                  <th>Group</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>INV-2026-0031</td>
+                  <td>Umoja Chama</td>
+                  <td>KES 2,500</td>
+                  <td><span class="badge badge-success">Paid</span></td>
+                  <td><a href="#" class="link">Download</a></td>
+                </tr>
+                <tr>
+                  <td>INV-2026-0032</td>
+                  <td>Jitegemee Group</td>
+                  <td>KES 2,500</td>
+                  <td><span class="badge badge-warning">Pending</span></td>
+                  <td>
+                    <a href="#" class="link">Remind</a>
+                    <a href="#" class="link">Refund</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">System Configuration</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label class="form-label" for="currency"
+                    >Default Currency</label
+                  >
+                  <select id="currency" class="form-control">
+                    <option selected>KES</option>
+                    <option>USD</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label class="form-label" for="date-format"
+                    >Date Format</label
+                  >
+                  <select id="date-format" class="form-control">
+                    <option selected>DD/MM/YYYY</option>
+                    <option>MM/DD/YYYY</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label class="form-label" for="email-provider"
+                    >Email/SMS Provider</label
+                  >
+                  <input
+                    id="email-provider"
+                    class="form-control"
+                    type="text"
+                    placeholder="SMTP / Twilio / Africa's Talking"
+                  />
+                </div>
+                <div class="form-col">
+                  <label class="form-label" for="backup-schedule"
+                    >Backup Schedule</label
+                  >
+                  <select id="backup-schedule" class="form-control">
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="api-keys"
+                    >Integration API Keys</label
+                  >
+                  <textarea
+                    id="api-keys"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Store/manage integration keys"
+                  ></textarea>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" type="submit">
+                Save Configuration
+              </button>
+            </form>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

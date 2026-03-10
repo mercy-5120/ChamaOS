@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Admin Groups & Users</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/adminsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Group & User Management</h1>
+            <p class="lead">
+              Manage all platform groups, users, roles, and activity logs.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Group Management</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Group</th>
+                  <th>Members</th>
+                  <th>Status</th>
+                  <th>Officers</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Umoja Chama</td>
+                  <td>28</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>Chair, Treasurer, Secretary</td>
+                  <td>
+                    <a href="#" class="link">Suspend</a>
+                    <a href="#" class="link">Logs</a>
+                    <a href="#" class="link">Export</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Tumaini Women Group</td>
+                  <td>19</td>
+                  <td><span class="badge badge-warning">Suspended</span></td>
+                  <td>Chair, Treasurer</td>
+                  <td>
+                    <a href="#" class="link">Activate</a>
+                    <a href="#" class="link">Assign Officers</a>
+                    <a href="#" class="link">Delete</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Create New Group</h2>
+          <div class="card form-card">
+            <form class="form-group">
+              <div class="form-row">
+                <div class="form-col">
+                  <label class="form-label" for="group-name">Group Name</label>
+                  <input
+                    id="group-name"
+                    class="form-control"
+                    type="text"
+                    placeholder="Enter group name"
+                  />
+                </div>
+                <div class="form-col">
+                  <label class="form-label" for="group-plan">Plan</label>
+                  <select id="group-plan" class="form-control">
+                    <option>Free</option>
+                    <option>Premium</option>
+                    <option>Enterprise</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Create Group
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">User Management</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Mary Wanjiku</td>
+                  <td>mary@example.com</td>
+                  <td>Secretary</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>
+                    <a href="#" class="link">Reset Password</a>
+                    <a href="#" class="link">Impersonate</a>
+                    <a href="#" class="link">Activity</a>
+                  </td>
+                </tr>
+                <tr>
+                  <td>John Kariuki</td>
+                  <td>john@example.com</td>
+                  <td>Treasurer</td>
+                  <td><span class="badge badge-success">Active</span></td>
+                  <td>
+                    <a href="#" class="link">Suspend</a>
+                    <a href="#" class="link">Assign Role</a>
+                    <a href="#" class="link">Activity</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

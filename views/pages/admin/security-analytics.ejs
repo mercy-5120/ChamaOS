@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Admin Security & Analytics</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/adminsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Security, Audit & Analytics</h1>
+            <p class="lead">
+              Monitor audit events, security posture, suspicious activity, and
+              platform performance.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Security & Audit</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Suspicious Events (24h)</div>
+              <div class="metric-value value-warning">7</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Admin Access Changes</div>
+              <div class="metric-value value-info">2</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">2FA Coverage</div>
+              <div class="metric-value value-success">76%</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 16px">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Event</th>
+                  <th>Actor</th>
+                  <th>Severity</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>10:12 AM</td>
+                  <td>Multiple failed logins detected</td>
+                  <td>IP 154.22.xx.xx</td>
+                  <td><span class="badge badge-warning">Medium</span></td>
+                  <td><a href="#" class="link">Investigate</a></td>
+                </tr>
+                <tr>
+                  <td>09:02 AM</td>
+                  <td>Role changed: Support → Admin</td>
+                  <td>System Admin</td>
+                  <td><span class="badge badge-info">Info</span></td>
+                  <td><a href="#" class="link">View Log</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Analytics</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Metric</th>
+                  <th>Current</th>
+                  <th>Trend</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>User Growth</td>
+                  <td>+14.2% (30 days)</td>
+                  <td><span class="badge badge-success">Up</span></td>
+                  <td><a href="#" class="link">Open Chart</a></td>
+                </tr>
+                <tr>
+                  <td>Group Retention</td>
+                  <td>88%</td>
+                  <td><span class="badge badge-success">Stable</span></td>
+                  <td><a href="#" class="link">Details</a></td>
+                </tr>
+                <tr>
+                  <td>Feature Usage (Loans)</td>
+                  <td>62% of active groups</td>
+                  <td><span class="badge badge-info">Flat</span></td>
+                  <td><a href="#" class="link">Export</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="action-buttons" style="margin-top: 16px">
+            <a href="#" class="btn btn-primary">Generate Performance Report</a>
+            <a href="#" class="btn btn-secondary">Export Platform Data</a>
+            <a href="#" class="btn btn-secondary">Export Compliance Data</a>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
