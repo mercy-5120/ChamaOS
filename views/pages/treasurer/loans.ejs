@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/css/treasurer.css" />
   </head>
   <body>
-
     <main class="container dashboard-layout">
       <%- include('../partials/treasurersidebar') %>
 
@@ -16,7 +15,9 @@
         <div class="page-header">
           <div>
             <h1 class="h1">Loans</h1>
-            <p class="lead">View applications, disbursements, and repayments.</p>
+            <p class="lead">
+              View applications, disbursements, and repayments.
+            </p>
           </div>
         </div>
 
@@ -36,12 +37,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>#APP20260215</td>
-                  <td>Mary Johnson</td>
-                  <td>KES 50,000</td>
-                  <td>Feb 15, 2026</td>
-                  <td><span class="badge badge-warning">Pending</span></td>
-                  <td><a class="btn btn-small btn-primary">Review</a></td>
+                  <td colspan="6">No pending applications available.</td>
                 </tr>
               </tbody>
             </table>
@@ -63,19 +59,13 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>#LOAN001</td>
-                  <td>Peter Kipchoge</td>
-                  <td>KES 30,000</td>
-                  <td>KES 18,000</td>
-                  <td>May 15, 2026</td>
+                  <td colspan="5">No active loans available.</td>
                 </tr>
               </tbody>
             </table>
           </div>
         </section>
-
       </section>
     </main>
-
   </body>
 </html>
