@@ -8,8 +8,9 @@
     <style>
       main {
         background:
-          radial-gradient(circle at 10% 8%, rgba(42, 111, 75, 0.08), transparent 28%),
-          radial-gradient(circle at 90% 6%, rgba(244, 185, 66, 0.14), transparent 24%);
+          radial-gradient(circle at 10% 8%, rgba(42, 111, 75, 0.16), transparent 30%),
+          radial-gradient(circle at 90% 6%, rgba(244, 185, 66, 0.2), transparent 26%),
+          linear-gradient(180deg, rgba(11, 79, 108, 0.04), rgba(42, 111, 75, 0.03));
       }
 
       .hero-with-bg {
@@ -72,6 +73,16 @@
         flex-wrap: wrap;
       }
 
+      .hero-ctas .btn-primary {
+        background: var(--warm-gold);
+        color: #113338;
+      }
+
+      .hero-ctas .btn-secondary {
+        background: var(--forest-green);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+      }
+
       .about-section,
       .features-grid,
       .contact-section,
@@ -88,7 +99,8 @@
         align-items: start;
         background: linear-gradient(180deg, #ffffff, #fcfdfa);
         border-radius: 18px;
-        border: 1px solid rgba(11, 79, 108, 0.08);
+        border: 1px solid rgba(11, 79, 108, 0.14);
+        border-top: 4px solid var(--deep-teal);
         padding: 24px;
         box-shadow: 0 14px 28px rgba(15, 34, 46, 0.08);
       }
@@ -118,6 +130,10 @@
         border-top: 4px solid var(--forest-green);
         padding: 28px;
         box-shadow: 0 14px 28px rgba(15, 34, 46, 0.08);
+      }
+
+      .values-content .h1 {
+        color: var(--deep-teal);
       }
 
       .features-content {
@@ -156,6 +172,10 @@
       }
 
       .features-head .small {
+        color: rgba(11, 79, 108, 0.9);
+      }
+
+      .features-head .small {
         font-size: 15px;
         line-height: 1.65;
       }
@@ -174,6 +194,18 @@
           transform 180ms ease,
           box-shadow 180ms ease,
           border-color 180ms ease;
+      }
+
+      .features-container .card:nth-child(3n + 1) {
+        border-top: 3px solid var(--deep-teal);
+      }
+
+      .features-container .card:nth-child(3n + 2) {
+        border-top: 3px solid var(--warm-gold);
+      }
+
+      .features-container .card:nth-child(3n + 3) {
+        border-top: 3px solid var(--forest-green);
       }
 
       .features-container .card:hover {
@@ -213,7 +245,8 @@
         background:
           linear-gradient(120deg, rgba(11, 79, 108, 0.08), rgba(244, 185, 66, 0.12)),
           #fff;
-        border: 1px solid rgba(11, 79, 108, 0.1);
+        border: 1px solid rgba(11, 79, 108, 0.16);
+        border-left: 4px solid var(--warm-gold);
       }
 
       .cta-side-card {
@@ -245,8 +278,16 @@
 
       .values-card {
         width: 100%;
-        border: 1px solid rgba(11, 79, 108, 0.08);
+        border: 1px solid rgba(11, 79, 108, 0.14);
         background: linear-gradient(180deg, #fff, #fcfefd);
+      }
+
+      .values-card:nth-child(odd) {
+        border-bottom: 3px solid rgba(42, 111, 75, 0.4);
+      }
+
+      .values-card:nth-child(even) {
+        border-bottom: 3px solid rgba(244, 185, 66, 0.45);
       }
 
       .contact-wrapper {
@@ -283,6 +324,10 @@
 
       .contact-item .small {
         margin-bottom: 4px;
+      }
+
+      .contact-item strong {
+        color: var(--deep-teal);
       }
 
       .contact-form .form-grid {
