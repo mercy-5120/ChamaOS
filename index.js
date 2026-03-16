@@ -77,6 +77,23 @@ const privateRoutes = [
   ...secretaryRoutes,
   ...chairpersonRoutes,
 ];
+
+function requireRoles(allowedRoles) {
+  return (req, res, next) => {
+    const currentRole = req.session.role || req.session.user?.role;
+
+    if (!req.session.user) {
+      return res.status(401).render("pages/user/401.ejs");
+    }
+
+    if (!allowedRoles.includes(currentRole)) {
+      return res.status(401).render("pages/user/401.ejs");
+    }
+
+    next();
+  };
+}
+
 app.use((req, res, next) => {
   if (req.session.user || !privateRoutes.includes(req.path)) {
     next();
@@ -86,6 +103,16 @@ app.use((req, res, next) => {
 });
 app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies (form data)
 app.use(express.static("public")); // serve static assets (CSS, images, JS)
+
+app.use(
+  "/member",
+  requireRoles(["member", "secretary", "treasurer", "chairperson"]),
+);
+app.use("/secretary", requireRoles(["secretary"]));
+app.use("/treasurer", requireRoles(["treasurer"]));
+app.use("/chairperson", requireRoles(["chairperson"]));
+app.use("/admin", requireRoles(["admin"]));
+
 //3. Register routes/pages/endpoint handlers
 app.get("/", (req, res) => {
   res.render("pages/user/landingpage.ejs");
@@ -234,6 +261,14 @@ app.post("/auth", (req, res) => {
     },
   );
 });
+
+app.get(
+  "/view-as-member",
+  requireRoles(["secretary", "treasurer", "chairperson"]),
+  (req, res) => {
+    res.redirect("/member/memberdashboard");
+  },
+);
 
 app.get("/admin/dashboard", (req, res) => {
   res.render("pages/admin/dashboard.ejs");
