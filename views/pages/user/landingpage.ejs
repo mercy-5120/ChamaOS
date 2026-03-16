@@ -6,6 +6,12 @@
     <title>ChamaOS — Services</title>
     <link rel="stylesheet" href="/css/app.css" />
     <style>
+      main {
+        background:
+          radial-gradient(circle at 10% 8%, rgba(42, 111, 75, 0.08), transparent 28%),
+          radial-gradient(circle at 90% 6%, rgba(244, 185, 66, 0.14), transparent 24%);
+      }
+
       .hero-with-bg {
         background-image: url("/images/ChamaOSLandingpage.jpg");
         background-size: cover;
@@ -15,151 +21,354 @@
         width: 100%;
         min-height: 700px;
         border-radius: 0;
+        overflow: hidden;
+        box-shadow: 0 24px 40px rgba(9, 18, 28, 0.18);
       }
-      
+
       .hero-with-bg::before {
         content: "";
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         background: linear-gradient(
           135deg,
-          rgba(11, 79, 108, 0.75),
-          rgba(244, 185, 66, 0.15)
+          rgba(14, 66, 44, 0.78),
+          rgba(11, 79, 108, 0.62) 55%,
+          rgba(244, 185, 66, 0.22)
         );
         z-index: 1;
       }
-      
+
       .container-overlay {
         position: relative;
         z-index: 2;
         max-width: 1000px;
         margin: 0 auto;
       }
-      
+
       .hero-content {
         text-align: center;
         color: #fff;
-        padding: 80px 20px;
+        padding: 110px 24px 100px;
       }
-      
-      .hero-content h1,
-      .hero-content p {
+
+      .hero-content .h1 {
+        font-size: clamp(2rem, 4.5vw, 3.2rem);
         color: #fff;
+        margin-bottom: 16px;
+        text-wrap: balance;
       }
-      
-      .hero-content p {
-        opacity: 0.95;
+
+      .hero-content .lead {
+        color: rgba(255, 255, 255, 0.94);
+        max-width: 760px;
+        margin: 0 auto 24px;
+        font-size: 1.05rem;
       }
-      
+
       .hero-ctas {
         display: flex;
-        gap: 10px;
+        gap: 12px;
         justify-content: center;
+        flex-wrap: wrap;
       }
-      
-      .about-content {
-       display: flex;      /* Puts the image and text side-by-side */
-       gap: 30px;          /* Adds space between the image and the text block */
-       align-items: flex-start; /* Aligns items to the top (remove if you want center) */
-     }
 
-    .about-image {
-      max-width: 350px;   /* Adjust this to your preferred size */
-     height: auto;       /* Keeps the image proportions */
-    width: 100%;        /* Makes it responsive on small screens */
-    border-radius: 10px;
-    margin: 27px 10px 10px 10px;
-    }
-
-     .about-text {
-      flex: 1;            /* Allows the text block to take up the remaining space */
-    }
-      
-      .values-content {
-        max-width: 900px;
-        margin: 0 auto;
-      }
-      
-x
-      
-      .get-involved {
-        text-align: center;
-        margin-top: 18px;
-      }
-      
-      .btn-margin {
-        margin-left: 10px;
-      }
-      
-      .features-grid {
-        margin: 32px auto;
-        max-width: 1200px;
-        padding: 0 20px;
-      }
-      
-      .features-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-      }
-      
-      .service-section {
-        margin: 40px auto;
-        max-width: 1200px;
-        padding: 0 20px;
-      }
-      
-      .service-section h2 {
-        text-align: center;
-      }
-      
-      .service-card {
-        margin-top: 16px;
-      }
-      
+      .about-section,
+      .features-grid,
+      .contact-section,
       .cta-section {
         margin: 40px auto;
         max-width: 1200px;
         padding: 0 20px;
       }
-      
+
+      .about-content {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 26px;
+        align-items: start;
+        background: linear-gradient(180deg, #ffffff, #fcfdfa);
+        border-radius: 18px;
+        border: 1px solid rgba(11, 79, 108, 0.08);
+        padding: 24px;
+        box-shadow: 0 14px 28px rgba(15, 34, 46, 0.08);
+      }
+
+      .about-image {
+        width: 100%;
+        height: 100%;
+        max-height: 380px;
+        object-fit: cover;
+        border-radius: 14px;
+      }
+
+      .about-text {
+        flex: 1;
+      }
+
+      .about-text p {
+        line-height: 1.75;
+      }
+
+      .values-content {
+        max-width: 980px;
+        margin: 0 auto;
+        background: linear-gradient(180deg, #fff, #fbfdfd);
+        border-radius: 18px;
+        border: 1px solid rgba(42, 111, 75, 0.18);
+        border-top: 4px solid var(--forest-green);
+        padding: 28px;
+        box-shadow: 0 14px 28px rgba(15, 34, 46, 0.08);
+      }
+
+      .features-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: linear-gradient(180deg, #fff, #fbfdfd);
+        border-radius: 18px;
+        border: 1px solid rgba(42, 111, 75, 0.18);
+        border-top: 4px solid var(--forest-green);
+        padding: 28px;
+        box-shadow: 0 14px 28px rgba(15, 34, 46, 0.08);
+      }
+
+      .get-involved {
+        text-align: center;
+        margin-top: 20px;
+      }
+
+      .btn-margin {
+        margin-left: 10px;
+      }
+
+      .features-grid {
+        margin-top: 46px;
+      }
+
+      .features-head {
+        max-width: 760px;
+        margin: 0 auto 18px;
+        text-align: center;
+      }
+
+      .features-head .h1 {
+        margin-bottom: 8px;
+        color: var(--forest-green);
+      }
+
+      .features-head .small {
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .features-container {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .features-container .card {
+        padding: 20px;
+        border: 1px solid rgba(11, 79, 108, 0.08);
+        box-shadow: 0 12px 24px rgba(15, 34, 46, 0.08);
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease,
+          border-color 180ms ease;
+      }
+
+      .features-container .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 30px rgba(15, 34, 46, 0.12);
+        border-color: rgba(42, 111, 75, 0.38);
+      }
+
+      .feature-icon {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+        margin-bottom: 12px;
+      }
+
+      .service-section {
+        margin: 40px auto;
+        max-width: 1200px;
+        padding: 0 20px;
+      }
+
+      .service-section h2 {
+        text-align: center;
+      }
+
+      .service-card {
+        margin-top: 16px;
+      }
+
       .cta-container {
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 20px;
       }
-      
+
+      .cta-left {
+        background:
+          linear-gradient(120deg, rgba(11, 79, 108, 0.08), rgba(244, 185, 66, 0.12)),
+          #fff;
+        border: 1px solid rgba(11, 79, 108, 0.1);
+      }
+
       .cta-side-card {
         margin-top: 15px;
       }
-      
+
       .margin-top-15 {
         margin-top: 15px;
       }
-      
+
       .margin-top-24 {
         margin-top: 24px;
       }
-      
+
       .margin-top-32 {
         margin-top: 32px;
       }
-      
+
       .text-center {
         text-align: center;
       }
+
       .cards-container {
-  display: flex;
-  flex-wrap: wrap;      /* Allows cards to wrap on smaller screens */
-  gap: 5px;            /* Adds space between cards */
-  margin-top: 20px;     /* Optional: adds space below the heading */
-}
-      
-      .values-card{
-        width: 24%;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .values-card {
+        width: 100%;
+        border: 1px solid rgba(11, 79, 108, 0.08);
+        background: linear-gradient(180deg, #fff, #fcfefd);
+      }
+
+      .contact-wrapper {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 30px; 
+      }
+
+      .contact-section .card {
+        border: 1px solid rgba(42, 111, 75, 0.18);
+        box-shadow: 0 14px 28px rgba(15, 34, 46, 0.08);
+      }
+
+      .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .contact-item {
+        background: linear-gradient(180deg, rgba(42, 111, 75, 0.04), rgba(11, 79, 108, 0.08));
+        border: 1px solid rgba(42, 111, 75, 0.22);
+        border-radius: 10px;
+        padding: 12px;
+      }
+
+      .contact-item .icon {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        margin-bottom: 8px;
+      }
+
+      .contact-item .small {
+        margin-bottom: 4px;
+      }
+
+      .contact-form .form-grid {
+        display: grid;
+        gap: 10px;
+      }
+
+      .contact-form textarea {
+        width: 100%;
+        min-height: 120px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(21, 32, 43, 0.08);
+        background: linear-gradient(180deg, #fff, #fbfbfb);
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      .contact-form textarea:focus {
+        outline: 3px solid rgba(11, 79, 108, 0.08);
+      }
+
+      @media (max-width: 1024px) {
+        .cards-container {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .features-container {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .contact-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+      }
+
+      @media (max-width: 900px) {
+        .hero-with-bg {
+          min-height: 620px;
+          background-attachment: scroll;
+        }
+
+        .hero-content {
+          padding: 84px 20px 72px;
+        }
+
+        .about-content {
+          grid-template-columns: 1fr;
+          padding: 20px;
+        }
+
+        .about-image {
+          max-height: 320px;
+        }
+
+        .values-content {
+          padding: 22px;
+        }
+
+        .features-content {
+          padding: 22px;
+        }
+
+        .contact-wrapper,
+        .cta-container {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .cards-container,
+        .features-container,
+        .contact-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .btn-margin {
+          margin-left: 0;
+          margin-top: 10px;
+        }
+
+        .get-involved .btn {
+          width: 100%;
+          justify-content: center;
+        }
       }
     </style>
   </head>
@@ -254,65 +463,125 @@ x
       </section>
 
       <section class="features-grid" id="features">
-        <div class="features-container">
-          <div class="card">
-            <img src="/images/groups.png" alt="Group management" class="feature-icon" />
-            <div class="small">Group management</div>
-            <h3 class="h2">Create & manage chamas</h3>
+        <div class="features-content">
+          <div class="features-head">
+            <h2 class="h1">Features</h2>
             <p class="small">
-              Define groups, roles and contribution schedules with simple controls
-              and clear permissions.
+              Everything your chama needs to plan, save, track, and grow together
+              in one simple workspace.
             </p>
           </div>
+          <div class="features-container">
+            <div class="card">
+              <img src="/images/groups.png" alt="Group management" class="feature-icon" />
+              <div class="small">Group management</div>
+              <h3 class="h2">Create & manage chamas</h3>
+              <p class="small">
+                Define groups, roles and contribution schedules with simple controls
+                and clear permissions.
+              </p>
+            </div>
 
+            <div class="card">
+              <img src="/images/signing-a-document.png" alt="Contribution tracking" class="feature-icon" />
+              <div class="small">Contribution tracking</div>
+              <h3 class="h2">Records & reminders</h3>
+              <p class="small">
+                Automatic contribution tracking, reminders and receipts — all
+                exportable for audits and transparency.
+              </p>
+            </div>
+
+            <div class="card">
+              <img src="/images/goal.png" alt="Milestones" class="feature-icon" />
+              <div class="small">Milestones</div>
+              <h3 class="h2">Celebrate progress</h3>
+              <p class="small">
+                Track goals, schedule payouts and reward members when the group
+                reaches financial milestones.
+              </p>
+            </div>
+
+            <div class="card">
+              <img src="/images/lock.png" alt="Security" class="feature-icon" />
+              <div class="small">Security</div>
+              <h3 class="h2">Safe & auditable</h3>
+              <p class="small">
+                Role-based access, clear audit logs and exportable reports keep
+                funds and relationships secure.
+              </p>
+            </div>
+
+            <div class="card">
+              <img src="/images/bargraph.png" alt="Insights" class="feature-icon" />
+              <div class="small">Insights</div>
+              <h3 class="h2">Simple analytics</h3>
+              <p class="small">
+                Clear dashboards and quick reports to help chamas understand growth
+                and plan their next steps.
+              </p>
+            </div>
+
+            <div class="card">
+              <img src="/images/handshake.png" alt="Community" class="feature-icon" />
+              <div class="small">Community</div>
+              <h3 class="h2">Connect & grow</h3>
+              <p class="small">
+                Forums, events and shared milestones help groups learn from one
+                another and strengthen trust.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="contact-section" id="contact">
+        <div class="contact-wrapper">
           <div class="card">
-            <img src="/images/signing-a-document.png" alt="Contribution tracking" class="feature-icon" />
-            <div class="small">Contribution tracking</div>
-            <h3 class="h2">Records & reminders</h3>
+            <h2 class="h1">Contact Us</h2>
             <p class="small">
-              Automatic contribution tracking, reminders and receipts — all
-              exportable for audits and transparency.
+              We are here to help your chama get set up, stay organized, and
+              grow with confidence.
             </p>
+
+            <div class="contact-grid">
+              <div class="contact-item">
+                <img src="/images/email.png" alt="Email icon" class="icon" />
+                <div class="small">Email</div>
+                <strong>support@chamaos.com</strong>
+              </div>
+              <div class="contact-item">
+                <img src="/images/phone.png" alt="Phone icon" class="icon" />
+                <div class="small">Phone</div>
+                <strong>+254 700 000 000</strong>
+              </div>
+              <div class="contact-item">
+                <img src="/images/whatsapp.png" alt="WhatsApp icon" class="icon" />
+                <div class="small">WhatsApp</div>
+                <strong>+254 700 000 000</strong>
+              </div>
+            </div>
           </div>
 
-          <div class="card">
-            <img src="/images/goal.png" alt="Milestones" class="feature-icon" />
-            <div class="small">Milestones</div>
-            <h3 class="h2">Celebrate progress</h3>
-            <p class="small">
-              Track goals, schedule payouts and reward members when the group
-              reaches financial milestones.
-            </p>
-          </div>
-
-          <div class="card">
-            <img src="/images/lock.png" alt="Security" class="feature-icon" />
-            <div class="small">Security</div>
-            <h3 class="h2">Safe & auditable</h3>
-            <p class="small">
-              Role-based access, clear audit logs and exportable reports keep
-              funds and relationships secure.
-            </p>
-          </div>
-
-          <div class="card">
-            <img src="/images/bargraph.png" alt="Insights" class="feature-icon" />
-            <div class="small">Insights</div>
-            <h3 class="h2">Simple analytics</h3>
-            <p class="small">
-              Clear dashboards and quick reports to help chamas understand growth
-              and plan their next steps.
-            </p>
-          </div>
-
-          <div class="card">
-            <img src="/images/handshake.png" alt="Community" class="feature-icon" />
-            <div class="small">Community</div>
-            <h3 class="h2">Connect & grow</h3>
-            <p class="small">
-              Forums, events and shared milestones help groups learn from one
-              another and strengthen trust.
-            </p>
+          <div class="card contact-form">
+            <h3 class="h2">Send us a message</h3>
+            <form action="#" method="post" class="form-grid">
+              <div>
+                <label for="contact_name">Full name</label>
+                <input id="contact_name" name="contact_name" type="text" placeholder="Your name" />
+              </div>
+              <div>
+                <label for="contact_email">Email address</label>
+                <input id="contact_email" name="contact_email" type="email" placeholder="you@example.com" />
+              </div>
+              <div>
+                <label for="contact_message">Message</label>
+                <textarea id="contact_message" name="contact_message" placeholder="Tell us how we can help..."></textarea>
+              </div>
+              <div>
+                <button class="btn btn-primary" type="submit">Send Message</button>
+              </div>
+            </form>
           </div>
         </div>
       </section>
@@ -333,7 +602,7 @@ x
 
           <div>
             <div class="card small">
-              Have questions? <a class="link-muted" href="#">Contact support</a>
+              Have questions? <a class="link-muted" href="#contact">Contact support</a>
             </div>
             <div class="card small cta-side-card">
               <a class="link-muted" href="/about">Learn more about us</a>
