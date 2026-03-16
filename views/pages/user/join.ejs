@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Join a Chama</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <style></style>
+  </head>
+  <body>
+    <%- include('../partials/header', { brandTagline: 'Collective savings. Built together.', navItems: [ { text: 'Home', href: '/' }, { text: 'Login', href: '/login' }, { text: 'Create Chama', href: '/signup', cta: true } ] }) %>
+
+    <main class="container">
+      <section class="auth-wrap">
+        <div class="card auth-card">
+          <h3 class="h1">Join a Chama</h3>
+          <p class="lead">
+            Enter the invite code shared by your Chama chairperson and create your account.
+          </p>
+
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error" style="color:#c0392b;background:#fdecea;border:1px solid #e74c3c;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+              <%= error %>
+            </div>
+          <% } %>
+
+          <form action="/join" method="POST" autocomplete="on">
+            <div class="form-grid">
+
+              <div>
+                <label for="invite_code">Invite Code *</label>
+                <input
+                  id="invite_code"
+                  name="invite_code"
+                  type="text"
+                  required
+                  maxlength="20"
+                  placeholder="e.g., UMOJA2026"
+                />
+                <small class="muted-note">Ask your chairperson for the invite code.</small>
+              </div>
+
+              <hr style="border:none;border-top:1px solid #e0e0e0;margin:0.5rem 0;" />
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="full_name">Full Name *</label>
+                  <input
+                    id="full_name"
+                    name="full_name"
+                    type="text"
+                    required
+                    maxlength="100"
+                    placeholder="e.g., John Kamau"
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="phone_number">Phone Number *</label>
+                  <input
+                    id="phone_number"
+                    name="phone_number"
+                    type="tel"
+                    required
+                    maxlength="15"
+                    placeholder="e.g., +254 700 000 000"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label for="email">Email Address *</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="e.g., john@example.com"
+                />
+              </div>
+
+              <div>
+                <label for="password">Password *</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  placeholder="Create a strong password"
+                />
+              </div>
+
+            </div>
+
+            <div class="form-foot">
+              <div class="helper">
+                Already a member?
+                <a href="/login" class="link-muted">Login</a>
+                &nbsp;|&nbsp;
+                Starting a new Chama?
+                <a href="/signup" class="link-muted">Create one</a>
+              </div>
+              <button class="btn btn-primary" type="submit">Join Chama</button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <%- include('../partials/footer') %>
+    </main>
+  </body>
+</html>

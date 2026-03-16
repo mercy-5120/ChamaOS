@@ -18,15 +18,26 @@
             Log in to manage your chama, contributions and milestones.
           </p>
 
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-error" style="color:#c0392b;background:#fdecea;border:1px solid #e74c3c;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+              <%= error %>
+            </div>
+          <% } %>
+
           <form action="/auth" method="POST" autocomplete="on">
             <div class="form-grid">
               <div>
-                <label for="email">Email</label>
-                <input id="email" name="email" type="email" required />
+                <label for="chama_id">Chama ID *</label>
+                <input id="chama_id" name="chama_id" type="number" required placeholder="e.g., 1" />
+                <small class="muted-note">Your Chama ID is shown on the confirmation screen when a Chama is created.</small>
               </div>
               <div>
-                <label for="password">Password</label>
-                <input id="password" name="password" type="password" required />
+                <label for="email">Email *</label>
+                <input id="email" name="email" type="email" required placeholder="e.g., jane@example.com" />
+              </div>
+              <div>
+                <label for="password">Password *</label>
+                <input id="password" name="password" type="password" required placeholder="Your password" />
               </div>
             </div>
 
@@ -38,9 +49,13 @@
             </div>
           </form>
 
+          <div class="muted-note" style="margin-top:1rem;">
+            Creating a new Chama?
+            <a href="/signup" class="link-muted">Set one up</a>
+          </div>
           <div class="muted-note">
-            New to ChamaOS?
-            <a href="/signup" class="link-muted">Create an account</a>
+            Have an invite code?
+            <a href="/join" class="link-muted">Join a Chama</a>
           </div>
         </div>
       </section>

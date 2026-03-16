@@ -3,102 +3,174 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>ChamaOS — Sign up</title>
+    <title>ChamaOS — Create a New Chama</title>
     <link rel="stylesheet" href="/css/app.css" />
 
     <style></style>
   </head>
   <body>
-    <%- include('../partials/header', { brandTagline: 'Collective savings. Built together.', navItems: [ { text: 'Home', href: '/' }, { text: 'Login', href: '/login' }, { text: 'Get started', href: '/signup', cta: true } ] }) %>
+    <%- include('../partials/header', { brandTagline: 'Collective savings. Built together.', navItems: [ { text: 'Home', href: '/' }, { text: 'Login', href: '/login' }, { text: 'Create Chama', href: '/signup', cta: true } ] }) %>
 
     <main class="container">
       <section class="auth-wrap">
         <div class="card auth-card">
-          <h3 class="h1">Create your Chama account</h3>
+          <h3 class="h1">Create a New Chama</h3>
           <p class="lead">
-            Join a community, track contributions and celebrate group
-            milestones.
+            Set up your savings group and create your chairperson account.
           </p>
 
           <form action="/signup" method="POST" autocomplete="on">
             <div class="form-grid">
+
               <div>
-                <label for="fullname">Full name *</label>
+                <label for="chama_name">Chama Name *</label>
                 <input
-                  id="fullname"
-                  name="fullname"
+                  id="chama_name"
+                  name="chama_name"
                   type="text"
                   required
-                  placeholder="e.g., Jane Doe"
+                  maxlength="50"
+                  placeholder="e.g., Umoja Savings Group"
                 />
               </div>
+
               <div>
-                <label for="phone">Phone number *</label>
+                <label for="invite_code">Invite Code *</label>
                 <input
-                  id="phone"
-                  name="phone"
-                  type="tel"
+                  id="invite_code"
+                  name="invite_code"
+                  type="text"
                   required
-                  placeholder="e.g., +254 700 000 000"
+                  maxlength="20"
+                  placeholder="e.g., UMOJA2026"
                 />
+                <small class="muted-note">Members will use this code to join your Chama.</small>
               </div>
+
               <div>
-                <label for="email">Email address</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="e.g., jane@example.com"
-                />
+                <label for="description">Description</label>
+                <textarea
+                  id="description"
+                  name="description"
+                  rows="3"
+                  placeholder="Briefly describe the purpose or goals of this Chama..."
+                ></textarea>
               </div>
+
+              <div>
+                <label for="meeting_day">Meeting Day *</label>
+                <select id="meeting_day" name="meeting_day" required>
+                  <option value="">Select a day...</option>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                  <option value="Saturday">Saturday</option>
+                  <option value="Sunday">Sunday</option>
+                </select>
+              </div>
+
               <div class="form-row">
                 <div class="form-col">
-                  <label for="gender">Gender</label>
-                  <select id="gender" name="gender">
-                    <option value="">Select...</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other / Prefer not to say</option>
-                  </select>
+                  <label for="contribution_amount">Contribution Amount *</label>
+                  <input
+                    id="contribution_amount"
+                    name="contribution_amount"
+                    type="number"
+                    required
+                    min="1"
+                    step="0.01"
+                    placeholder="e.g., 500"
+                  />
                 </div>
                 <div class="form-col">
-                  <label for="location">Location / Ward</label>
+                  <label for="currency">Currency *</label>
+                  <select id="currency" name="currency" required>
+                    <option value="">Select...</option>
+                    <option value="KES">KES — Kenyan Shilling</option>
+                    <option value="UGX">UGX — Ugandan Shilling</option>
+                    <option value="TZS">TZS — Tanzanian Shilling</option>
+                    <option value="USD">USD — US Dollar</option>
+                    <option value="GBP">GBP — British Pound</option>
+                    <option value="EUR">EUR — Euro</option>
+                  </select>
+                </div>
+              </div>
+
+            </div>
+
+            <hr style="margin:1.5rem 0;border:none;border-top:1px solid #e0e0e0;">
+            <h4 style="margin-bottom:0.75rem;">Your Chairperson Account</h4>
+            <div class="form-grid">
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="chair_fullname">Full Name *</label>
                   <input
-                    id="location"
-                    name="location"
+                    id="chair_fullname"
+                    name="chair_fullname"
                     type="text"
-                    placeholder="e.g., Nairobi"
+                    required
+                    maxlength="100"
+                    placeholder="e.g., Jane Doe"
+                  />
+                </div>
+                <div class="form-col">
+                  <label for="chair_phone">Phone Number *</label>
+                  <input
+                    id="chair_phone"
+                    name="chair_phone"
+                    type="tel"
+                    required
+                    maxlength="15"
+                    placeholder="e.g., +254 700 000 000"
                   />
                 </div>
               </div>
+
               <div>
-                <label for="password">Password *</label>
+                <label for="chair_email">Email Address *</label>
                 <input
-                  id="password"
-                  name="password"
+                  id="chair_email"
+                  name="chair_email"
+                  type="email"
+                  required
+                  placeholder="e.g., jane@example.com"
+                />
+              </div>
+
+              <div>
+                <label for="chair_password">Password *</label>
+                <input
+                  id="chair_password"
+                  name="chair_password"
                   type="password"
                   required
                   placeholder="Create a strong password"
                 />
               </div>
+
             </div>
 
             <div class="form-foot">
               <div class="helper">
-                Already have an account?
+                Already have a Chama?
                 <a href="/login" class="link-muted">Login</a>
+                &nbsp;|&nbsp;
+                Have an invite code?
+                <a href="/join" class="link-muted">Join a Chama</a>
               </div>
               <button class="btn btn-primary" type="submit">
-                Create account
+                Create Chama
               </button>
             </div>
           </form>
           <div class="checkbox-wrapper">
-          <input type="checkbox" id="agree" class="muted-note">
-          <label for="agree"> By joining you agree to our community guidelines and respect the
-            chama's values.
-          </label>
-        </div>
+            <input type="checkbox" id="agree" class="muted-note" required>
+            <label for="agree">By creating a Chama you agree to our community guidelines and
+              commit to upholding the group's values.</label>
+          </div>
 
          </section>
 

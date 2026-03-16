@@ -22,6 +22,176 @@
           </div>
         </div>
 
+        <!-- Flash messages -->
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div style="color:#1a7a3c;background:#eafaf1;border:1px solid #27ae60;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= success %>
+          </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div style="color:#c0392b;background:#fdecea;border:1px solid #e74c3c;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= error %>
+          </div>
+        <% } %>
+
+        <!-- Invite Code Section -->
+        <section class="dashboard-section">
+          <h2 class="h2">Chama Invite Code</h2>
+          <div class="card" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;padding:1.25rem;">
+            <div>
+              <p style="margin:0 0 0.25rem;">Share this code with anyone you want to invite to <strong><%= chama.chama_name %></strong>.</p>
+              <span style="font-size:1.5rem;font-weight:700;letter-spacing:0.15em;background:#f0f4ff;padding:0.4rem 1rem;border-radius:6px;border:1px dashed #7b9cdf;">
+                <%= chama.invite_code %>
+              </span>
+            </div>
+            <button
+              class="btn btn-primary"
+              onclick="navigator.clipboard.writeText('<%= chama.invite_code %>').then(()=>alert('Invite code copied to clipboard!'))"
+              type="button"
+            >
+              Copy Code
+            </button>
+          </div>
+        </section>
+
+        <!-- Add New Member Section -->
+        <section class="dashboard-section">
+          <h2 class="h2">Add New Member</h2>
+          <div class="card" style="padding:1.25rem;">
+            <form action="/chairperson/add-member" method="POST" autocomplete="off">
+              <div class="form-grid">
+                <div class="form-row">
+                  <div class="form-col">
+                    <label for="full_name">Full Name *</label>
+                    <input id="full_name" name="full_name" type="text" required maxlength="100" placeholder="e.g., Alice Wanjiru" />
+                  </div>
+                  <div class="form-col">
+                    <label for="phone_number">Phone Number *</label>
+                    <input id="phone_number" name="phone_number" type="tel" required maxlength="15" placeholder="e.g., +254 700 000 000" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-col">
+                    <label for="email">Email Address *</label>
+                    <input id="email" name="email" type="email" required placeholder="e.g., alice@example.com" />
+                  </div>
+                  <div class="form-col">
+                    <label for="role">Role *</label>
+                    <select id="role" name="role" required>
+                      <option value="">Select a role...</option>
+                      <option value="member">Member</option>
+                      <option value="treasurer">Treasurer</option>
+                      <option value="secretary">Secretary</option>
+                      <option value="chairperson">Chairperson</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label for="password">Temporary Password *</label>
+                  <input id="password" name="password" type="password" required placeholder="Set a temporary password" />
+                  <small class="muted-note">The member should change this after their first login.</small>
+                </div>
+              </div>
+              <div style="margin-top:1rem;text-align:right;">
+                <button class="btn btn-primary" type="submit">Add Member</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Active Members -->
+        <section class="dashboard-section">
+          <h2 class="h2">Active Members</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Joined</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (members && members.length > 0) { %>
+                  <% members.forEach(function(m) { %>
+                    <tr>
+                      <td><%= m.full_name %></td>
+                      <td><%= m.phone_number %></td>
+                      <td><%= m.email || '—' %></td>
+                      <td style="text-transform:capitalize;"><%= m.role %></td>
+                      <td><%= m.joined_date ? new Date(m.joined_date).toLocaleDateString() : '—' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No active member records available.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Pending Join Requests</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Phone</th>
+                  <th>Requested On</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="4">No pending join requests available.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Disciplinary Records</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Issue</th>
+                  <th>Reported On</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="5">No disciplinary records available.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Member Oversight</h1>
+            <p class="lead">
+              Review member status, approvals, attendance, and disciplinary
+              records.
+            </p>
+          </div>
+        </div>
+
         <section class="dashboard-section">
           <h2 class="h2">Pending Join Requests</h2>
           <div class="card">

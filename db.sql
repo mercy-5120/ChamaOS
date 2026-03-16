@@ -32,6 +32,7 @@ CREATE TABLE Chama_Members (
     member_id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
     chama_id INT NOT NULL,
+    role VARCHAR(20) DEFAULT 'member',        -- chairperson | secretary | treasurer | member
     joined_date DATE,
     total_contributions DECIMAL(10,2) DEFAULT 0.00,
 
@@ -40,6 +41,9 @@ CREATE TABLE Chama_Members (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- Run this if the table already exists:
+-- ALTER TABLE Chama_Members ADD COLUMN role VARCHAR(20) DEFAULT 'member' AFTER chama_id;
 
 -- 4. Transactions table
 CREATE TABLE Transactions (
