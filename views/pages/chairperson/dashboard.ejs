@@ -22,6 +22,14 @@
           </div>
         </div>
 
+        <% if (typeof success !== 'undefined' && success) { %>
+          <section class="dashboard-section">
+            <div class="card" style="border-left:4px solid #14804a;background:#ecfdf3;">
+              <p style="margin:0;color:#0f5132;font-weight:600;"><%= success %></p>
+            </div>
+          </section>
+        <% } %>
+
         <section class="dashboard-section">
           <h2 class="h2">Overview</h2>
           <div class="metrics-grid">

@@ -33,6 +33,8 @@ CREATE TABLE Chama_Members (
     user_id INT NOT NULL,
     chama_id INT NOT NULL,
     role VARCHAR(20) DEFAULT 'member',        -- chairperson | secretary | treasurer | member
+    email VARCHAR(100),                       -- member email for quick reference
+    phone_number VARCHAR(15),                 -- member phone for quick reference
     joined_date DATE,
     total_contributions DECIMAL(10,2) DEFAULT 0.00,
 
@@ -105,3 +107,16 @@ CREATE TABLE Meeting_Attendance (
 ) ENGINE=InnoDB;
 
 
+-- Migration: Add email and phone_number columns to Chama_Members.
+-- These columns store contact details for quick reference in membership records.
+
+-- If columns already exist, you can skip the ALTER statements.
+-- Simply run the UPDATE to backfill missing values from Users table.
+
+ALTER TABLE Chama_Members ADD COLUMN email VARCHAR(100);
+ALTER TABLE Chama_Members ADD COLUMN phone_number VARCHAR(15);
+
+UPDATE Chama_Members
+JOIN Users ON Users.user_id = Chama_Members.user_id
+SET Chama_Members.email = IFNULL(Chama_Members.email, Users.email),
+    Chama_Members.phone_number = IFNULL(Chama_Members.phone_number, Users.phone_number);

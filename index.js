@@ -12,13 +12,41 @@ const connection = mysql.createConnection({
   password: "sonnie2006.",
   port: 3306,
 });
+
+let isDbHealthy = false;
+connection.connect((connectError) => {
+  if (connectError) {
+    console.log("Database connection error: " + connectError.message);
+    return;
+  }
+
+  isDbHealthy = true;
+  console.log("Database connected successfully.");
+});
+
+setInterval(() => {
+  connection.ping((pingError) => {
+    if (pingError) {
+      isDbHealthy = false;
+      console.log("Database ping failed: " + pingError.message);
+      return;
+    }
+
+    isDbHealthy = true;
+  });
+}, 60 * 1000).unref();
 //2. Register middleware functions to handle incoming requests and responses
 app.use(
   session({
     secret: "encryptionKey",
     resave: false,
-    saveUninitialized: true,
-    options: { secure: true, expires: new Date(Date.now() + 60 * 60 * 1000) }, //expires in 1 hour
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 60 * 60 * 1000,
+    },
   }),
 );
 const publicRoutes = [
@@ -29,6 +57,7 @@ const publicRoutes = [
   "/signup",
   "/login",
   "/join",
+  "/forgot-password",
 ];
 const adminRoutes = [
   "/admin/dashboard",
@@ -38,7 +67,7 @@ const adminRoutes = [
   "/admin/security-analytics",
 ];
 const memberRoutes = [
-  "/member/memberdashboard",
+  "/member/dashboard",
   "/member/contributions",
   "/member/loans",
   "/member/meetings",
@@ -104,6 +133,42 @@ app.use((req, res, next) => {
 app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies (form data)
 app.use(express.static("public")); // serve static assets (CSS, images, JS)
 
+function renderDbUnavailableForAuth(req, res) {
+  const dbMessage =
+    "Database is temporarily unavailable. Please try again in a moment.";
+
+  if (req.path === "/auth" || req.path === "/login") {
+    return res.status(503).render("pages/user/login.ejs", { error: dbMessage });
+  }
+
+  if (req.path === "/signup") {
+    return res.status(503).render("pages/user/signup.ejs", {
+      error: dbMessage,
+      formData: req.body || {},
+    });
+  }
+
+  if (req.path === "/join") {
+    return res.status(503).render("pages/user/join.ejs", { error: dbMessage });
+  }
+
+  return res.status(503).render("pages/user/500.ejs");
+}
+
+app.use((req, res, next) => {
+  const requiresDb =
+    req.path === "/auth" ||
+    req.path === "/signup" ||
+    req.path === "/join" ||
+    req.path === "/forgot-password";
+
+  if (requiresDb && !isDbHealthy) {
+    return renderDbUnavailableForAuth(req, res);
+  }
+
+  return next();
+});
+
 app.use(
   "/member",
   requireRoles(["member", "secretary", "treasurer", "chairperson"]),
@@ -131,7 +196,7 @@ app.get("/about", (req, res) => {
 });
 
 app.get("/signup", (req, res) => {
-  res.render("pages/user/signup.ejs");
+  res.render("pages/user/signup.ejs", { error: null, formData: {} });
 });
 
 app.post("/signup", (req, res) => {
@@ -148,61 +213,165 @@ app.post("/signup", (req, res) => {
     chair_password,
   } = req.body;
 
+  const formData = {
+    chama_name,
+    invite_code,
+    description,
+    meeting_day,
+    contribution_amount,
+    currency,
+    chair_fullname,
+    chair_phone,
+    chair_email,
+  };
+
+  if (
+    !chama_name ||
+    !invite_code ||
+    !meeting_day ||
+    !contribution_amount ||
+    !currency ||
+    !chair_fullname ||
+    !chair_phone ||
+    !chair_email ||
+    !chair_password
+  ) {
+    return res.status(400).render("pages/user/signup.ejs", {
+      error: "Please fill in all required fields.",
+      formData,
+    });
+  }
+
   bcrypt.hash(chair_password, 10, (hashError, hash) => {
     if (hashError) {
       console.log("Error hashing password: " + hashError.message);
-      return res.status(500).render("pages/user/500.ejs");
+      return res.status(400).render("pages/user/signup.ejs", {
+        error: "Could not process the password. Please try again.",
+        formData,
+      });
     }
 
-    // Step 1: Create the Chama
-    connection.query(
-      "INSERT INTO Chama (chama_name, invite_code, description, meeting_day, contribution_amount, currency) VALUES (?, ?, ?, ?, ?, ?)",
-      [
-        chama_name,
-        invite_code,
-        description || null,
-        meeting_day,
-        contribution_amount,
-        currency,
-      ],
-      (chamaError, chamaResult) => {
-        if (chamaError) {
-          console.log("Error creating chama: " + chamaError.message);
-          return res.status(500).render("pages/user/500.ejs");
-        }
-        const chama_id = chamaResult.insertId;
+    connection.beginTransaction((transactionError) => {
+      if (transactionError) {
+        console.log("Error starting transaction: " + transactionError.message);
+        return res.status(400).render("pages/user/signup.ejs", {
+          error: "Could not create your Chama at the moment. Please try again.",
+          formData,
+        });
+      }
 
-        // Step 2: Create the chairperson user account
-        connection.query(
-          "INSERT INTO Users (full_name, phone_number, email, password_hash, user_type) VALUES (?, ?, ?, ?, ?)",
-          [chair_fullname, chair_phone, chair_email, hash, "chairperson"],
-          (userError, userResult) => {
-            if (userError) {
-              console.log(
-                "Error creating chairperson user: " + userError.message,
+      connection.query(
+        "INSERT INTO Chama (chama_name, invite_code, description, meeting_day, contribution_amount, currency) VALUES (?, ?, ?, ?, ?, ?)",
+        [
+          chama_name,
+          invite_code,
+          description || null,
+          meeting_day,
+          contribution_amount,
+          currency,
+        ],
+        (chamaError, chamaResult) => {
+          if (chamaError) {
+            return connection.rollback(() => {
+              const duplicateError = chamaError.code === "ER_DUP_ENTRY";
+              if (!duplicateError) {
+                console.log("Error creating chama: " + chamaError.message);
+              }
+              return res.status(400).render("pages/user/signup.ejs", {
+                error: duplicateError
+                  ? "This Chama name or invite code already exists. Please use another one."
+                  : "Could not create the Chama. Please try again.",
+                formData,
+              });
+            });
+          }
+
+          const chama_id = chamaResult.insertId;
+
+          connection.query(
+            "INSERT INTO Users (full_name, phone_number, email, password_hash, user_type) VALUES (?, ?, ?, ?, ?)",
+            [chair_fullname, chair_phone, chair_email, hash, "chairperson"],
+            (userError, userResult) => {
+              if (userError) {
+                return connection.rollback(() => {
+                  const duplicateError = userError.code === "ER_DUP_ENTRY";
+                  if (!duplicateError) {
+                    console.log(
+                      "Error creating chairperson user: " + userError.message,
+                    );
+                  }
+                  return res.status(400).render("pages/user/signup.ejs", {
+                    error: duplicateError
+                      ? "Chairperson email or phone number is already in use."
+                      : "Could not create the chairperson account. Please try again.",
+                    formData,
+                  });
+                });
+              }
+
+              const user_id = userResult.insertId;
+
+              connection.query(
+                "INSERT INTO Chama_Members (user_id, chama_id, role, email, phone_number, joined_date) VALUES (?, ?, 'chairperson', ?, ?, CURDATE())",
+                [user_id, chama_id, chair_email, chair_phone],
+                (memberError) => {
+                  if (memberError) {
+                    return connection.rollback(() => {
+                      console.log(
+                        "Error linking chairperson: " + memberError.message,
+                      );
+                      return res.status(400).render("pages/user/signup.ejs", {
+                        error:
+                          "Your account was created, but we could not complete setup. Please try again.",
+                        formData,
+                      });
+                    });
+                  }
+
+                  connection.commit((commitError) => {
+                    if (commitError) {
+                      return connection.rollback(() => {
+                        console.log(
+                          "Error committing signup: " + commitError.message,
+                        );
+                        return res.status(400).render("pages/user/signup.ejs", {
+                          error:
+                            "Could not finish creating your Chama. Please try again.",
+                          formData,
+                        });
+                      });
+                    }
+
+                    req.session.user = {
+                      user_id,
+                      full_name: chair_fullname,
+                      email: chair_email,
+                      phone_number: chair_phone,
+                      role: "chairperson",
+                      chama_id,
+                    };
+                    req.session.chama_id = chama_id;
+                    req.session.role = "chairperson";
+                    req.session.signupSuccess = `Chama created successfully! Your Chama ID is ${chama_id}. Use this ID to log in later. Welcome to your dashboard.`;
+                    return req.session.save((sessionSaveError) => {
+                      if (sessionSaveError) {
+                        console.log(
+                          "Error saving signup session: " +
+                            sessionSaveError.message,
+                        );
+                        return res.status(500).render("pages/user/500.ejs");
+                      }
+
+                      return res.redirect("/chairperson/dashboard");
+                    });
+                  });
+                },
               );
-              return res.status(500).render("pages/user/500.ejs");
-            }
-            const user_id = userResult.insertId;
-
-            // Step 3: Link user to Chama as chairperson
-            connection.query(
-              "INSERT INTO Chama_Members (user_id, chama_id, role, joined_date) VALUES (?, ?, 'chairperson', CURDATE())",
-              [user_id, chama_id],
-              (memberError) => {
-                if (memberError) {
-                  console.log(
-                    "Error linking chairperson: " + memberError.message,
-                  );
-                  return res.status(500).render("pages/user/500.ejs");
-                }
-                res.redirect("/login");
-              },
-            );
-          },
-        );
-      },
-    );
+            },
+          );
+        },
+      );
+    });
   });
 });
 
@@ -210,52 +379,88 @@ app.get("/login", (req, res) => {
   res.render("pages/user/login.ejs", { error: null });
 });
 
+app.get("/forgot-password", (req, res) => {
+  res.render("pages/user/forgot-password.ejs");
+});
+
 app.post("/auth", (req, res) => {
   const { chama_id, email, password } = req.body;
+  const parsedChamaId = parseInt(chama_id, 10);
+
+  if (!parsedChamaId || !email || !password) {
+    return res.render("pages/user/login.ejs", {
+      error: "Please provide Chama ID, email and password.",
+    });
+  }
 
   connection.query(
-    `SELECT u.user_id, u.full_name, u.email, u.phone_number, u.password_hash, cm.role, cm.chama_id
+    `SELECT u.user_id, u.full_name, u.email, u.phone_number, u.password_hash, u.user_type AS role, cm.chama_id
      FROM Users u
      JOIN Chama_Members cm ON u.user_id = cm.user_id
      WHERE u.email = ? AND cm.chama_id = ?`,
-    [email, chama_id],
+    [email, parsedChamaId],
     (dbError, queryResult) => {
       if (dbError) {
         console.log("DB error occurred: " + dbError.message);
-        return res.status(500).render("pages/user/500.ejs");
+        return res.render("pages/user/login.ejs", {
+          error: "Unable to log you in right now. Please try again.",
+        });
       }
       if (queryResult.length === 0) {
         return res.render("pages/user/login.ejs", {
           error: "Invalid credentials or you are not a member of this Chama.",
         });
       }
+
+      const userRecord = queryResult[0];
+      if (
+        !userRecord.password_hash ||
+        typeof userRecord.password_hash !== "string"
+      ) {
+        return res.render("pages/user/login.ejs", {
+          error:
+            "This account cannot log in with a password yet. Please contact support.",
+        });
+      }
+
       bcrypt.compare(
         password,
-        queryResult[0].password_hash,
+        userRecord.password_hash,
         (compareError, isMatch) => {
           if (compareError) {
             console.log("Error comparing passwords: " + compareError.message);
-            return res.status(500).render("pages/user/500.ejs");
+            return res.render("pages/user/login.ejs", {
+              error: "Invalid email or password.",
+            });
           }
           if (!isMatch) {
             return res.render("pages/user/login.ejs", {
               error: "Invalid email or password.",
             });
           }
-          req.session.user = queryResult[0];
-          req.session.chama_id = parseInt(chama_id);
-          req.session.role = queryResult[0].role;
+          req.session.user = userRecord;
+          req.session.chama_id = parsedChamaId;
+          req.session.role = userRecord.role;
 
           const roleRedirects = {
             chairperson: "/chairperson/dashboard",
             secretary: "/secretary/dashboard",
             treasurer: "/treasurer/dashboard",
-            member: "/member/memberdashboard",
+            member: "/member/dashboard",
             admin: "/admin/dashboard",
           };
-          res.redirect(
-            roleRedirects[queryResult[0].role] || "/member/memberdashboard",
-          );
+          req.session.save((sessionSaveError) => {
+            if (sessionSaveError) {
+              console.log(
+                "Error saving login session: " + sessionSaveError.message,
+              );
+              return res.status(500).render("pages/user/500.ejs");
+            }
+
+            return res.redirect(
+              roleRedirects[userRecord.role] || "/member/dashboard",
+            );
+          });
         },
       );
     },
@@ -266,7 +471,7 @@ app.get(
   "/view-as-member",
   requireRoles(["secretary", "treasurer", "chairperson"]),
   (req, res) => {
-    res.redirect("/member/memberdashboard");
+    res.redirect("/member/dashboard");
   },
 );
 
@@ -291,8 +496,12 @@ app.get("/admin/security-analytics", (req, res) => {
 });
 
 //Member Routes
+app.get("/member/dashboard", (req, res) => {
+  res.render("pages/member/dashboard.ejs");
+});
+
 app.get("/member/memberdashboard", (req, res) => {
-  res.render("pages/member/memberdashboard.ejs");
+  res.redirect("/member/dashboard");
 });
 
 app.get("/member/contributions", (req, res) => {
@@ -371,7 +580,10 @@ app.get("/secretary/calendar", (req, res) => {
 
 // Chairperson Routes
 app.get("/chairperson/dashboard", (req, res) => {
-  res.render("pages/chairperson/dashboard.ejs");
+  const success = req.session.signupSuccess || null;
+  req.session.signupSuccess = null;
+
+  res.render("pages/chairperson/dashboard.ejs", { success });
 });
 
 app.get("/chairperson/members", (req, res) => {
@@ -388,7 +600,7 @@ app.get("/chairperson/members", (req, res) => {
         return res.status(500).render("pages/user/500.ejs");
       }
       connection.query(
-        `SELECT u.user_id, u.full_name, u.phone_number, u.email, cm.role, cm.joined_date
+        `SELECT u.user_id, u.full_name, u.phone_number, u.email, u.user_type AS role, cm.joined_date
          FROM Users u
          JOIN Chama_Members cm ON u.user_id = cm.user_id
          WHERE cm.chama_id = ?
@@ -435,8 +647,8 @@ app.post("/chairperson/add-member", (req, res) => {
           );
         }
         connection.query(
-          "INSERT INTO Chama_Members (user_id, chama_id, role, joined_date) VALUES (?, ?, ?, CURDATE())",
-          [userResult.insertId, chama_id, role],
+          "INSERT INTO Chama_Members (user_id, chama_id, role, email, phone_number, joined_date) VALUES (?, ?, ?, ?, ?, CURDATE())",
+          [userResult.insertId, chama_id, role, email, phone_number],
           (memberError) => {
             if (memberError) {
               console.log("Error linking member: " + memberError.message);
@@ -477,11 +689,23 @@ app.get("/join", (req, res) => {
 app.post("/join", (req, res) => {
   const { invite_code, full_name, phone_number, email, password } = req.body;
 
+  if (!invite_code || !full_name || !phone_number || !email || !password) {
+    return res.render("pages/user/join.ejs", {
+      error: "Please fill in all required fields.",
+    });
+  }
+
   connection.query(
     "SELECT chama_id FROM Chama WHERE invite_code = ?",
     [invite_code],
     (chamaErr, chamaRows) => {
-      if (chamaErr) return res.status(500).render("pages/user/500.ejs");
+      if (chamaErr) {
+        console.log("Join lookup error: " + chamaErr.message);
+        return res.render("pages/user/join.ejs", {
+          error:
+            "Unable to verify the invite code right now. Please try again.",
+        });
+      }
       if (chamaRows.length === 0) {
         return res.render("pages/user/join.ejs", {
           error: "Invalid invite code. Please check and try again.",
@@ -490,7 +714,12 @@ app.post("/join", (req, res) => {
       const chama_id = chamaRows[0].chama_id;
 
       bcrypt.hash(password, 10, (hashError, hash) => {
-        if (hashError) return res.status(500).render("pages/user/500.ejs");
+        if (hashError) {
+          console.log("Join hash error: " + hashError.message);
+          return res.render("pages/user/join.ejs", {
+            error: "Unable to create your account right now. Please try again.",
+          });
+        }
 
         connection.query(
           "INSERT INTO Users (full_name, phone_number, email, password_hash, user_type) VALUES (?, ?, ?, ?, 'member')",
@@ -503,12 +732,37 @@ app.post("/join", (req, res) => {
               });
             }
             connection.query(
-              "INSERT INTO Chama_Members (user_id, chama_id, role, joined_date) VALUES (?, ?, 'member', CURDATE())",
-              [userResult.insertId, chama_id],
+              "INSERT INTO Chama_Members (user_id, chama_id, role, email, phone_number, joined_date) VALUES (?, ?, 'member', ?, ?, CURDATE())",
+              [userResult.insertId, chama_id, email, phone_number],
               (memberError) => {
-                if (memberError)
-                  return res.status(500).render("pages/user/500.ejs");
-                res.redirect("/login");
+                if (memberError) {
+                  console.log("Join member link error: " + memberError.message);
+                  return res.render("pages/user/join.ejs", {
+                    error:
+                      "Your account was created, but we could not complete joining this Chama. Please contact support.",
+                  });
+                }
+                req.session.user = {
+                  user_id: userResult.insertId,
+                  full_name,
+                  email,
+                  phone_number,
+                  role: "member",
+                  chama_id,
+                };
+                req.session.chama_id = chama_id;
+                req.session.role = "member";
+
+                req.session.save((sessionSaveError) => {
+                  if (sessionSaveError) {
+                    console.log(
+                      "Error saving join session: " + sessionSaveError.message,
+                    );
+                    return res.status(500).render("pages/user/500.ejs");
+                  }
+
+                  return res.redirect("/member/dashboard");
+                });
               },
             );
           },
