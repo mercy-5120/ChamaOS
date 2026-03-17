@@ -91,6 +91,8 @@ CREATE TABLE Meetings (
     meeting_date DATE NOT NULL,
     meeting_time TIME,
     location VARCHAR(200),
+    invite_scope ENUM('all_members', 'committee') NOT NULL DEFAULT 'all_members',
+    meeting_kind ENUM('regular', 'special') NOT NULL DEFAULT 'regular',
     agenda TEXT,
     decisions TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -124,44 +126,6 @@ CREATE TABLE Meeting_Attachments (
     FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
-
--- Migration: Add email and phone_number columns to Chama_Members.
--- These columns store contact details for quick reference in membership records.
-
--- If columns already exist, you can skip the ALTER statements.
--- Simply run the UPDATE to backfill missing values from Users table.
-
-ALTER TABLE Chama_Members ADD COLUMN email VARCHAR(100);
-ALTER TABLE Chama_Members ADD COLUMN phone_number VARCHAR(15);
-
--- Migration: Add detailed meeting fields for secretary meeting records.
-ALTER TABLE Meetings ADD COLUMN meeting_title VARCHAR(200);
-ALTER TABLE Meetings ADD COLUMN meeting_time TIME;
-
--- Migration: Add monthly contribution due day setting on Chama.
-ALTER TABLE Chama ADD COLUMN contribution_due_day TINYINT DEFAULT 5;
-
-UPDATE Chama_Members
-JOIN Users ON Users.user_id = Chama_Members.user_id
-SET Chama_Members.email = IFNULL(Chama_Members.email, Users.email),
-    Chama_Members.phone_number = IFNULL(Chama_Members.phone_number, Users.phone_number);
-
--- Migration: Add loan decision timestamps.
--- If these columns already exist, skip the ALTER statement that fails with Duplicate column.
-ALTER TABLE Loans ADD COLUMN approved_at DATETIME NULL;
-ALTER TABLE Loans ADD COLUMN rejected_at DATETIME NULL;
-
--- Migration: Ensure meeting attachments table exists in older databases.
-CREATE TABLE IF NOT EXISTS Meeting_Attachments (
-    attachment_id INT PRIMARY KEY AUTO_INCREMENT,
-    meeting_id INT NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    uploaded_by INT,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (meeting_id) REFERENCES Meetings(meeting_id) ON DELETE CASCADE,
-    FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
-) ENGINE=InnoDB;
 
 -- 9. Announcements table
 CREATE TABLE Announcements (
@@ -226,3 +190,53 @@ CREATE TABLE IF NOT EXISTS Member_Reminder_Preferences (
     FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
+
+-- 12. Disciplinary records (member-submitted, leadership-reviewed)
+CREATE TABLE Disciplinary_Records (
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    reported_by INT NOT NULL,
+    reported_member_id INT NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'open',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_by) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_member_id) REFERENCES Users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Migration: Ensure disciplinary records table exists in older databases.
+CREATE TABLE IF NOT EXISTS Disciplinary_Records (
+    record_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    reported_by INT NOT NULL,
+    reported_member_id INT NOT NULL,
+    subject VARCHAR(150) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'open',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_by) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reported_member_id) REFERENCES Users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 13. Welfare requests (member submitted, chairperson reviewed)
+CREATE TABLE Welfare_Requests (
+    request_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    requested_by INT NOT NULL,
+    request_type VARCHAR(30) NOT NULL,
+    requested_amount DECIMAL(10,2) NOT NULL,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending',
+    reviewed_by INT NULL,
+    reviewed_at DATETIME NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (requested_by) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewed_by) REFERENCES Users(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+

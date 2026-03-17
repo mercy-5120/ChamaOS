@@ -6,6 +6,40 @@
     <title>ChamaOS — Chairperson Member Oversight</title>
     <link rel="stylesheet" href="/css/app.css" />
     <link rel="stylesheet" href="/css/chairperson.css" />
+    <style>
+      .oversight-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+      .oversight-stat-card { background: #fff; border-radius: 10px; border-left: 4px solid #7b9cdf; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+      .oversight-stat-card.pending { border-left-color: #f39c12; }
+      .oversight-stat-card.discipline { border-left-color: #e74c3c; }
+      .oversight-stat-label { font-size: 0.85rem; color: #6c757d; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+      .oversight-stat-value { font-size: 2.5rem; font-weight: 700; color: #2c3e50; }
+      .oversight-stat-sub { font-size: 0.9rem; color: #95a5a6; margin-top: 0.25rem; }
+      .invite-showcase { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; padding: 2rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 2rem; flex-wrap: wrap; }
+      .invite-code-display { font-size: 1.75rem; font-weight: 700; letter-spacing: 0.2em; background: rgba(255, 255, 255, 0.15); padding: 1rem 1.5rem; border-radius: 8px; font-family: 'Courier New', monospace; }
+      .invite-description { flex: 1; min-width: 250px; }
+      .invite-description p { margin: 0; font-size: 0.95rem; opacity: 0.95; }
+      .button-group { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+      .btn-copy { background: rgba(255, 255, 255, 0.25); color: white; border: 1px solid rgba(255, 255, 255, 0.4); padding: 0.625rem 1.25rem; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.3s ease; }
+      .btn-copy:hover { background: rgba(255, 255, 255, 0.35); }
+      .form-section { background: white; border-radius: 10px; padding: 1.75rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+      .form-section h3 { margin-top: 0; margin-bottom: 1.5rem; color: #2c3e50; font-size: 1.1rem; }
+      .form-grid-2col { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem; }
+      .table-wrapper { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+      .table-section { margin-bottom: 2rem; }
+      .table-title { font-size: 1.15rem; font-weight: 600; color: #2c3e50; margin-bottom: 1rem; padding: 0 0.25rem; }
+      .table { width: 100%; border-collapse: collapse; }
+      .table thead { background: #f8f9fa; }
+      .table th { padding: 1rem 1.25rem; text-align: left; font-weight: 600; color: #495057; font-size: 0.9rem; border-bottom: 2px solid #e9ecef; }
+      .table td { padding: 0.875rem 1.25rem; border-bottom: 1px solid #e9ecef; }
+      .table tbody tr:hover { background: #f8f9fa; }
+      .table tbody tr:last-child td { border-bottom: none; }
+      .badge { display: inline-block; padding: 0.375rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+      .badge-info { background: #ecf0f1; color: #34495e; }
+      .badge-pending { background: #fff3cd; color: #856404; }
+      .badge-warning { background: #f8d7da; color: #721c24; }
+      .no-data { text-align: center; padding: 2.5rem 1rem; color: #7f8c8d; }
+      .no-data-icon { font-size: 2rem; margin-bottom: 0.5rem; opacity: 0.5; }
+    </style>
   </head>
   <body>
     <main class="container dashboard-layout">
@@ -16,8 +50,7 @@
           <div>
             <h1 class="h1">Member Oversight</h1>
             <p class="lead">
-              Review member status, approvals, attendance, and disciplinary
-              records.
+              Manage member access, review join requests, and maintain disciplinary records.
             </p>
           </div>
         </div>
@@ -34,75 +67,77 @@
           </div>
         <% } %>
 
-        <!-- Invite Code Section -->
-        <section class="dashboard-section">
-          <h2 class="h2">Chama Invite Code</h2>
-          <div class="card" style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;padding:1.25rem;">
-            <div>
-              <p style="margin:0 0 0.25rem;">Share this code with anyone you want to invite to <strong><%= chama.chama_name %></strong>.</p>
-              <span style="font-size:1.5rem;font-weight:700;letter-spacing:0.15em;background:#f0f4ff;padding:0.4rem 1rem;border-radius:6px;border:1px dashed #7b9cdf;">
-                <%= chama.invite_code %>
-              </span>
-            </div>
-            <button
-              class="btn btn-primary"
-              onclick="navigator.clipboard.writeText('<%= chama.invite_code %>').then(()=>alert('Invite code copied to clipboard!'))"
-              type="button"
-            >
-              Copy Code
+        <!-- Summary Statistics -->
+        <div class="oversight-summary">
+          <div class="oversight-stat-card">
+            <div class="oversight-stat-label">Total Members</div>
+            <div class="oversight-stat-value"><%= members ? members.length : 0 %></div>
+            <div class="oversight-stat-sub">Active in chama</div>
+          </div>
+          <div class="oversight-stat-card discipline">
+            <div class="oversight-stat-label">Disciplinary Records</div>
+            <div class="oversight-stat-value"><%= disciplinaryRecords ? disciplinaryRecords.length : 0 %></div>
+            <div class="oversight-stat-sub">Active records</div>
+          </div>
+        </div>
+
+        <!-- Chama Invite Code -->
+        <div class="invite-showcase">
+          <div class="invite-description">
+            <p><strong>Invite New Members</strong></p>
+            <p>Share this code with anyone you want to invite to <strong><%= chama.chama_name %></strong>. They can use it during signup to join your chama instantly.</p>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0.75rem;">
+            <div class="invite-code-display"><%= chama.invite_code %></div>
+            <button class="btn-copy" onclick="navigator.clipboard.writeText('<%= chama.invite_code %>').then(()=>alert('Invite code copied to clipboard!'))">
+               Copy Code
             </button>
           </div>
-        </section>
+        </div>
 
-        <!-- Add New Member Section -->
-        <section class="dashboard-section">
-          <h2 class="h2">Add New Member</h2>
-          <div class="card" style="padding:1.25rem;">
-            <form action="/chairperson/add-member" method="POST" autocomplete="off">
-              <div class="form-grid">
-                <div class="form-row">
-                  <div class="form-col">
-                    <label for="full_name">Full Name *</label>
-                    <input id="full_name" name="full_name" type="text" required maxlength="100" placeholder="e.g., Alice Wanjiru" />
-                  </div>
-                  <div class="form-col">
-                    <label for="phone_number">Phone Number *</label>
-                    <input id="phone_number" name="phone_number" type="tel" required maxlength="15" placeholder="e.g., +254 700 000 000" />
-                  </div>
-                </div>
-                <div class="form-row">
-                  <div class="form-col">
-                    <label for="email">Email Address *</label>
-                    <input id="email" name="email" type="email" required placeholder="e.g., alice@example.com" />
-                  </div>
-                  <div class="form-col">
-                    <label for="role">Role *</label>
-                    <select id="role" name="role" required>
-                      <option value="">Select a role...</option>
-                      <option value="member">Member</option>
-                      <option value="treasurer">Treasurer</option>
-                      <option value="secretary">Secretary</option>
-                      <option value="chairperson">Chairperson</option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <label for="password">Temporary Password *</label>
-                  <input id="password" name="password" type="password" required placeholder="Set a temporary password" />
-                  <small class="muted-note">The member should change this after their first login.</small>
-                </div>
+        <!-- Add New Member Form -->
+        <div class="form-section">
+          <h3>Add New Member</h3>
+          <form action="/chairperson/add-member" method="POST" autocomplete="off">
+            <div class="form-grid-2col">
+              <div>
+                <label for="full_name">Full Name *</label>
+                <input id="full_name" name="full_name" type="text" required maxlength="100" placeholder="e.g., Alice Wanjiru" />
               </div>
-              <div style="margin-top:1rem;text-align:right;">
-                <button class="btn btn-primary" type="submit">Add Member</button>
+              <div>
+                <label for="phone_number">Phone Number *</label>
+                <input id="phone_number" name="phone_number" type="tel" required maxlength="15" placeholder="e.g., +254 700 000 000" />
               </div>
-            </form>
-          </div>
-        </section>
+              <div>
+                <label for="email">Email Address</label>
+                <input id="email" name="email" type="email" placeholder="e.g., alice@example.com" />
+              </div>
+              <div>
+                <label for="role">Role *</label>
+                <select id="role" name="role" required>
+                  <option value="">Select a role...</option>
+                  <option value="member">Member</option>
+                  <option value="treasurer">Treasurer</option>
+                  <option value="secretary">Secretary</option>
+                  <option value="chairperson">Chairperson</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="password">Temporary Password *</label>
+              <input id="password" name="password" type="password" required placeholder="Set a temporary password" />
+              <small class="muted-note" style="display:block;margin-top:0.25rem;">The member should change this after their first login.</small>
+            </div>
+            <div style="margin-top:1.5rem;text-align:right;">
+              <button class="btn btn-primary" type="submit">Add Member</button>
+            </div>
+          </form>
+        </div>
 
-        <!-- Active Members -->
-        <section class="dashboard-section">
-          <h2 class="h2">Active Members</h2>
-          <div class="card">
+        <!-- Active Members Table -->
+        <div class="table-section">
+          <div class="table-title">Active Members</div>
+          <div class="table-wrapper">
             <table class="table">
               <thead>
                 <tr>
@@ -110,152 +145,71 @@
                   <th>Phone</th>
                   <th>Email</th>
                   <th>Role</th>
-                  <th>Joined</th>
+                  <th>Joined Date</th>
                 </tr>
               </thead>
               <tbody>
                 <% if (members && members.length > 0) { %>
                   <% members.forEach(function(m) { %>
                     <tr>
-                      <td><%= m.full_name %></td>
+                      <td style="font-weight:500;"><%= m.full_name %></td>
                       <td><%= m.phone_number %></td>
                       <td><%= m.email || '—' %></td>
-                      <td style="text-transform:capitalize;"><%= m.role %></td>
+                      <td><span class="badge badge-info" style="text-transform:capitalize;"><%= m.role %></span></td>
                       <td><%= m.joined_date ? new Date(m.joined_date).toLocaleDateString() : '—' %></td>
                     </tr>
                   <% }); %>
                 <% } else { %>
                   <tr>
-                    <td colspan="5">No active member records available.</td>
+                    <td colspan="5" class="no-data">
+                      <p>No active members yet.</p>
+                    </td>
                   </tr>
                 <% } %>
               </tbody>
             </table>
           </div>
-        </section>
-
-        <section class="dashboard-section">
-          <h2 class="h2">Pending Join Requests</h2>
-          <div class="card">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Requested On</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="4">No pending join requests available.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="dashboard-section">
-          <h2 class="h2">Disciplinary Records</h2>
-          <div class="card">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Member</th>
-                  <th>Issue</th>
-                  <th>Reported On</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="5">No disciplinary records available.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </section>
-    </main>
-  </body>
-</html>
-
-      <section class="dashboard-content">
-        <div class="page-header">
-          <div>
-            <h1 class="h1">Member Oversight</h1>
-            <p class="lead">
-              Review member status, approvals, attendance, and disciplinary
-              records.
-            </p>
-          </div>
         </div>
 
-        <section class="dashboard-section">
-          <h2 class="h2">Pending Join Requests</h2>
-          <div class="card">
+        <!-- Disciplinary Records -->
+        <div class="table-section">
+          <div class="table-title">Disciplinary Records</div>
+          <div class="table-wrapper">
             <table class="table">
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>Requested On</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="4">No pending join requests available.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="dashboard-section">
-          <h2 class="h2">Active Members</h2>
-          <div class="card">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Role</th>
-                  <th>Attendance</th>
-                  <th>Contribution Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="5">No active member records available.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="dashboard-section">
-          <h2 class="h2">Disciplinary Records</h2>
-          <div class="card">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Member</th>
+                  <th>Reported Member</th>
+                  <th>Reported By</th>
                   <th>Issue</th>
                   <th>Reported On</th>
                   <th>Status</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No disciplinary records available.</td>
-                </tr>
+                <% if (disciplinaryRecords && disciplinaryRecords.length > 0) { %>
+                  <% disciplinaryRecords.forEach(function(record) { %>
+                    <tr>
+                      <td><%= record.reported_member_name || '-' %></td>
+                      <td><%= record.reported_by_name || '-' %></td>
+                      <td>
+                        <strong><%= record.subject %></strong>
+                        <div style="font-size:12px;color:#7f8c8d;margin-top:2px;"><%= record.description %></div>
+                      </td>
+                      <td><%= record.created_at || '-' %></td>
+                      <td style="text-transform: capitalize;"><%= record.status || 'open' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5" class="no-data">
+                      <p>No disciplinary records.</p>
+                    </td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
-        </section>
+        </div>
       </section>
     </main>
   </body>

@@ -124,35 +124,25 @@
                   <th>Lead</th>
                   <th>Members</th>
                   <th>Status</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No committee records available.</td>
-                </tr>
+                <% if (committeeMembers && committeeMembers.length > 0) { %>
+                  <% committeeMembers.forEach(function(member) { %>
+                    <tr>
+                      <td>Leadership Committee</td>
+                      <td><%= member.full_name %></td>
+                      <td style="text-transform: capitalize;"><%= member.role %></td>
+                      <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4">No committee members found for chairperson, treasurer, or secretary roles.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
-          </div>
-        </section>
-
-        <section class="dashboard-section">
-          <h2 class="h2">Policy Compliance</h2>
-          <div class="card">
-            <div class="stats-grid">
-              <div class="stat-box">
-                <div class="stat-label">Policy Adherence</div>
-                <div class="stat-value">-</div>
-              </div>
-              <div class="stat-box">
-                <div class="stat-label">Open Compliance Issues</div>
-                <div class="stat-value">-</div>
-              </div>
-              <div class="stat-box">
-                <div class="stat-label">Resolved This Month</div>
-                <div class="stat-value">-</div>
-              </div>
-            </div>
           </div>
         </section>
       </section>

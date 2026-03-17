@@ -61,6 +61,43 @@
           </div>
         </section>
 
+        <section class="dashboard-section">
+          <h2 class="h2">Disciplinary Records</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Reported Member</th>
+                  <th>Reported By</th>
+                  <th>Issue</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (disciplinaryRecords && disciplinaryRecords.length > 0) { %>
+                  <% disciplinaryRecords.forEach((record) => { %>
+                    <tr>
+                      <td><%= record.reported_member_name || '-' %></td>
+                      <td><%= record.reported_by_name || '-' %></td>
+                      <td>
+                        <strong><%= record.subject %></strong>
+                        <div class="small"><%= record.description %></div>
+                      </td>
+                      <td style="text-transform: capitalize;"><%= record.status || 'open' %></td>
+                      <td><%= record.created_at || '-' %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No disciplinary records available.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <section class="dashboard-section" id="member-statement">
           <h2 class="h2">Individual Member Statement</h2>
           <div class="card form-card" style="margin-bottom: 16px;">

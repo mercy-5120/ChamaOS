@@ -35,19 +35,23 @@
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Group Health Score</div>
-              <div class="metric-value value-success">-</div>
+              <div class="metric-value value-success"><%= metrics.groupHealthScore %>%</div>
+              <small class="muted-note">Based on contributions, attendance, and governance readiness</small>
             </div>
             <div class="metric-card">
               <div class="metric-label">Active Members</div>
-              <div class="metric-value value-deep">-</div>
+              <div class="metric-value value-deep"><%= metrics.activeMembers %></div>
+              <small class="muted-note">+<%= metrics.newMembers %> joined this month</small>
             </div>
             <div class="metric-card">
               <div class="metric-label">Pending Issues</div>
-              <div class="metric-value value-warning">-</div>
+              <div class="metric-value value-warning"><%= metrics.pendingIssues %></div>
+              <small class="muted-note">Pending approvals and overdue active loans</small>
             </div>
             <div class="metric-card">
               <div class="metric-label">Upcoming Events</div>
-              <div class="metric-value value-info">-</div>
+              <div class="metric-value value-info"><%= metrics.upcomingEvents %></div>
+              <small class="muted-note">Scheduled meetings from today onward</small>
             </div>
           </div>
         </section>
@@ -65,9 +69,24 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="4">No recent activities available.</td>
-                </tr>
+                <% if (recentActivities && recentActivities.length > 0) { %>
+                  <% recentActivities.forEach(function(activity) { %>
+                    <tr>
+                      <td><%= activity.activity_date ? new Date(activity.activity_date).toLocaleDateString() : '—' %></td>
+                      <td><%= activity.activity %></td>
+                      <td><%= activity.owner %></td>
+                      <td>
+                        <span class="badge <%= activity.status === 'completed' || activity.status === 'held' ? 'badge-success' : activity.status === 'pending' ? 'badge-warning' : 'badge-info' %>" style="text-transform:capitalize;">
+                          <%= activity.status %>
+                        </span>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4">No recent activities available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>

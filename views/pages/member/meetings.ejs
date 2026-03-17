@@ -29,6 +29,9 @@
                   <div class="announcement-item" style="margin-bottom: 12px;">
                     <div class="announcement-meta">
                       <span class="announcement-title"><%= meeting.meeting_title %></span>
+                      <% if (meeting.meeting_kind === 'special') { %>
+                        <span class="announcement-badge badge-info">Special</span>
+                      <% } %>
                       <span class="announcement-badge badge-warning">Upcoming</span>
                     </div>
                     <p class="announcement-content">
@@ -42,6 +45,41 @@
                 <p>No upcoming meetings available.</p>
               <% } %>
             </div>
+          </div>
+        </section>
+
+        <!-- ALL SPECIAL MEETINGS -->
+        <section class="dashboard-section">
+          <h2 class="h2">All Special Meetings</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Meeting</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Location</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (specialMeetings && specialMeetings.length > 0) { %>
+                  <% specialMeetings.forEach(function(meeting) { %>
+                    <tr>
+                      <td><%= meeting.meeting_date %> <%= meeting.meeting_time || '' %></td>
+                      <td><%= meeting.meeting_title || 'Special Meeting' %></td>
+                      <td><span class="badge badge-info">Special</span></td>
+                      <td style="text-transform: capitalize;"><%= meeting.meeting_status %></td>
+                      <td><%= meeting.location || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No special meetings available.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -65,7 +103,12 @@
                   <% pastMeetings.forEach(function(meeting) { %>
                     <tr>
                       <td><%= meeting.meeting_date %></td>
-                      <td><%= meeting.meeting_title %></td>
+                      <td>
+                        <%= meeting.meeting_title %>
+                        <% if (meeting.meeting_kind === 'special') { %>
+                          <span class="badge badge-info" style="margin-left:6px;">Special</span>
+                        <% } %>
+                      </td>
                       <td>-</td>
                       <td><%= meeting.agenda ? 'Available' : '-' %></td>
                       <td><%= meeting.decisions || '-' %></td>

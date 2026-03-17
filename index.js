@@ -132,6 +132,7 @@ const chairpersonRoutes = [
   "/chairperson/members",
   "/chairperson/governance",
   "/chairperson/meetings",
+  "/chairperson/reports",
   "/chairperson/welfare",
 ];
 const privateRoutes = [
@@ -1156,6 +1157,10 @@ app.get("/member/meetings", (req, res) => {
 
   const chama_id = req.session.chama_id;
   const user_id = req.session.user.user_id;
+  const currentRole = req.session.role || req.session.user?.role || "member";
+  const isCommitteeMember = ["chairperson", "secretary", "treasurer"].includes(
+    currentRole,
+  );
 
   function loadAttendanceAndRender(meetingsList) {
     const upcomingMeetings = meetingsList
@@ -1168,6 +1173,13 @@ app.get("/member/meetings", (req, res) => {
     const pastMeetings = meetingsList.filter(
       (m) => m.meeting_status === "completed",
     );
+    const specialMeetings = meetingsList
+      .filter((m) => m.meeting_kind === "special")
+      .sort((a, b) => {
+        const aStamp = `${a.meeting_date} ${a.meeting_time || "00:00"}`;
+        const bStamp = `${b.meeting_date} ${b.meeting_time || "00:00"}`;
+        return bStamp.localeCompare(aStamp);
+      });
 
     connection.query(
       `SELECT ma.meeting_id, ma.attended
@@ -1202,6 +1214,7 @@ app.get("/member/meetings", (req, res) => {
         return res.render("pages/member/meetings.ejs", {
           upcomingMeetings,
           pastMeetings,
+          specialMeetings,
           attendanceMap,
           attendanceStats,
         });
@@ -1215,6 +1228,8 @@ app.get("/member/meetings", (req, res) => {
             DATE_FORMAT(meeting_date, '%Y-%m-%d') AS meeting_date,
             DATE_FORMAT(meeting_time, '%H:%i') AS meeting_time,
             location,
+            invite_scope,
+            meeting_kind,
             agenda,
             decisions,
             CASE
@@ -1223,8 +1238,9 @@ app.get("/member/meetings", (req, res) => {
             END AS meeting_status
      FROM Meetings
      WHERE chama_id = ?
+       AND (? = 1 OR invite_scope = 'all_members')
      ORDER BY meeting_date DESC, meeting_time DESC, meeting_id DESC`,
-    [chama_id],
+    [chama_id, isCommitteeMember ? 1 : 0],
     (meetingsError, meetings) => {
       if (meetingsError) {
         if (meetingsError.code === "ER_BAD_FIELD_ERROR") {
@@ -1234,7 +1250,23 @@ app.get("/member/meetings", (req, res) => {
                     DATE_FORMAT(meeting_date, '%Y-%m-%d') AS meeting_date,
                     '' AS meeting_time,
                     location,
-                    agenda,
+                    CASE
+                      WHEN agenda LIKE '[KIND:special][SCOPE:committee]%' THEN 'committee'
+                      ELSE 'all_members'
+                    END AS invite_scope,
+                    CASE
+                      WHEN agenda LIKE '[KIND:special]%' THEN 'special'
+                      ELSE 'regular'
+                    END AS meeting_kind,
+                    REPLACE(
+                      REPLACE(
+                        agenda,
+                        '[KIND:special][SCOPE:committee] ',
+                        ''
+                      ),
+                      '[KIND:special][SCOPE:all_members] ',
+                      ''
+                    ) AS agenda,
                     decisions,
                     CASE
                       WHEN meeting_date >= CURDATE() THEN 'upcoming'
@@ -1242,8 +1274,15 @@ app.get("/member/meetings", (req, res) => {
                     END AS meeting_status
              FROM Meetings
              WHERE chama_id = ?
+               AND (
+                 ? = 1
+                 OR CASE
+                      WHEN agenda LIKE '[KIND:special][SCOPE:committee]%' THEN 'committee'
+                      ELSE 'all_members'
+                    END = 'all_members'
+               )
              ORDER BY meeting_date DESC, meeting_id DESC`,
-            [chama_id],
+            [chama_id, isCommitteeMember ? 1 : 0],
             (fallbackError, fallbackMeetings) => {
               if (fallbackError) {
                 console.log(
@@ -1272,6 +1311,7 @@ app.get("/member/group", (req, res) => {
   }
 
   const chama_id = req.session.chama_id;
+  const user_id = req.session.user?.user_id;
 
   connection.query(
     `SELECT chama_name, description, meeting_day, contribution_amount,
@@ -1301,7 +1341,8 @@ app.get("/member/group", (req, res) => {
             };
 
       connection.query(
-        `SELECT u.full_name,
+        `SELECT u.user_id,
+          u.full_name,
                 COALESCE(cm.phone_number, u.phone_number) AS phone_number,
                 COALESCE(cm.email, u.email) AS email,
                 cm.role,
@@ -1346,7 +1387,7 @@ app.get("/member/group", (req, res) => {
               }
 
               connection.query(
-                `SELECT IFNULL(SUM(amount), 0) AS total_loans_disbursed,
+                `SELECT IFNULL(SUM(CASE WHEN status != 'rejected' THEN amount ELSE 0 END), 0) AS total_loans_disbursed,
                         SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS active_loans
                  FROM Loans
                  WHERE chama_id = ?`,
@@ -1379,11 +1420,14 @@ app.get("/member/group", (req, res) => {
                   };
 
                   connection.query(
-                    `SELECT document_id, title, document_type, file_name, file_path,
-                            DATE_FORMAT(uploaded_at, '%Y-%m-%d %H:%i') AS uploaded_at
-                     FROM Group_Documents
-                     WHERE chama_id = ?
-                     ORDER BY uploaded_at DESC, document_id DESC`,
+                    `SELECT gd.document_id, gd.title, gd.document_type, gd.file_name, gd.file_path,
+                            DATE_FORMAT(gd.uploaded_at, '%Y-%m-%d %H:%i') AS uploaded_at,
+                            IFNULL(u.full_name, 'System') AS uploaded_by_name
+                     FROM Group_Documents gd
+                     LEFT JOIN Users u ON u.user_id = gd.uploaded_by
+                     WHERE gd.chama_id = ?
+                       AND gd.document_type IN ('constitution', 'bylaws', 'governance')
+                     ORDER BY gd.uploaded_at DESC, gd.document_id DESC`,
                     [chama_id],
                     (docsError, governanceDocuments) => {
                       if (docsError && docsError.code !== "ER_NO_SUCH_TABLE") {
@@ -1394,20 +1438,253 @@ app.get("/member/group", (req, res) => {
                         return res.status(500).render("pages/user/500.ejs");
                       }
 
-                      return res.render("pages/member/group.ejs", {
-                        groupInfo,
-                        memberDirectory,
-                        financialSummary,
-                        governanceDocuments:
-                          docsError && docsError.code === "ER_NO_SUCH_TABLE"
-                            ? []
-                            : governanceDocuments,
-                      });
+                      connection.query(
+                        `SELECT dr.record_id,
+                                dr.subject,
+                                dr.description,
+                                dr.status,
+                                DATE_FORMAT(dr.created_at, '%Y-%m-%d %H:%i') AS created_at,
+                                u.full_name AS reported_member_name
+                         FROM Disciplinary_Records dr
+                         LEFT JOIN Users u ON u.user_id = dr.reported_member_id
+                         WHERE dr.chama_id = ? AND dr.reported_by = ?
+                         ORDER BY dr.created_at DESC, dr.record_id DESC
+                         LIMIT 20`,
+                        [chama_id, user_id],
+                        (recordsError, userDisciplinaryRecords) => {
+                          if (
+                            recordsError &&
+                            recordsError.code !== "ER_NO_SUCH_TABLE"
+                          ) {
+                            console.log(
+                              "Member group disciplinary records load error: " +
+                                recordsError.message,
+                            );
+                            return res.status(500).render("pages/user/500.ejs");
+                          }
+
+                          connection.query(
+                            `SELECT wr.request_id,
+                                    u.full_name AS member_name,
+                                    wr.request_type,
+                                    wr.requested_amount,
+                                    wr.reason,
+                                    DATE_FORMAT(wr.reviewed_at, '%Y-%m-%d %H:%i') AS approved_at
+                             FROM Welfare_Requests wr
+                             JOIN Users u ON u.user_id = wr.requested_by
+                             WHERE wr.chama_id = ?
+                               AND wr.status = 'approved'
+                             ORDER BY wr.reviewed_at DESC, wr.request_id DESC
+                             LIMIT 20`,
+                            [chama_id],
+                            (welfareError, approvedWelfareRequests) => {
+                              if (
+                                welfareError &&
+                                welfareError.code !== "ER_NO_SUCH_TABLE"
+                              ) {
+                                console.log(
+                                  "Member group welfare load error: " +
+                                    welfareError.message,
+                                );
+                                return res
+                                  .status(500)
+                                  .render("pages/user/500.ejs");
+                              }
+
+                              connection.query(
+                                `SELECT IFNULL(SUM(requested_amount), 0) AS total_welfare_disbursed
+                                 FROM Welfare_Requests
+                                 WHERE chama_id = ?
+                                   AND status = 'approved'`,
+                                [chama_id],
+                                (welfareSummaryError, welfareSummaryRows) => {
+                                  if (
+                                    welfareSummaryError &&
+                                    welfareSummaryError.code !==
+                                      "ER_NO_SUCH_TABLE"
+                                  ) {
+                                    console.log(
+                                      "Member group welfare summary load error: " +
+                                        welfareSummaryError.message,
+                                    );
+                                    return res
+                                      .status(500)
+                                      .render("pages/user/500.ejs");
+                                  }
+
+                                  const totalWelfareDisbursed = Number(
+                                    welfareSummaryRows?.[0]
+                                      ?.total_welfare_disbursed || 0,
+                                  );
+
+                                  return res.render("pages/member/group.ejs", {
+                                    groupInfo,
+                                    memberDirectory,
+                                    financialSummary: {
+                                      ...financialSummary,
+                                      welfare_fund_balance:
+                                        financialSummary.total_savings -
+                                        totalWelfareDisbursed,
+                                    },
+                                    governanceDocuments:
+                                      docsError &&
+                                      docsError.code === "ER_NO_SUCH_TABLE"
+                                        ? []
+                                        : governanceDocuments,
+                                    userDisciplinaryRecords:
+                                      recordsError &&
+                                      recordsError.code === "ER_NO_SUCH_TABLE"
+                                        ? []
+                                        : userDisciplinaryRecords,
+                                    approvedWelfareRequests:
+                                      welfareError &&
+                                      welfareError.code === "ER_NO_SUCH_TABLE"
+                                        ? []
+                                        : approvedWelfareRequests,
+                                    success: req.query.success || null,
+                                    error: req.query.error || null,
+                                  });
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
                     },
                   );
                 },
               );
             },
+          );
+        },
+      );
+    },
+  );
+});
+
+app.post("/member/welfare-requests", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const requested_by = req.session.user?.user_id;
+  const request_type = String(req.body.request_type || "").trim();
+  const requested_amount = Number(req.body.requested_amount || 0);
+  const reason = String(req.body.reason || "").trim();
+
+  const allowedTypes = [
+    "medical",
+    "bereavement",
+    "emergency",
+    "education",
+    "other",
+  ];
+
+  if (!chama_id || !requested_by) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  if (
+    !allowedTypes.includes(request_type) ||
+    !Number.isFinite(requested_amount) ||
+    requested_amount <= 0 ||
+    !reason
+  ) {
+    return res.redirect(
+      "/member/group?error=Please provide valid welfare request details.",
+    );
+  }
+
+  connection.query(
+    `INSERT INTO Welfare_Requests
+     (chama_id, requested_by, request_type, requested_amount, reason, status)
+     VALUES (?, ?, ?, ?, ?, 'pending')`,
+    [chama_id, requested_by, request_type, requested_amount, reason],
+    (insertError) => {
+      if (insertError) {
+        if (insertError.code === "ER_NO_SUCH_TABLE") {
+          return res.redirect(
+            "/member/group?error=Welfare requests table is missing. Run latest migration.",
+          );
+        }
+
+        console.log(
+          "Member welfare request insert error: " + insertError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      return res.redirect(
+        "/member/group?success=Welfare request submitted successfully.",
+      );
+    },
+  );
+});
+
+app.post("/member/disciplinary-records", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const reported_by = req.session.user?.user_id;
+  const reported_member_id = Number(req.body.reported_member_id || 0);
+  const subject = String(req.body.subject || "").trim();
+  const description = String(req.body.description || "").trim();
+
+  if (!chama_id || !reported_by) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  if (!reported_member_id || !subject || !description) {
+    return res.redirect(
+      "/member/group?error=Please provide member, subject, and issue details.",
+    );
+  }
+
+  connection.query(
+    `SELECT 1
+     FROM Chama_Members
+     WHERE chama_id = ? AND user_id = ?
+     LIMIT 1`,
+    [chama_id, reported_member_id],
+    (memberCheckError, memberCheckRows) => {
+      if (memberCheckError) {
+        console.log(
+          "Member disciplinary record member check error: " +
+            memberCheckError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      if (!memberCheckRows || memberCheckRows.length === 0) {
+        return res.redirect(
+          "/member/group?error=Selected member is not part of this chama.",
+        );
+      }
+
+      connection.query(
+        `INSERT INTO Disciplinary_Records
+         (chama_id, reported_by, reported_member_id, subject, description, status)
+         VALUES (?, ?, ?, ?, ?, 'open')`,
+        [chama_id, reported_by, reported_member_id, subject, description],
+        (insertError) => {
+          if (insertError) {
+            if (insertError.code === "ER_NO_SUCH_TABLE") {
+              return res.redirect(
+                "/member/group?error=Disciplinary records table is missing. Run latest migration.",
+              );
+            }
+
+            console.log(
+              "Member disciplinary record insert error: " + insertError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          return res.redirect(
+            "/member/group?success=Disciplinary record submitted for committee review.",
           );
         },
       );
@@ -2110,130 +2387,169 @@ app.get("/treasurer/members", (req, res) => {
         return res.status(500).render("pages/user/500.ejs");
       }
 
-      if (!statementUserId) {
-        return res.render("pages/treasurer/members.ejs", {
-          members,
-          statementSelectedMember: null,
-          statementSummary: null,
-          statementTransactions: [],
-          statementLoans: [],
-          statementError: null,
-        });
-      }
-
-      const selectedMember = members.find(
-        (member) => Number(member.user_id) === statementUserId,
-      );
-
-      if (!selectedMember) {
-        return res.render("pages/treasurer/members.ejs", {
-          members,
-          statementSelectedMember: null,
-          statementSummary: null,
-          statementTransactions: [],
-          statementLoans: [],
-          statementError: "Selected member was not found in this chama.",
-        });
-      }
-
       connection.query(
-        `SELECT DATE_FORMAT(t.created_at, '%Y-%m-%d') AS transaction_date,
-                t.transaction_type,
-                t.amount,
-                t.status,
-                t.description
-         FROM Transactions t
-         WHERE t.chama_id = ? AND t.user_id = ?
-         ORDER BY t.created_at DESC, t.transaction_id DESC
-         LIMIT 50`,
-        [chama_id, statementUserId],
-        (txError, statementTransactions) => {
-          if (txError) {
+        `SELECT dr.record_id,
+                dr.subject,
+                dr.description,
+                dr.status,
+                DATE_FORMAT(dr.created_at, '%Y-%m-%d %H:%i') AS created_at,
+                rb.full_name AS reported_by_name,
+                rm.full_name AS reported_member_name
+         FROM Disciplinary_Records dr
+         LEFT JOIN Users rb ON rb.user_id = dr.reported_by
+         LEFT JOIN Users rm ON rm.user_id = dr.reported_member_id
+         WHERE dr.chama_id = ?
+         ORDER BY dr.created_at DESC, dr.record_id DESC
+         LIMIT 40`,
+        [chama_id],
+        (disciplinaryError, disciplinaryRecords) => {
+          if (
+            disciplinaryError &&
+            disciplinaryError.code !== "ER_NO_SUCH_TABLE"
+          ) {
             console.log(
-              "Treasurer member statement tx error: " + txError.message,
+              "Treasurer disciplinary records load error: " +
+                disciplinaryError.message,
             );
             return res.status(500).render("pages/user/500.ejs");
           }
 
+          const safeDisciplinaryRecords =
+            disciplinaryError && disciplinaryError.code === "ER_NO_SUCH_TABLE"
+              ? []
+              : disciplinaryRecords;
+
+          if (!statementUserId) {
+            return res.render("pages/treasurer/members.ejs", {
+              members,
+              disciplinaryRecords: safeDisciplinaryRecords,
+              statementSelectedMember: null,
+              statementSummary: null,
+              statementTransactions: [],
+              statementLoans: [],
+              statementError: null,
+            });
+          }
+
+          const selectedMember = members.find(
+            (member) => Number(member.user_id) === statementUserId,
+          );
+
+          if (!selectedMember) {
+            return res.render("pages/treasurer/members.ejs", {
+              members,
+              disciplinaryRecords: safeDisciplinaryRecords,
+              statementSelectedMember: null,
+              statementSummary: null,
+              statementTransactions: [],
+              statementLoans: [],
+              statementError: "Selected member was not found in this chama.",
+            });
+          }
+
           connection.query(
-            `SELECT DATE_FORMAT(l.issue_date, '%Y-%m-%d') AS issue_date,
-                    DATE_FORMAT(l.due_date, '%Y-%m-%d') AS due_date,
-                    l.amount,
-                    IFNULL(l.remaining_balance, l.amount) AS remaining_balance,
-                    l.status
-             FROM Loans l
-             WHERE l.chama_id = ? AND l.user_id = ? AND l.status != 'rejected'
-             ORDER BY l.issue_date DESC, l.loan_id DESC`,
+            `SELECT DATE_FORMAT(t.created_at, '%Y-%m-%d') AS transaction_date,
+                    t.transaction_type,
+                    t.amount,
+                    t.status,
+                    t.description
+             FROM Transactions t
+             WHERE t.chama_id = ? AND t.user_id = ?
+             ORDER BY t.created_at DESC, t.transaction_id DESC
+             LIMIT 50`,
             [chama_id, statementUserId],
-            (loanError, statementLoans) => {
-              if (loanError) {
+            (txError, statementTransactions) => {
+              if (txError) {
                 console.log(
-                  "Treasurer member statement loans error: " +
-                    loanError.message,
+                  "Treasurer member statement tx error: " + txError.message,
                 );
                 return res.status(500).render("pages/user/500.ejs");
               }
 
               connection.query(
-                `SELECT
-                   IFNULL(SUM(CASE WHEN transaction_type = 'contribution' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_contributed,
-                   IFNULL(SUM(CASE WHEN transaction_type = 'loan_repayment' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_loan_repaid,
-                   COUNT(*) AS transaction_count
-                 FROM Transactions
-                 WHERE chama_id = ? AND user_id = ?`,
+                `SELECT DATE_FORMAT(l.issue_date, '%Y-%m-%d') AS issue_date,
+                        DATE_FORMAT(l.due_date, '%Y-%m-%d') AS due_date,
+                        l.amount,
+                        IFNULL(l.remaining_balance, l.amount) AS remaining_balance,
+                        l.status
+                 FROM Loans l
+                 WHERE l.chama_id = ? AND l.user_id = ? AND l.status != 'rejected'
+                 ORDER BY l.issue_date DESC, l.loan_id DESC`,
                 [chama_id, statementUserId],
-                (summaryTxError, txSummaryRows) => {
-                  if (summaryTxError) {
+                (loanError, statementLoans) => {
+                  if (loanError) {
                     console.log(
-                      "Treasurer member statement summary tx error: " +
-                        summaryTxError.message,
+                      "Treasurer member statement loans error: " +
+                        loanError.message,
                     );
                     return res.status(500).render("pages/user/500.ejs");
                   }
 
                   connection.query(
                     `SELECT
-                       IFNULL(SUM(CASE WHEN status != 'rejected' THEN amount ELSE 0 END), 0) AS total_loaned,
-                       IFNULL(SUM(CASE WHEN status = 'active' THEN IFNULL(remaining_balance, amount) ELSE 0 END), 0) AS total_outstanding,
-                       SUM(CASE WHEN status != 'rejected' THEN 1 ELSE 0 END) AS loan_count
-                     FROM Loans
+                       IFNULL(SUM(CASE WHEN transaction_type = 'contribution' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_contributed,
+                       IFNULL(SUM(CASE WHEN transaction_type = 'loan_repayment' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_loan_repaid,
+                       COUNT(*) AS transaction_count
+                     FROM Transactions
                      WHERE chama_id = ? AND user_id = ?`,
                     [chama_id, statementUserId],
-                    (summaryLoanError, loanSummaryRows) => {
-                      if (summaryLoanError) {
+                    (summaryTxError, txSummaryRows) => {
+                      if (summaryTxError) {
                         console.log(
-                          "Treasurer member statement summary loan error: " +
-                            summaryLoanError.message,
+                          "Treasurer member statement summary tx error: " +
+                            summaryTxError.message,
                         );
                         return res.status(500).render("pages/user/500.ejs");
                       }
 
-                      const txSummary = txSummaryRows[0] || {};
-                      const loanSummary = loanSummaryRows[0] || {};
+                      connection.query(
+                        `SELECT
+                           IFNULL(SUM(CASE WHEN status != 'rejected' THEN amount ELSE 0 END), 0) AS total_loaned,
+                           IFNULL(SUM(CASE WHEN status = 'active' THEN IFNULL(remaining_balance, amount) ELSE 0 END), 0) AS total_outstanding,
+                           SUM(CASE WHEN status != 'rejected' THEN 1 ELSE 0 END) AS loan_count
+                         FROM Loans
+                         WHERE chama_id = ? AND user_id = ?`,
+                        [chama_id, statementUserId],
+                        (summaryLoanError, loanSummaryRows) => {
+                          if (summaryLoanError) {
+                            console.log(
+                              "Treasurer member statement summary loan error: " +
+                                summaryLoanError.message,
+                            );
+                            return res.status(500).render("pages/user/500.ejs");
+                          }
 
-                      return res.render("pages/treasurer/members.ejs", {
-                        members,
-                        statementSelectedMember: selectedMember,
-                        statementSummary: {
-                          totalContributed: Number(
-                            txSummary.total_contributed || 0,
-                          ),
-                          totalLoanRepaid: Number(
-                            txSummary.total_loan_repaid || 0,
-                          ),
-                          totalLoaned: Number(loanSummary.total_loaned || 0),
-                          totalOutstanding: Number(
-                            loanSummary.total_outstanding || 0,
-                          ),
-                          transactionCount: Number(
-                            txSummary.transaction_count || 0,
-                          ),
-                          loanCount: Number(loanSummary.loan_count || 0),
+                          const txSummary = txSummaryRows[0] || {};
+                          const loanSummary = loanSummaryRows[0] || {};
+
+                          return res.render("pages/treasurer/members.ejs", {
+                            members,
+                            disciplinaryRecords: safeDisciplinaryRecords,
+                            statementSelectedMember: selectedMember,
+                            statementSummary: {
+                              totalContributed: Number(
+                                txSummary.total_contributed || 0,
+                              ),
+                              totalLoanRepaid: Number(
+                                txSummary.total_loan_repaid || 0,
+                              ),
+                              totalLoaned: Number(
+                                loanSummary.total_loaned || 0,
+                              ),
+                              totalOutstanding: Number(
+                                loanSummary.total_outstanding || 0,
+                              ),
+                              transactionCount: Number(
+                                txSummary.transaction_count || 0,
+                              ),
+                              loanCount: Number(loanSummary.loan_count || 0),
+                            },
+                            statementTransactions,
+                            statementLoans,
+                            statementError: null,
+                          });
                         },
-                        statementTransactions,
-                        statementLoans,
-                        statementError: null,
-                      });
+                      );
                     },
                   );
                 },
@@ -3610,11 +3926,44 @@ app.get("/secretary/member-records", (req, res) => {
         return res.status(500).render("pages/user/500.ejs");
       }
 
-      return res.render("pages/secretary/member-records.ejs", {
-        members,
-        success: req.query.success || null,
-        error: req.query.error || null,
-      });
+      connection.query(
+        `SELECT dr.record_id,
+                dr.subject,
+                dr.description,
+                dr.status,
+                DATE_FORMAT(dr.created_at, '%Y-%m-%d %H:%i') AS created_at,
+                rb.full_name AS reported_by_name,
+                rm.full_name AS reported_member_name
+         FROM Disciplinary_Records dr
+         LEFT JOIN Users rb ON rb.user_id = dr.reported_by
+         LEFT JOIN Users rm ON rm.user_id = dr.reported_member_id
+         WHERE dr.chama_id = ?
+         ORDER BY dr.created_at DESC, dr.record_id DESC
+         LIMIT 40`,
+        [chama_id],
+        (disciplinaryError, disciplinaryRecords) => {
+          if (
+            disciplinaryError &&
+            disciplinaryError.code !== "ER_NO_SUCH_TABLE"
+          ) {
+            console.log(
+              "Secretary disciplinary records load error: " +
+                disciplinaryError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          return res.render("pages/secretary/member-records.ejs", {
+            members,
+            disciplinaryRecords:
+              disciplinaryError && disciplinaryError.code === "ER_NO_SUCH_TABLE"
+                ? []
+                : disciplinaryRecords,
+            success: req.query.success || null,
+            error: req.query.error || null,
+          });
+        },
+      );
     },
   );
 });
@@ -3674,10 +4023,311 @@ app.post("/secretary/add-member", (req, res) => {
 
 // Chairperson Routes
 app.get("/chairperson/dashboard", (req, res) => {
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  if (!chama_id) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const success = req.session.signupSuccess || null;
   req.session.signupSuccess = null;
 
-  res.render("pages/chairperson/dashboard.ejs", { success });
+  connection.query(
+    `SELECT contribution_amount
+     FROM Chama
+     WHERE chama_id = ?
+     LIMIT 1`,
+    [chama_id],
+    (chamaError, chamaRows) => {
+      if (chamaError) {
+        console.log(
+          "Chairperson dashboard chama settings error: " + chamaError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      const contributionAmount = Number(chamaRows[0]?.contribution_amount || 0);
+
+      connection.query(
+        `SELECT COUNT(*) AS active_members,
+                SUM(CASE WHEN DATE_FORMAT(joined_date, '%Y-%m') = ? THEN 1 ELSE 0 END) AS new_members
+         FROM Chama_Members
+         WHERE chama_id = ?`,
+        [currentMonth, chama_id],
+        (memberError, memberRows) => {
+          if (memberError) {
+            console.log(
+              "Chairperson dashboard members error: " + memberError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          const activeMembers = Number(memberRows[0]?.active_members || 0);
+          const newMembers = Number(memberRows[0]?.new_members || 0);
+
+          connection.query(
+            `SELECT
+               SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_issues,
+               SUM(CASE WHEN status = 'active' AND due_date < CURDATE() THEN 1 ELSE 0 END) AS overdue_loans
+             FROM Loans
+             WHERE chama_id = ? AND status != 'rejected'`,
+            [chama_id],
+            (issueError, issueRows) => {
+              if (issueError) {
+                console.log(
+                  "Chairperson dashboard issues error: " + issueError.message,
+                );
+                return res.status(500).render("pages/user/500.ejs");
+              }
+
+              const pendingApprovals = Number(
+                issueRows[0]?.pending_issues || 0,
+              );
+              const overdueLoans = Number(issueRows[0]?.overdue_loans || 0);
+              const pendingIssues = pendingApprovals + overdueLoans;
+
+              connection.query(
+                `SELECT COUNT(*) AS upcoming_events
+                 FROM Meetings
+                 WHERE chama_id = ?
+                   AND (
+                     meeting_date > CURDATE()
+                     OR (meeting_date = CURDATE() AND IFNULL(meeting_time, '23:59:59') >= CURTIME())
+                   )`,
+                [chama_id],
+                (meetingCountError, meetingCountRows) => {
+                  if (meetingCountError) {
+                    console.log(
+                      "Chairperson dashboard meeting count error: " +
+                        meetingCountError.message,
+                    );
+                    return res.status(500).render("pages/user/500.ejs");
+                  }
+
+                  const upcomingEvents = Number(
+                    meetingCountRows[0]?.upcoming_events || 0,
+                  );
+
+                  connection.query(
+                    `SELECT
+                       IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = ? THEN amount ELSE 0 END), 0) AS collected
+                     FROM Transactions
+                     WHERE chama_id = ?
+                       AND transaction_type = 'contribution'
+                       AND status = 'completed'`,
+                    [currentMonth, chama_id],
+                    (contribError, contribRows) => {
+                      if (contribError) {
+                        console.log(
+                          "Chairperson dashboard contributions error: " +
+                            contribError.message,
+                        );
+                        return res.status(500).render("pages/user/500.ejs");
+                      }
+
+                      const collectedContributions = Number(
+                        contribRows[0]?.collected || 0,
+                      );
+                      const expectedContributions =
+                        activeMembers * contributionAmount;
+                      const contributionRate =
+                        expectedContributions > 0
+                          ? Math.min(
+                              100,
+                              Math.round(
+                                (collectedContributions /
+                                  expectedContributions) *
+                                  100,
+                              ),
+                            )
+                          : 0;
+
+                      connection.query(
+                        `SELECT
+                           SUM(CASE WHEN IFNULL(ma.attended, 0) = 1 THEN 1 ELSE 0 END) AS attended_count,
+                           COUNT(ma.attendance_id) AS attendance_records
+                         FROM Meetings m
+                         LEFT JOIN Meeting_Attendance ma ON ma.meeting_id = m.meeting_id
+                         WHERE m.chama_id = ?`,
+                        [chama_id],
+                        (attendanceError, attendanceRows) => {
+                          if (attendanceError) {
+                            console.log(
+                              "Chairperson dashboard attendance error: " +
+                                attendanceError.message,
+                            );
+                            return res.status(500).render("pages/user/500.ejs");
+                          }
+
+                          const attendedCount = Number(
+                            attendanceRows[0]?.attended_count || 0,
+                          );
+                          const attendanceRecords = Number(
+                            attendanceRows[0]?.attendance_records || 0,
+                          );
+                          const attendanceRate =
+                            attendanceRecords > 0
+                              ? Math.round(
+                                  (attendedCount / attendanceRecords) * 100,
+                                )
+                              : 0;
+
+                          connection.query(
+                            `SELECT
+                               SUM(CASE WHEN document_type = 'constitution' THEN 1 ELSE 0 END) AS constitution_count,
+                               SUM(CASE WHEN document_type = 'bylaws' THEN 1 ELSE 0 END) AS bylaws_count
+                             FROM Group_Documents
+                             WHERE chama_id = ?`,
+                            [chama_id],
+                            (govError, govRows) => {
+                              if (
+                                govError &&
+                                govError.code !== "ER_NO_SUCH_TABLE"
+                              ) {
+                                console.log(
+                                  "Chairperson dashboard governance error: " +
+                                    govError.message,
+                                );
+                                return res
+                                  .status(500)
+                                  .render("pages/user/500.ejs");
+                              }
+
+                              const constitutionCount = Number(
+                                govRows?.[0]?.constitution_count || 0,
+                              );
+                              const bylawsCount = Number(
+                                govRows?.[0]?.bylaws_count || 0,
+                              );
+                              const governanceScore =
+                                constitutionCount > 0 && bylawsCount > 0
+                                  ? 100
+                                  : constitutionCount > 0 || bylawsCount > 0
+                                    ? 60
+                                    : 20;
+
+                              const groupHealthScore = Math.round(
+                                contributionRate * 0.5 +
+                                  attendanceRate * 0.3 +
+                                  governanceScore * 0.2,
+                              );
+
+                              connection.query(
+                                `SELECT activity_date, activity, owner, status
+                                 FROM (
+                                   SELECT
+                                     t.created_at AS activity_date,
+                                     CONCAT('Contribution received: ', u.full_name) AS activity,
+                                     'Treasury' AS owner,
+                                     CASE
+                                       WHEN t.status = 'completed' THEN 'completed'
+                                       ELSE 'pending'
+                                     END AS status
+                                   FROM Transactions t
+                                   JOIN Users u ON u.user_id = t.user_id
+                                   WHERE t.chama_id = ?
+                                     AND t.transaction_type = 'contribution'
+
+                                   UNION ALL
+
+                                   SELECT
+                                     gd.uploaded_at AS activity_date,
+                                     CONCAT('Document uploaded: ', gd.title) AS activity,
+                                     IFNULL(u2.full_name, 'System') AS owner,
+                                     'completed' AS status
+                                   FROM Group_Documents gd
+                                   LEFT JOIN Users u2 ON u2.user_id = gd.uploaded_by
+                                   WHERE gd.chama_id = ?
+
+                                   UNION ALL
+
+                                   SELECT
+                                     m.created_at AS activity_date,
+                                     CONCAT('Meeting scheduled: ', IFNULL(m.meeting_title, 'General meeting')) AS activity,
+                                     'Leadership' AS owner,
+                                     CASE
+                                       WHEN m.meeting_date < CURDATE() THEN 'held'
+                                       ELSE 'upcoming'
+                                     END AS status
+                                   FROM Meetings m
+                                   WHERE m.chama_id = ?
+                                 ) AS activities
+                                 ORDER BY activity_date DESC
+                                 LIMIT 8`,
+                                [chama_id, chama_id, chama_id],
+                                (activityError, recentActivities) => {
+                                  if (
+                                    activityError &&
+                                    (activityError.code ===
+                                      "ER_NO_SUCH_TABLE" ||
+                                      activityError.code ===
+                                        "ER_BAD_FIELD_ERROR")
+                                  ) {
+                                    return res.render(
+                                      "pages/chairperson/dashboard.ejs",
+                                      {
+                                        success,
+                                        metrics: {
+                                          groupHealthScore,
+                                          activeMembers,
+                                          pendingIssues,
+                                          upcomingEvents,
+                                          attendanceRate,
+                                          contributionRate,
+                                          newMembers,
+                                        },
+                                        recentActivities: [],
+                                      },
+                                    );
+                                  }
+
+                                  if (activityError) {
+                                    console.log(
+                                      "Chairperson dashboard activities error: " +
+                                        activityError.message,
+                                    );
+                                    return res
+                                      .status(500)
+                                      .render("pages/user/500.ejs");
+                                  }
+
+                                  return res.render(
+                                    "pages/chairperson/dashboard.ejs",
+                                    {
+                                      success,
+                                      metrics: {
+                                        groupHealthScore,
+                                        activeMembers,
+                                        pendingIssues,
+                                        upcomingEvents,
+                                        attendanceRate,
+                                        contributionRate,
+                                        newMembers,
+                                      },
+                                      recentActivities,
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    },
+  );
 });
 
 app.get("/chairperson/members", (req, res) => {
@@ -3704,12 +4354,46 @@ app.get("/chairperson/members", (req, res) => {
           if (membersErr) {
             return res.status(500).render("pages/user/500.ejs");
           }
-          res.render("pages/chairperson/members.ejs", {
-            chama: chamaRows[0],
-            members,
-            success: req.query.success || null,
-            error: req.query.error || null,
-          });
+
+          connection.query(
+            `SELECT dr.record_id,
+                    dr.subject,
+                    dr.description,
+                    dr.status,
+                    DATE_FORMAT(dr.created_at, '%Y-%m-%d %H:%i') AS created_at,
+                    rb.full_name AS reported_by_name,
+                    rm.full_name AS reported_member_name
+             FROM Disciplinary_Records dr
+             LEFT JOIN Users rb ON rb.user_id = dr.reported_by
+             LEFT JOIN Users rm ON rm.user_id = dr.reported_member_id
+             WHERE dr.chama_id = ?
+             ORDER BY dr.created_at DESC, dr.record_id DESC
+             LIMIT 40`,
+            [chama_id],
+            (disciplinaryErr, disciplinaryRecords) => {
+              if (
+                disciplinaryErr &&
+                disciplinaryErr.code !== "ER_NO_SUCH_TABLE"
+              ) {
+                console.log(
+                  "Chairperson disciplinary records load error: " +
+                    disciplinaryErr.message,
+                );
+                return res.status(500).render("pages/user/500.ejs");
+              }
+
+              res.render("pages/chairperson/members.ejs", {
+                chama: chamaRows[0],
+                members,
+                disciplinaryRecords:
+                  disciplinaryErr && disciplinaryErr.code === "ER_NO_SUCH_TABLE"
+                    ? []
+                    : disciplinaryRecords,
+                success: req.query.success || null,
+                error: req.query.error || null,
+              });
+            },
+          );
         },
       );
     },
@@ -3772,6 +4456,7 @@ app.get("/chairperson/governance", (req, res) => {
             DATE_FORMAT(uploaded_at, '%Y-%m-%d %H:%i') AS uploaded_at
      FROM Group_Documents
      WHERE chama_id = ?
+       AND document_type IN ('constitution', 'bylaws')
      ORDER BY uploaded_at DESC, document_id DESC`,
     [chama_id],
     (docsError, governanceDocuments) => {
@@ -3782,14 +4467,38 @@ app.get("/chairperson/governance", (req, res) => {
         return res.status(500).render("pages/user/500.ejs");
       }
 
-      return res.render("pages/chairperson/governance.ejs", {
-        governanceDocuments:
-          docsError && docsError.code === "ER_NO_SUCH_TABLE"
-            ? []
-            : governanceDocuments,
-        success: req.query.success || null,
-        error: req.query.error || null,
-      });
+      connection.query(
+        `SELECT u.full_name,
+                COALESCE(cm.phone_number, u.phone_number) AS phone_number,
+                cm.role,
+                DATE_FORMAT(cm.joined_date, '%Y-%m-%d') AS joined_date
+         FROM Chama_Members cm
+         JOIN Users u ON u.user_id = cm.user_id
+         WHERE cm.chama_id = ?
+           AND cm.role IN ('chairperson', 'treasurer', 'secretary')
+         ORDER BY FIELD(cm.role, 'chairperson', 'treasurer', 'secretary'),
+                  u.full_name ASC`,
+        [chama_id],
+        (committeeError, committeeMembers) => {
+          if (committeeError) {
+            console.log(
+              "Chairperson governance committee load error: " +
+                committeeError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          return res.render("pages/chairperson/governance.ejs", {
+            governanceDocuments:
+              docsError && docsError.code === "ER_NO_SUCH_TABLE"
+                ? []
+                : governanceDocuments,
+            committeeMembers,
+            success: req.query.success || null,
+            error: req.query.error || null,
+          });
+        },
+      );
     },
   );
 });
@@ -3863,11 +4572,463 @@ app.post(
 );
 
 app.get("/chairperson/meetings", (req, res) => {
-  res.render("pages/chairperson/meetings.ejs");
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  return res.render("pages/chairperson/meetings.ejs", {
+    success: req.query.success || null,
+    error: req.query.error || null,
+  });
+});
+
+app.post("/chairperson/meetings/create", (req, res) => {
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const {
+    meeting_title,
+    meeting_date,
+    meeting_time,
+    meeting_location,
+    meeting_agenda,
+    invite_scope,
+  } = req.body;
+
+  const cleanedTitle = String(meeting_title || "").trim();
+  const cleanedLocation = String(meeting_location || "").trim();
+  const cleanedAgenda = String(meeting_agenda || "").trim();
+  const cleanedInviteScope = ["committee", "all_members"].includes(
+    String(invite_scope || "").trim(),
+  )
+    ? String(invite_scope).trim()
+    : "all_members";
+
+  if (
+    !cleanedTitle ||
+    !meeting_date ||
+    !meeting_time ||
+    !cleanedLocation ||
+    !cleanedAgenda
+  ) {
+    return res.redirect(
+      "/chairperson/meetings?error=Please fill in all required meeting fields.",
+    );
+  }
+
+  connection.query(
+    `INSERT INTO Meetings
+      (chama_id, meeting_title, meeting_date, meeting_time, location, invite_scope, meeting_kind, agenda)
+     VALUES (?, ?, ?, ?, ?, ?, 'special', ?)`,
+    [
+      chama_id,
+      cleanedTitle,
+      meeting_date,
+      meeting_time,
+      cleanedLocation,
+      cleanedInviteScope,
+      cleanedAgenda,
+    ],
+    (createError) => {
+      if (createError) {
+        if (createError.code === "ER_BAD_FIELD_ERROR") {
+          const fallbackAgenda = `[KIND:special][SCOPE:${cleanedInviteScope}] ${cleanedAgenda}`;
+
+          return connection.query(
+            `INSERT INTO Meetings
+              (chama_id, meeting_title, meeting_date, meeting_time, location, agenda)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [
+              chama_id,
+              cleanedTitle,
+              meeting_date,
+              meeting_time,
+              cleanedLocation,
+              fallbackAgenda,
+            ],
+            (fallbackCreateError) => {
+              if (fallbackCreateError) {
+                console.log(
+                  "Chairperson create meeting fallback error: " +
+                    fallbackCreateError.message,
+                );
+                return res.redirect(
+                  "/chairperson/meetings?error=Could not schedule special meeting.",
+                );
+              }
+
+              return res.redirect(
+                "/chairperson/meetings?success=Special meeting scheduled successfully.",
+              );
+            },
+          );
+        }
+
+        console.log("Chairperson create meeting error: " + createError.message);
+        return res.redirect(
+          "/chairperson/meetings?error=Could not schedule special meeting.",
+        );
+      }
+
+      return res.redirect(
+        "/chairperson/meetings?success=Special meeting scheduled successfully.",
+      );
+    },
+  );
+});
+
+app.get("/chairperson/reports", (req, res) => {
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+  const summary = {
+    committeeReviews: 0,
+    openDisciplinaryIssues: 0,
+    governanceDocuments: 0,
+    attendanceTrend: 0,
+  };
+
+  connection.query(
+    `SELECT document_id, title, file_name, file_path,
+            DATE_FORMAT(uploaded_at, '%Y-%m-%d %H:%i') AS uploaded_at
+     FROM Group_Documents
+     WHERE chama_id = ? AND document_type = 'governance'
+     ORDER BY uploaded_at DESC, document_id DESC`,
+    [chama_id],
+    (reportsError, executiveReports) => {
+      if (reportsError && reportsError.code !== "ER_NO_SUCH_TABLE") {
+        console.log(
+          "Chairperson executive reports load error: " + reportsError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      const safeExecutiveReports =
+        reportsError && reportsError.code === "ER_NO_SUCH_TABLE"
+          ? []
+          : executiveReports;
+
+      connection.query(
+        `SELECT COUNT(*) AS total
+         FROM Disciplinary_Records
+         WHERE chama_id = ? AND DATE_FORMAT(created_at, '%Y-%m') = ?`,
+        [chama_id, currentMonth],
+        (reviewsError, reviewsRows) => {
+          if (reviewsError && reviewsError.code !== "ER_NO_SUCH_TABLE") {
+            console.log(
+              "Chairperson reports committee reviews error: " +
+                reviewsError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          summary.committeeReviews = Number(reviewsRows?.[0]?.total || 0);
+
+          connection.query(
+            `SELECT COUNT(*) AS total
+             FROM Disciplinary_Records
+             WHERE chama_id = ?
+               AND LOWER(IFNULL(status, 'open')) NOT IN ('resolved', 'closed')`,
+            [chama_id],
+            (issuesError, issuesRows) => {
+              if (issuesError && issuesError.code !== "ER_NO_SUCH_TABLE") {
+                console.log(
+                  "Chairperson reports disciplinary issues error: " +
+                    issuesError.message,
+                );
+                return res.status(500).render("pages/user/500.ejs");
+              }
+
+              summary.openDisciplinaryIssues = Number(
+                issuesRows?.[0]?.total || 0,
+              );
+
+              connection.query(
+                `SELECT COUNT(*) AS total
+                 FROM Group_Documents
+                 WHERE chama_id = ?
+                   AND document_type IN ('constitution', 'bylaws', 'governance')`,
+                [chama_id],
+                (docsError, docsRows) => {
+                  if (docsError && docsError.code !== "ER_NO_SUCH_TABLE") {
+                    console.log(
+                      "Chairperson reports governance docs summary error: " +
+                        docsError.message,
+                    );
+                    return res.status(500).render("pages/user/500.ejs");
+                  }
+
+                  summary.governanceDocuments = Number(
+                    docsRows?.[0]?.total || 0,
+                  );
+
+                  connection.query(
+                    `SELECT
+                       SUM(CASE WHEN IFNULL(ma.attended, 0) = 1 THEN 1 ELSE 0 END) AS attended_count,
+                       COUNT(ma.attendance_id) AS attendance_records
+                     FROM Meetings m
+                     LEFT JOIN Meeting_Attendance ma ON ma.meeting_id = m.meeting_id
+                     WHERE m.chama_id = ?
+                       AND m.meeting_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)`,
+                    [chama_id],
+                    (attendanceError, attendanceRows) => {
+                      if (
+                        attendanceError &&
+                        attendanceError.code !== "ER_NO_SUCH_TABLE"
+                      ) {
+                        console.log(
+                          "Chairperson reports attendance trend error: " +
+                            attendanceError.message,
+                        );
+                        return res.status(500).render("pages/user/500.ejs");
+                      }
+
+                      const attendedCount = Number(
+                        attendanceRows?.[0]?.attended_count || 0,
+                      );
+                      const attendanceRecords = Number(
+                        attendanceRows?.[0]?.attendance_records || 0,
+                      );
+                      summary.attendanceTrend =
+                        attendanceRecords > 0
+                          ? Math.round(
+                              (attendedCount / attendanceRecords) * 100,
+                            )
+                          : 0;
+
+                      return res.render("pages/chairperson/reports.ejs", {
+                        executiveReports: safeExecutiveReports,
+                        summary,
+                        success: req.query.success || null,
+                        error: req.query.error || null,
+                      });
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+});
+
+app.post("/chairperson/reports/create", (req, res) => {
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const uploaded_by = req.session.user.user_id;
+  const title = String(req.body.title || "").trim();
+  const content = String(req.body.content || "").trim();
+
+  if (!title || !content) {
+    return res.redirect(
+      "/chairperson/reports?error=Please provide both report title and report details.",
+    );
+  }
+
+  const safeTitle = title
+    .replace(/[^a-zA-Z0-9-_ ]+/g, "")
+    .trim()
+    .replace(/\s+/g, "_")
+    .slice(0, 60);
+  const timestamp = Date.now();
+  const generatedFileName = `executive-report-${safeTitle || "report"}-${timestamp}.txt`;
+  const absolutePath = path.join(governanceDocsUploadDir, generatedFileName);
+  const filePath = `/uploads/governance/${generatedFileName}`;
+  const fileBody = `Executive Report\nTitle: ${title}\nGenerated: ${new Date().toISOString()}\n\n${content}\n`;
+
+  fs.writeFile(absolutePath, fileBody, "utf8", (writeError) => {
+    if (writeError) {
+      console.log("Executive report file write error: " + writeError.message);
+      return res.status(500).render("pages/user/500.ejs");
+    }
+
+    connection.query(
+      `INSERT INTO Group_Documents
+       (chama_id, title, document_type, file_name, file_path, uploaded_by)
+       VALUES (?, ?, 'governance', ?, ?, ?)`,
+      [chama_id, title, generatedFileName, filePath, uploaded_by],
+      (insertError) => {
+        if (insertError) {
+          if (insertError.code === "ER_NO_SUCH_TABLE") {
+            return res.redirect(
+              "/chairperson/reports?error=Documents table is missing. Run latest migration.",
+            );
+          }
+
+          console.log("Executive report save error: " + insertError.message);
+          return res.status(500).render("pages/user/500.ejs");
+        }
+
+        return res.redirect(
+          "/chairperson/reports?success=Executive report created successfully.",
+        );
+      },
+    );
+  });
 });
 
 app.get("/chairperson/welfare", (req, res) => {
-  res.render("pages/chairperson/welfare.ejs");
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+
+  connection.query(
+    `SELECT wr.request_id,
+            u.full_name AS member_name,
+            wr.request_type,
+            wr.requested_amount,
+            wr.reason,
+            DATE_FORMAT(wr.created_at, '%Y-%m-%d %H:%i') AS requested_on
+     FROM Welfare_Requests wr
+     JOIN Users u ON u.user_id = wr.requested_by
+     WHERE wr.chama_id = ?
+       AND wr.status = 'pending'
+     ORDER BY wr.created_at ASC, wr.request_id ASC`,
+    [chama_id],
+    (pendingError, pendingRequests) => {
+      if (pendingError && pendingError.code !== "ER_NO_SUCH_TABLE") {
+        console.log(
+          "Chairperson welfare pending requests load error: " +
+            pendingError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      connection.query(
+        `SELECT
+           IFNULL(SUM(CASE WHEN status = 'approved' THEN requested_amount ELSE 0 END), 0) AS total_approved,
+           IFNULL(SUM(CASE
+                        WHEN status = 'approved'
+                          AND YEAR(reviewed_at) = YEAR(CURDATE())
+                          AND QUARTER(reviewed_at) = QUARTER(CURDATE())
+                        THEN requested_amount
+                        ELSE 0
+                      END), 0) AS disbursed_quarter,
+           SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS open_requests
+         FROM Welfare_Requests
+         WHERE chama_id = ?`,
+        [chama_id],
+        (summaryError, summaryRows) => {
+          if (summaryError && summaryError.code !== "ER_NO_SUCH_TABLE") {
+            console.log(
+              "Chairperson welfare summary load error: " + summaryError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          connection.query(
+            `SELECT IFNULL(SUM(CASE
+                                 WHEN transaction_type = 'contribution'
+                                      AND status = 'completed'
+                                 THEN amount
+                                 ELSE 0
+                               END), 0) AS total_savings
+             FROM Transactions
+             WHERE chama_id = ?`,
+            [chama_id],
+            (savingsError, savingsRows) => {
+              if (savingsError) {
+                console.log(
+                  "Chairperson welfare savings load error: " +
+                    savingsError.message,
+                );
+                return res.status(500).render("pages/user/500.ejs");
+              }
+
+              const summary = summaryRows?.[0] || {};
+              const totalSavings = Number(savingsRows?.[0]?.total_savings || 0);
+              const totalApproved = Number(summary.total_approved || 0);
+              const welfareSummary = {
+                currentBalance: totalSavings - totalApproved,
+                disbursedQuarter: Number(summary.disbursed_quarter || 0),
+                openRequests: Number(summary.open_requests || 0),
+              };
+
+              return res.render("pages/chairperson/welfare.ejs", {
+                pendingRequests:
+                  pendingError && pendingError.code === "ER_NO_SUCH_TABLE"
+                    ? []
+                    : pendingRequests,
+                welfareSummary,
+                success: req.query.success || null,
+                error: req.query.error || null,
+              });
+            },
+          );
+        },
+      );
+    },
+  );
+});
+
+app.post("/chairperson/welfare/decision", (req, res) => {
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const reviewed_by = req.session.user.user_id;
+  const requestId = Number(req.body.request_id || 0);
+  const decision = String(req.body.decision || "")
+    .trim()
+    .toLowerCase();
+  const decisionStatus =
+    decision === "approve"
+      ? "approved"
+      : decision === "reject"
+        ? "rejected"
+        : null;
+
+  if (!requestId || !decisionStatus) {
+    return res.redirect(
+      "/chairperson/welfare?error=Invalid welfare decision submitted.",
+    );
+  }
+
+  connection.query(
+    `UPDATE Welfare_Requests
+     SET status = ?, reviewed_by = ?, reviewed_at = NOW()
+     WHERE request_id = ? AND chama_id = ? AND status = 'pending'`,
+    [decisionStatus, reviewed_by, requestId, chama_id],
+    (updateError, updateResult) => {
+      if (updateError) {
+        if (updateError.code === "ER_NO_SUCH_TABLE") {
+          return res.redirect(
+            "/chairperson/welfare?error=Welfare requests table is missing. Run latest migration.",
+          );
+        }
+
+        console.log(
+          "Chairperson welfare decision error: " + updateError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      if (!updateResult || updateResult.affectedRows === 0) {
+        return res.redirect(
+          "/chairperson/welfare?error=Request not found or already reviewed.",
+        );
+      }
+
+      return res.redirect(
+        `/chairperson/welfare?success=Welfare request ${decisionStatus}.`,
+      );
+    },
+  );
 });
 
 app.get("/join", (req, res) => {

@@ -19,6 +19,18 @@
           </div>
         </div>
 
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div class="alert alert-success" style="color:#1e6b41;background:#e8f7ee;border:1px solid #2a9d62;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= success %>
+          </div>
+        <% } %>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error" style="color:#c0392b;background:#fdecea;border:1px solid #e74c3c;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= error %>
+          </div>
+        <% } %>
+
         <!-- GROUP OVERVIEW -->
         <section class="dashboard-section">
           <h2 class="h2">Group Overview</h2>
@@ -73,7 +85,7 @@
             <div class="metric-card">
               <div class="metric-label">Total Loans Disbursed</div>
               <div class="metric-value value-info"><%= groupInfo.currency || 'KES' %> <%= Number(financialSummary.total_loans_disbursed || 0).toLocaleString() %></div>
-              <div class="small" style="margin-top: 8px">All loans issued</div>
+              <div class="small" style="margin-top: 8px">Approved loans issued</div>
             </div>
 
             <div class="metric-card">
@@ -86,6 +98,12 @@
               <div class="metric-label">Total Loan Repayments</div>
               <div class="metric-value value-success"><%= groupInfo.currency || 'KES' %> <%= Number(financialSummary.total_repayments || 0).toLocaleString() %></div>
               <div class="small" style="margin-top: 8px">Completed loan repayments</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Welfare Fund Balance</div>
+              <div class="metric-value value-deep"><%= groupInfo.currency || 'KES' %> <%= Number(financialSummary.welfare_fund_balance || 0).toLocaleString() %></div>
+              <div class="small" style="margin-top: 8px">Savings minus approved welfare disbursements</div>
             </div>
           </div>
         </section>
@@ -148,6 +166,143 @@
           </div>
         </section>
 
+        <section class="dashboard-section">
+          <h2 class="h2">Welfare Requests</h2>
+          <div class="card" style="margin-bottom:16px;">
+            <h4 style="margin-top:0;">Add Welfare Request</h4>
+            <form action="/member/welfare-requests" method="POST" autocomplete="off">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="welfare-request-type">Request Type *</label>
+                  <select id="welfare-request-type" name="request_type" class="form-control" required>
+                    <option value="">Select type</option>
+                    <option value="medical">Medical</option>
+                    <option value="bereavement">Bereavement</option>
+                    <option value="emergency">Emergency</option>
+                    <option value="education">Education</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                <div class="form-col">
+                  <label for="welfare-request-amount">Amount *</label>
+                  <input id="welfare-request-amount" name="requested_amount" class="form-control" type="number" min="1" step="0.01" required placeholder="e.g., 5000" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label for="welfare-request-reason">Reason *</label>
+                  <textarea id="welfare-request-reason" name="reason" class="form-control" rows="4" required placeholder="Provide details for committee review..."></textarea>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit Welfare Request</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h4 style="margin-top:0;">Approved Welfare Requests</h4>
+            <table class="table" style="margin-top:10px;">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Reason</th>
+                  <th>Approved On</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (approvedWelfareRequests && approvedWelfareRequests.length > 0) { %>
+                  <% approvedWelfareRequests.forEach(function(request) { %>
+                    <tr>
+                      <td><%= request.member_name || '-' %></td>
+                      <td style="text-transform: capitalize;"><%= request.request_type || '-' %></td>
+                      <td><%= groupInfo.currency || 'KES' %> <%= Number(request.requested_amount || 0).toLocaleString() %></td>
+                      <td><%= request.reason || '-' %></td>
+                      <td><%= request.approved_at || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No approved welfare requests yet.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DISCIPLINARY RECORDS -->
+        <section class="dashboard-section">
+          <h2 class="h2">Disciplinary Records</h2>
+          <div class="card" style="margin-bottom:16px;">
+            <h4 style="margin-top:0;">File a Disciplinary Record</h4>
+            <p class="small" style="margin-bottom:14px;">
+              Submitted records are reviewed by the leadership committee (chairperson, secretary, and treasurer).
+            </p>
+            <form action="/member/disciplinary-records" method="POST" autocomplete="off">
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="reported_member_id">Member *</label>
+                  <select id="reported_member_id" name="reported_member_id" class="form-control" required>
+                    <option value="">Select member</option>
+                    <% if (memberDirectory && memberDirectory.length > 0) { %>
+                      <% memberDirectory.forEach(function(member) { %>
+                        <option value="<%= member.user_id %>"><%= member.full_name %> (<%= member.role || 'member' %>)</option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="discipline_subject">Issue Subject *</label>
+                  <input id="discipline_subject" name="subject" class="form-control" type="text" maxlength="150" required placeholder="e.g., Repeated absenteeism" />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="discipline_description">Issue Details *</label>
+                  <textarea id="discipline_description" name="description" class="form-control" rows="4" required placeholder="Provide clear details for committee review..."></textarea>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit Record</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h4 style="margin-top:0;">Your Submitted Records</h4>
+            <table class="table" style="margin-top: 10px;">
+              <thead>
+                <tr>
+                  <th>Reported Member</th>
+                  <th>Issue</th>
+                  <th>Status</th>
+                  <th>Submitted</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (userDisciplinaryRecords && userDisciplinaryRecords.length > 0) { %>
+                  <% userDisciplinaryRecords.forEach(function(record) { %>
+                    <tr>
+                      <td><%= record.reported_member_name || '-' %></td>
+                      <td>
+                        <strong><%= record.subject %></strong>
+                        <div class="small"><%= record.description %></div>
+                      </td>
+                      <td style="text-transform: capitalize;"><%= record.status || 'open' %></td>
+                      <td><%= record.created_at || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4">You have not submitted any disciplinary records yet.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
         <!-- GROUP BYLAWS & RULES -->
         <section class="dashboard-section">
           <h2 class="h2">Group Bylaws & Rules</h2>
@@ -199,9 +354,14 @@
                       <a href="<%= doc.file_path %>" target="_blank" rel="noopener"><%= doc.file_name %></a>
                       <span class="small">
                         (
-                        <%= doc.document_type === 'constitution' ? 'Constitution' : (doc.document_type === 'bylaws' ? 'Bylaws' : 'Newsletter') %>
+                        <%= doc.document_type === 'constitution'
+                          ? 'Constitution'
+                          : (doc.document_type === 'bylaws'
+                            ? 'Bylaws'
+                            : (doc.document_type === 'governance' ? 'Executive Report' : 'Document')) %>
                         )
                       </span>
+                      <span class="small"> - Created by: <%= doc.uploaded_by_name || 'System' %></span>
                     </li>
                   <% }); %>
                 </ul>

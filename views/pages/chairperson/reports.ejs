@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Chairperson Reports</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/chairperson.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/chairpersonsidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Reports</h1>
+            <p class="lead">
+              Review governance and committee oversight reports for leadership
+              decisions.
+            </p>
+          </div>
+        </div>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Leadership Summary</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Committee Reviews</div>
+              <div class="metric-value value-info"><%= summary ? summary.committeeReviews : 0 %></div>
+              <div class="small" style="margin-top: 8px">This month</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Open Disciplinary Issues</div>
+              <div class="metric-value value-warning"><%= summary ? summary.openDisciplinaryIssues : 0 %></div>
+              <div class="small" style="margin-top: 8px">Awaiting action</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Governance Documents</div>
+              <div class="metric-value value-success"><%= summary ? summary.governanceDocuments : 0 %></div>
+              <div class="small" style="margin-top: 8px">
+                Constitution and bylaws
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Attendance Trend</div>
+              <div class="metric-value value-deep"><%= summary ? summary.attendanceTrend : 0 %>%</div>
+              <div class="small" style="margin-top: 8px">Last 30 days</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Create Executive Report</h2>
+          <div class="card form-card">
+            <% if (success) { %>
+              <div class="alert success-alert" style="margin-bottom: 12px"><%= success %></div>
+            <% } %>
+            <% if (error) { %>
+              <div class="alert error-alert" style="margin-bottom: 12px"><%= error %></div>
+            <% } %>
+
+            <form class="form-group" method="POST" action="/chairperson/reports/create" autocomplete="off">
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="report-title">Report Title</label>
+                  <input
+                    id="report-title"
+                    name="title"
+                    class="form-control"
+                    type="text"
+                    maxlength="255"
+                    placeholder="e.g. Executive Oversight Report - March 2026"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="report-content">Report Details</label>
+                  <textarea
+                    id="report-content"
+                    name="content"
+                    class="form-control"
+                    rows="8"
+                    placeholder="Write your executive report details here..."
+                    required
+                  ></textarea>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" type="submit">Create Report</button>
+            </form>
+
+            <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
+              <h3 class="h3">Executive Reports</h3>
+              <table class="table" style="margin-top: 10px;">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>File</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (executiveReports && executiveReports.length > 0) { %>
+                    <% executiveReports.forEach(function(report) { %>
+                      <tr>
+                        <td><%= report.title %></td>
+                        <td><a href="<%= report.file_path %>" target="_blank" rel="noopener">View Report</a></td>
+                        <td><%= report.uploaded_at %></td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="3">No executive reports created yet.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

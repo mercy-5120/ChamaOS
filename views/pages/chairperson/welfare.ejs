@@ -21,6 +21,17 @@
           </div>
         </div>
 
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div class="alert alert-success" style="color:#1e6b41;background:#e8f7ee;border:1px solid #2a9d62;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= success %>
+          </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error" style="color:#c0392b;background:#fdecea;border:1px solid #e74c3c;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= error %>
+          </div>
+        <% } %>
+
         <section class="dashboard-section">
           <h2 class="h2">Pending Welfare Requests</h2>
           <div class="card">
@@ -35,9 +46,34 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No pending welfare requests available.</td>
-                </tr>
+                <% if (pendingRequests && pendingRequests.length > 0) { %>
+                  <% pendingRequests.forEach(function(request) { %>
+                    <tr>
+                      <td><%= request.member_name %></td>
+                      <td style="text-transform: capitalize;"><%= request.request_type %></td>
+                      <td>KES <%= Number(request.requested_amount || 0).toLocaleString() %></td>
+                      <td><%= request.requested_on %></td>
+                      <td>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                          <form action="/chairperson/welfare/decision" method="POST" style="margin:0;">
+                            <input type="hidden" name="request_id" value="<%= request.request_id %>" />
+                            <input type="hidden" name="decision" value="approve" />
+                            <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                          </form>
+                          <form action="/chairperson/welfare/decision" method="POST" style="margin:0;">
+                            <input type="hidden" name="request_id" value="<%= request.request_id %>" />
+                            <input type="hidden" name="decision" value="reject" />
+                            <button type="submit" class="btn btn-secondary btn-sm">Reject</button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No pending welfare requests available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -48,15 +84,15 @@
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Current Welfare Balance</div>
-              <div class="metric-value value-deep">-</div>
+              <div class="metric-value value-deep">KES <%= Number(welfareSummary?.currentBalance || 0).toLocaleString() %></div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Disbursed This Quarter</div>
-              <div class="metric-value value-warning">-</div>
+              <div class="metric-value value-warning">KES <%= Number(welfareSummary?.disbursedQuarter || 0).toLocaleString() %></div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Open Requests</div>
-              <div class="metric-value value-info">-</div>
+              <div class="metric-value value-info"><%= Number(welfareSummary?.openRequests || 0) %></div>
             </div>
           </div>
         </section>

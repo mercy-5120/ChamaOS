@@ -22,10 +22,21 @@
           </div>
         </div>
 
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div class="alert alert-success" style="color:#1e6b41;background:#e8f7ee;border:1px solid #2a9d62;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= success %>
+          </div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error" style="color:#c0392b;background:#fdecea;border:1px solid #e74c3c;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= error %>
+          </div>
+        <% } %>
+
         <section class="dashboard-section">
           <h2 class="h2">Schedule Special Meeting</h2>
           <div class="card form-card">
-            <form class="form-group">
+            <form class="form-group" method="POST" action="/chairperson/meetings/create" autocomplete="off">
               <div class="form-row">
                 <div class="form-col">
                   <label class="form-label" for="meeting-title"
@@ -33,20 +44,22 @@
                   >
                   <input
                     id="meeting-title"
+                    name="meeting_title"
                     class="form-control"
                     type="text"
                     placeholder="Enter meeting title"
+                    required
                   />
                 </div>
                 <div class="form-col">
                   <label class="form-label" for="meeting-date">Date</label>
-                  <input id="meeting-date" class="form-control" type="date" />
+                  <input id="meeting-date" name="meeting_date" class="form-control" type="date" required />
                 </div>
               </div>
               <div class="form-row">
                 <div class="form-col">
                   <label class="form-label" for="meeting-time">Time</label>
-                  <input id="meeting-time" class="form-control" type="time" />
+                  <input id="meeting-time" name="meeting_time" class="form-control" type="time" required />
                 </div>
                 <div class="form-col">
                   <label class="form-label" for="meeting-location"
@@ -54,10 +67,21 @@
                   >
                   <input
                     id="meeting-location"
+                    name="meeting_location"
                     class="form-control"
                     type="text"
                     placeholder="Enter location"
+                    required
                   />
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="invite-scope">Who Is Invited?</label>
+                  <select id="invite-scope" name="invite_scope" class="form-control" required>
+                    <option value="committee">Committee Only (Chairperson, Secretary, Treasurer)</option>
+                    <option value="all_members">All Members</option>
+                  </select>
                 </div>
               </div>
               <div class="form-row">
@@ -65,9 +89,11 @@
                   <label class="form-label" for="meeting-agenda">Agenda</label>
                   <textarea
                     id="meeting-agenda"
+                    name="meeting_agenda"
                     class="form-control"
                     rows="4"
                     placeholder="List agenda points..."
+                    required
                   ></textarea>
                 </div>
               </div>
@@ -75,27 +101,6 @@
                 Schedule Meeting
               </button>
             </form>
-          </div>
-        </section>
-
-        <section class="dashboard-section">
-          <h2 class="h2">Decision Tracking</h2>
-          <div class="card">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Decision</th>
-                  <th>Owner</th>
-                  <th>Due Date</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="4">No decisions available for tracking.</td>
-                </tr>
-              </tbody>
-            </table>
           </div>
         </section>
       </section>
