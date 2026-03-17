@@ -118,14 +118,37 @@
         <section class="dashboard-section">
           <h2 class="h2">Payment Reminders</h2>
           <div class="card reminder-box">
-            <div class="reminder-alert reminder-alert-warning">
-              <strong>⏰ Upcoming Payment</strong>
+            <% if (success) { %>
+              <div class="alert success-alert" style="margin-bottom: 12px"><%= success %></div>
+            <% } %>
+            <% if (error) { %>
+              <div class="alert error-alert" style="margin-bottom: 12px"><%= error %></div>
+            <% } %>
+
+            <% const stateClass = reminderInfo?.state === 'paid' ? 'reminder-alert-success' : reminderInfo?.state === 'urgent' ? 'reminder-alert-danger' : 'reminder-alert-warning'; %>
+            <div class="reminder-alert <%= stateClass %>">
+              <strong>
+                <% if (reminderInfo?.state === 'paid') { %>
+                  Contribution target met for this cycle
+                <% } else if (reminderInfo?.state === 'urgent') { %>
+                  Due soon: contribution reminder
+                <% } else { %>
+                  Upcoming contribution payment
+                <% } %>
+              </strong>
               <p>
                 Your next contribution due date is
-                <strong><%= contributionPlan?.nextDueDate || '-' %></strong>.
+                <strong><%= contributionPlan?.nextDueDate || '-' %></strong>
+                (in <strong><%= Number(reminderInfo?.daysUntilDue || 0) %> day(s)</strong>).
               </p>
               <p>
-                Monthly contribution target: KES
+                Cycle paid: KES
+                <strong><%= Number(reminderInfo?.currentCyclePaid || 0).toLocaleString() %></strong>
+                | Remaining: KES
+                <strong><%= Number(reminderInfo?.amountRemaining || 0).toLocaleString() %></strong>
+              </p>
+              <p>
+                Monthly target: KES
                 <strong><%= Number(contributionPlan?.contribution_amount || 0).toLocaleString() %></strong>.
               </p>
             </div>
@@ -139,9 +162,9 @@
               </ul>
             </div>
 
-            <div style="margin-top: 20px">
+            <form method="POST" action="/member/contributions/reminders" style="margin-top: 20px">
               <label style="display: flex; align-items: center; gap: 10px">
-                <input type="checkbox" /> Enable payment reminders via SMS
+                <input type="checkbox" name="sms_enabled" <%= reminderPreferences?.sms_enabled ? 'checked' : '' %> /> Enable payment reminders via SMS
               </label>
               <label
                 style="
@@ -151,14 +174,14 @@
                   margin-top: 10px;
                 "
               >
-                <input type="checkbox" checked /> Enable payment reminders via
+                <input type="checkbox" name="email_enabled" <%= reminderPreferences?.email_enabled ? 'checked' : '' %> /> Enable payment reminders via
                 Email
               </label>
-            </div>
 
-            <div style="margin-top: 20px">
-              <button class="btn btn-primary">Save Preferences</button>
-            </div>
+              <div style="margin-top: 20px">
+                <button class="btn btn-primary" type="submit">Save Preferences</button>
+              </div>
+            </form>
           </div>
         </section>
 

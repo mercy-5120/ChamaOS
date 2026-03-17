@@ -19,6 +19,13 @@
           </div>
         </div>
 
+        <% if (success) { %>
+          <div class="alert success-alert"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert error-alert"><%= error %></div>
+        <% } %>
+
         <!-- PROFILE OVERVIEW -->
         <section class="dashboard-section">
           <h2 class="h2">Profile Information</h2>
@@ -35,11 +42,16 @@
                 "
               ></div>
               <div>
-                <h3>-</h3>
-                <p class="small">Member ID: -</p>
-                <p class="small">Member Since: -</p>
+                <h3><%= profile.full_name || '-' %></h3>
+                <p class="small">Member ID: <%= profile.user_id || '-' %></p>
+                <p class="small">Member Since: <%= profile.joined_date || '-' %></p>
                 <p class="small">
-                  Status: <span class="badge badge-secondary">Not set</span>
+                  Status:
+                  <% if ((profile.role || 'member') === 'member') { %>
+                    <span class="badge badge-info">Member</span>
+                  <% } else { %>
+                    <span class="badge badge-success"><%= profile.role %></span>
+                  <% } %>
                 </p>
               </div>
             </div>
@@ -54,29 +66,62 @@
               <div class="info-grid">
                 <div class="info-item">
                   <strong>Email:</strong>
-                  <p>-</p>
+                  <p><%= profile.email || '-' %></p>
                 </div>
                 <div class="info-item">
                   <strong>Phone:</strong>
-                  <p>-</p>
+                  <p><%= profile.phone_number || '-' %></p>
                 </div>
                 <div class="info-item">
-                  <strong>National ID:</strong>
-                  <p>-</p>
+                  <strong>Gender:</strong>
+                  <p><%= profile.gender || '-' %></p>
                 </div>
                 <div class="info-item">
-                  <strong>Date of Birth:</strong>
-                  <p>-</p>
+                  <strong>Role:</strong>
+                  <p><%= profile.role || 'member' %></p>
                 </div>
                 <div class="info-item">
-                  <strong>Address:</strong>
-                  <p>-</p>
+                  <strong>Location:</strong>
+                  <p><%= profile.location || '-' %></p>
                 </div>
                 <div class="info-item">
-                  <strong>City:</strong>
-                  <p>-</p>
+                  <strong>Last Contribution:</strong>
+                  <p><%= contributionSummary.last_payment || '-' %></p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Dashboard Snapshot</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Contributed</div>
+              <div class="metric-value value-deep">
+                KES <%= Number(contributionSummary?.total_contributed || 0).toLocaleString() %>
+              </div>
+              <div class="small" style="margin-top: 8px">
+                <%= contributionSummary?.transaction_count || 0 %> completed contributions
+              </div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Active Loans</div>
+              <div class="metric-value value-warning"><%= activeLoans ? activeLoans.length : 0 %></div>
+              <div class="small" style="margin-top: 8px">Current active loans</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Upcoming Meetings</div>
+              <div class="metric-value value-info"><%= upcomingMeetings ? upcomingMeetings.length : 0 %></div>
+              <div class="small" style="margin-top: 8px">Scheduled meetings ahead</div>
+            </div>
+
+            <div class="metric-card">
+              <div class="metric-label">Last Payment</div>
+              <div class="metric-value value-success"><%= contributionSummary?.last_payment || '-' %></div>
+              <div class="small" style="margin-top: 8px">Most recent contribution date</div>
             </div>
           </div>
         </section>
@@ -98,7 +143,7 @@
           <!-- EDIT PERSONAL INFORMATION -->
           <div id="edit-info" class="tab-content card" style="display: block">
             <h3>Update Personal Information</h3>
-            <form style="margin-top: 20px">
+            <form method="POST" action="/member/profile/update" style="margin-top: 20px">
               <div class="form-grid">
                 <div class="form-group">
                   <label for="first-name">First Name</label>
@@ -112,12 +157,22 @@
 
                 <div class="form-group">
                   <label for="email">Email Address</label>
-                  <input type="email" id="email" />
+                  <input type="email" id="email" name="email" value="<%= profile.email || '' %>" />
                 </div>
 
                 <div class="form-group">
                   <label for="phone">Phone Number</label>
-                  <input type="tel" id="phone" />
+                  <input type="tel" id="phone" name="phone" value="<%= profile.phone_number || '' %>" />
+                </div>
+
+                <div class="form-group">
+                  <label for="gender">Gender</label>
+                  <select id="gender" name="gender">
+                    <option value="">Select gender</option>
+                    <option value="male" <%= (profile.gender || '').toLowerCase() === 'male' ? 'selected' : '' %>>Male</option>
+                    <option value="female" <%= (profile.gender || '').toLowerCase() === 'female' ? 'selected' : '' %>>Female</option>
+                    <option value="other" <%= (profile.gender || '').toLowerCase() === 'other' ? 'selected' : '' %>>Other</option>
+                  </select>
                 </div>
 
                 <div class="form-group">
@@ -137,7 +192,7 @@
 
                 <div class="form-group">
                   <label for="city">City</label>
-                  <input type="text" id="city" />
+                  <input type="text" id="city" name="city" value="<%= profile.location || '' %>" />
                 </div>
 
                 <div class="form-group">

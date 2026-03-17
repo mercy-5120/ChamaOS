@@ -24,37 +24,93 @@
         <section class="dashboard-section">
           <h2 class="h2">Constitution & Bylaws</h2>
           <div class="card form-card">
-            <form class="form-group">
+            <% if (success) { %>
+              <div class="alert success-alert" style="margin-bottom: 12px"><%= success %></div>
+            <% } %>
+            <% if (error) { %>
+              <div class="alert error-alert" style="margin-bottom: 12px"><%= error %></div>
+            <% } %>
+
+            <form
+              class="form-group"
+              method="POST"
+              action="/chairperson/governance/documents"
+              enctype="multipart/form-data"
+            >
               <div class="form-row">
                 <div class="form-col full-width">
-                  <label class="form-label" for="amendment-title"
-                    >Amendment Title</label
+                  <label class="form-label" for="title"
+                    >Document Title</label
                   >
                   <input
-                    id="amendment-title"
+                    id="title"
+                    name="title"
                     class="form-control"
                     type="text"
-                    placeholder="Enter amendment title"
+                    placeholder="e.g. Chama Constitution 2026"
+                    required
                   />
                 </div>
               </div>
+
               <div class="form-row">
                 <div class="form-col full-width">
-                  <label class="form-label" for="amendment-details"
-                    >Details</label
-                  >
-                  <textarea
-                    id="amendment-details"
-                    class="form-control"
-                    rows="5"
-                    placeholder="Write the proposed amendment..."
-                  ></textarea>
+                  <label class="form-label" for="document_type">Document Type</label>
+                  <select id="document_type" name="document_type" class="form-control" required>
+                    <option value="">Select type</option>
+                    <option value="constitution">Constitution</option>
+                    <option value="bylaws">Bylaws</option>
+                  </select>
                 </div>
               </div>
-              <button class="btn btn-primary" type="submit">
-                Save Amendment Draft
-              </button>
+
+              <div class="form-row">
+                <div class="form-col full-width">
+                  <label class="form-label" for="governance_document"
+                    >Upload File</label
+                  >
+                  <input
+                    id="governance_document"
+                    name="governance_document"
+                    class="form-control"
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    required
+                  />
+                </div>
+              </div>
+              <button class="btn btn-primary" type="submit">Upload Document</button>
             </form>
+
+            <div style="margin-top: 20px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
+              <h3 class="h3">Uploaded Governance Documents</h3>
+              <table class="table" style="margin-top: 10px;">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Title</th>
+                    <th>File</th>
+                    <th>Uploaded</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (governanceDocuments && governanceDocuments.length > 0) { %>
+                    <% governanceDocuments.forEach(function(doc) { %>
+                      <tr>
+                        <td><%= doc.document_type === 'constitution' ? 'Constitution' : 'Bylaws' %></td>
+                        <td><%= doc.title %></td>
+                        <td><a href="<%= doc.file_path %>" target="_blank" rel="noopener">View Document</a></td>
+                        <td><%= doc.uploaded_at %></td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="4">No constitution or bylaws uploaded yet.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
           </div>
         </section>
 

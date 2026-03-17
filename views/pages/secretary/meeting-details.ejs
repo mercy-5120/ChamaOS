@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ChamaOS — Meeting Details</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/secretary.css" />
+  </head>
+  <body>
+    <main class="container dashboard-layout">
+      <%- include('../partials/secretarysidebar') %>
+
+      <section class="dashboard-content">
+        <div class="page-header">
+          <div>
+            <h1 class="h1">Meeting Details</h1>
+            <p class="lead">
+              <%= meeting.meeting_title || ('Meeting #' + meeting.meeting_id) %>
+              — <%= meeting.meeting_date %> <%= meeting.meeting_time || '' %>
+            </p>
+          </div>
+          <div>
+            <a href="/secretary/meetings" class="btn btn-secondary">Back to Meetings</a>
+          </div>
+        </div>
+
+        <% if (success) { %>
+          <div class="alert alert-success"><%= success %></div>
+        <% } %>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Meeting Information</h2>
+          <div class="card">
+            <p><strong>Title:</strong> <%= meeting.meeting_title || ('Meeting #' + meeting.meeting_id) %></p>
+            <p><strong>Date:</strong> <%= meeting.meeting_date %></p>
+            <p><strong>Time:</strong> <%= meeting.meeting_time || '-' %></p>
+            <p><strong>Location:</strong> <%= meeting.location || '-' %></p>
+            <p><strong>Agenda:</strong> <%= meeting.agenda || '-' %></p>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Minutes and Decisions</h2>
+          <div class="card">
+            <% if (meeting.decisions && meeting.decisions.trim()) { %>
+              <p style="white-space: pre-wrap;"><%= meeting.decisions %></p>
+            <% } else { %>
+              <p>No minutes or decisions recorded yet.</p>
+            <% } %>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Documents / Attachments</h2>
+          <div class="card">
+            <% if (attachments && attachments.length > 0) { %>
+              <ul style="list-style: none; padding-left: 0; margin: 0;">
+                <% attachments.forEach(function(file) { %>
+                  <li style="padding: 8px 0; border-bottom: 1px solid #eef2f2;">
+                    <a href="<%= file.file_path %>" target="_blank" rel="noopener noreferrer">
+                      <%= file.file_name %>
+                    </a>
+                    <span class="text-muted" style="margin-left: 8px; font-size: 12px;">
+                      uploaded <%= file.uploaded_at || '' %>
+                    </span>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p>No documents or attachments uploaded for this meeting yet.</p>
+            <% } %>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Attendance Summary</h2>
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Total Members</div>
+              <div class="metric-value"><%= attendanceSummary.totalMembers %></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Present</div>
+              <div class="metric-value value-success"><%= attendanceSummary.presentCount %></div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Absent</div>
+              <div class="metric-value value-warning"><%= attendanceSummary.absentCount %></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 16px;">
+            <h3 class="h3">Present Members</h3>
+            <% if (presentMembers && presentMembers.length > 0) { %>
+              <ul>
+                <% presentMembers.forEach(function(member) { %>
+                  <li><%= member.full_name %></li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p>No members marked present yet.</p>
+            <% } %>
+
+            <h3 class="h3" style="margin-top: 18px;">Absent Members</h3>
+            <% if (absentMembers && absentMembers.length > 0) { %>
+              <ul>
+                <% absentMembers.forEach(function(member) { %>
+                  <li><%= member.full_name %></li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p>No absent members.</p>
+            <% } %>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>

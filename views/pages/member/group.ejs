@@ -24,26 +24,26 @@
           <h2 class="h2">Group Overview</h2>
           <div class="card group-overview">
             <div class="group-header">
-              <h3>-</h3>
-              <p class="small">No group description available.</p>
+              <h3><%= groupInfo.chama_name || '-' %></h3>
+              <p class="small"><%= groupInfo.description || 'No group description available.' %></p>
             </div>
 
             <div class="group-stats">
               <div class="stat">
                 <strong>Total Members:</strong>
-                <p>-</p>
+                <p><%= memberDirectory.length %></p>
               </div>
               <div class="stat">
                 <strong>Founded:</strong>
-                <p>-</p>
+                <p><%= groupInfo.created_at || '-' %></p>
               </div>
               <div class="stat">
                 <strong>Meeting Frequency:</strong>
-                <p>-</p>
+                <p><%= groupInfo.meeting_day || '-' %></p>
               </div>
               <div class="stat">
                 <strong>Group Type:</strong>
-                <p>-</p>
+                <p><%= Number(groupInfo.is_active) === 1 ? 'Active Chama' : 'Inactive Chama' %></p>
               </div>
             </div>
 
@@ -55,7 +55,7 @@
               "
             >
               <h4>Group Mission</h4>
-              <p>No mission statement available.</p>
+              <p><%= groupInfo.description || 'No mission statement available.' %></p>
             </div>
           </div>
         </section>
@@ -66,26 +66,26 @@
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Total Savings</div>
-              <div class="metric-value value-success">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-success"><%= groupInfo.currency || 'KES' %> <%= Number(financialSummary.total_savings || 0).toLocaleString() %></div>
+              <div class="small" style="margin-top: 8px">From completed contributions</div>
             </div>
 
             <div class="metric-card">
               <div class="metric-label">Total Loans Disbursed</div>
-              <div class="metric-value value-info">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-info"><%= groupInfo.currency || 'KES' %> <%= Number(financialSummary.total_loans_disbursed || 0).toLocaleString() %></div>
+              <div class="small" style="margin-top: 8px">All loans issued</div>
             </div>
 
             <div class="metric-card">
               <div class="metric-label">Active Loans</div>
-              <div class="metric-value value-warning">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-warning"><%= financialSummary.active_loans || 0 %></div>
+              <div class="small" style="margin-top: 8px">Loans currently active</div>
             </div>
 
             <div class="metric-card">
-              <div class="metric-label">Interest Earned</div>
-              <div class="metric-value value-success">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-label">Total Loan Repayments</div>
+              <div class="metric-value value-success"><%= groupInfo.currency || 'KES' %> <%= Number(financialSummary.total_repayments || 0).toLocaleString() %></div>
+              <div class="small" style="margin-top: 8px">Completed loan repayments</div>
             </div>
           </div>
         </section>
@@ -120,12 +120,31 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="6">No members available.</td>
-                </tr>
+                <% if (memberDirectory && memberDirectory.length > 0) { %>
+                  <% memberDirectory.forEach(function(member) { %>
+                    <tr>
+                      <td><%= member.full_name %></td>
+                      <td><%= member.phone_number || '-' %></td>
+                      <td><%= member.email || '-' %></td>
+                      <td><%= member.role || 'member' %></td>
+                      <td><%= member.joined_date || '-' %></td>
+                      <td>
+                        <% if (member.phone_number) { %>
+                          <a href="tel:<%= member.phone_number %>" class="btn btn-secondary btn-sm">Call</a>
+                        <% } else { %>
+                          -
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">No members available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
-            <p class="small" style="margin-top: 15px">Showing 0 members.</p>
+            <p class="small" style="margin-top: 15px">Showing <%= memberDirectory.length %> members.</p>
           </div>
         </section>
 
@@ -134,7 +153,36 @@
           <h2 class="h2">Group Bylaws & Rules</h2>
           <div class="card">
             <div class="accordion">
-              <p>No bylaws have been published yet.</p>
+              <% const constitutionDocs = (governanceDocuments || []).filter(function(doc) { return doc.document_type === 'constitution'; }); %>
+              <% const bylawsDocs = (governanceDocuments || []).filter(function(doc) { return doc.document_type === 'bylaws'; }); %>
+
+              <h4>Constitution</h4>
+              <% if (constitutionDocs.length > 0) { %>
+                <ul>
+                  <% constitutionDocs.forEach(function(doc) { %>
+                    <li>
+                      <a href="<%= doc.file_path %>" target="_blank" rel="noopener"><%= doc.title %></a>
+                      <span class="small"> - Uploaded: <%= doc.uploaded_at %></span>
+                    </li>
+                  <% }); %>
+                </ul>
+              <% } else { %>
+                <p>No constitution uploaded yet.</p>
+              <% } %>
+
+              <h4 style="margin-top: 14px">Bylaws</h4>
+              <% if (bylawsDocs.length > 0) { %>
+                <ul>
+                  <% bylawsDocs.forEach(function(doc) { %>
+                    <li>
+                      <a href="<%= doc.file_path %>" target="_blank" rel="noopener"><%= doc.title %></a>
+                      <span class="small"> - Uploaded: <%= doc.uploaded_at %></span>
+                    </li>
+                  <% }); %>
+                </ul>
+              <% } else { %>
+                <p>No bylaws uploaded yet.</p>
+              <% } %>
             </div>
           </div>
         </section>
@@ -144,7 +192,18 @@
           <h2 class="h2">Important Documents</h2>
           <div class="card">
             <div class="document-list">
-              <p>No documents available.</p>
+              <% if (governanceDocuments && governanceDocuments.length > 0) { %>
+                <ul>
+                  <% governanceDocuments.forEach(function(doc) { %>
+                    <li>
+                      <a href="<%= doc.file_path %>" target="_blank" rel="noopener"><%= doc.file_name %></a>
+                      <span class="small"> (<%= doc.document_type === 'constitution' ? 'Constitution' : 'Bylaws' %>)</span>
+                    </li>
+                  <% }); %>
+                </ul>
+              <% } else { %>
+                <p>No documents available.</p>
+              <% } %>
             </div>
           </div>
         </section>

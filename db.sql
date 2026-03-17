@@ -87,7 +87,9 @@ CREATE TABLE Loans (
 CREATE TABLE Meetings (
     meeting_id INT PRIMARY KEY AUTO_INCREMENT,
     chama_id INT NOT NULL,
+    meeting_title VARCHAR(200),
     meeting_date DATE NOT NULL,
+    meeting_time TIME,
     location VARCHAR(200),
     agenda TEXT,
     decisions TEXT,
@@ -109,6 +111,19 @@ CREATE TABLE Meeting_Attendance (
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 ) ENGINE=InnoDB;
 
+-- 8. Meeting attachments
+CREATE TABLE Meeting_Attachments (
+    attachment_id INT PRIMARY KEY AUTO_INCREMENT,
+    meeting_id INT NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    uploaded_by INT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (meeting_id) REFERENCES Meetings(meeting_id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
 
 -- Migration: Add email and phone_number columns to Chama_Members.
 -- These columns store contact details for quick reference in membership records.
@@ -118,6 +133,10 @@ CREATE TABLE Meeting_Attendance (
 
 ALTER TABLE Chama_Members ADD COLUMN email VARCHAR(100);
 ALTER TABLE Chama_Members ADD COLUMN phone_number VARCHAR(15);
+
+-- Migration: Add detailed meeting fields for secretary meeting records.
+ALTER TABLE Meetings ADD COLUMN meeting_title VARCHAR(200);
+ALTER TABLE Meetings ADD COLUMN meeting_time TIME;
 
 -- Migration: Add monthly contribution due day setting on Chama.
 ALTER TABLE Chama ADD COLUMN contribution_due_day TINYINT DEFAULT 5;
@@ -132,7 +151,19 @@ SET Chama_Members.email = IFNULL(Chama_Members.email, Users.email),
 ALTER TABLE Loans ADD COLUMN approved_at DATETIME NULL;
 ALTER TABLE Loans ADD COLUMN rejected_at DATETIME NULL;
 
--- 8. Announcements table
+-- Migration: Ensure meeting attachments table exists in older databases.
+CREATE TABLE IF NOT EXISTS Meeting_Attachments (
+    attachment_id INT PRIMARY KEY AUTO_INCREMENT,
+    meeting_id INT NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    uploaded_by INT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (meeting_id) REFERENCES Meetings(meeting_id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 9. Announcements table
 CREATE TABLE Announcements (
     announcement_id INT PRIMARY KEY AUTO_INCREMENT,
     chama_id INT NOT NULL,
@@ -144,4 +175,61 @@ CREATE TABLE Announcements (
 
     FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
     FOREIGN KEY (posted_by) REFERENCES Users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- 10. Group governance documents (constitution and bylaws)
+CREATE TABLE Group_Documents (
+    document_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    document_type ENUM('constitution', 'bylaws') NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    uploaded_by INT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- Migration: Ensure group governance documents table exists in older databases.
+CREATE TABLE IF NOT EXISTS Group_Documents (
+    document_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    document_type ENUM('constitution', 'bylaws') NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path VARCHAR(500) NOT NULL,
+    uploaded_by INT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
+) ENGINE=InnoDB;
+
+-- 11. Member contribution reminder preferences
+CREATE TABLE Member_Reminder_Preferences (
+    preference_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    user_id INT NOT NULL,
+    sms_enabled TINYINT(1) DEFAULT 0,
+    email_enabled TINYINT(1) DEFAULT 1,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    UNIQUE(chama_id, user_id),
+
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Migration: Ensure member reminder preferences table exists in older databases.
+CREATE TABLE IF NOT EXISTS Member_Reminder_Preferences (
+    preference_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    user_id INT NOT NULL,
+    sms_enabled TINYINT(1) DEFAULT 0,
+    email_enabled TINYINT(1) DEFAULT 1,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE(chama_id, user_id),
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;

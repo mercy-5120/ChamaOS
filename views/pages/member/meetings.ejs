@@ -24,7 +24,23 @@
           <h2 class="h2">Upcoming Meetings</h2>
           <div class="card">
             <div class="meetings-list">
-              <p>No upcoming meetings available.</p>
+              <% if (upcomingMeetings && upcomingMeetings.length > 0) { %>
+                <% upcomingMeetings.forEach(function(meeting) { %>
+                  <div class="announcement-item" style="margin-bottom: 12px;">
+                    <div class="announcement-meta">
+                      <span class="announcement-title"><%= meeting.meeting_title %></span>
+                      <span class="announcement-badge badge-warning">Upcoming</span>
+                    </div>
+                    <p class="announcement-content">
+                      <strong>Date:</strong> <%= meeting.meeting_date %> <%= meeting.meeting_time || '' %><br />
+                      <strong>Location:</strong> <%= meeting.location %><br />
+                      <strong>Agenda:</strong> <%= meeting.agenda %>
+                    </p>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <p>No upcoming meetings available.</p>
+              <% } %>
             </div>
           </div>
         </section>
@@ -45,9 +61,22 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="6">No past meeting records available.</td>
-                </tr>
+                <% if (pastMeetings && pastMeetings.length > 0) { %>
+                  <% pastMeetings.forEach(function(meeting) { %>
+                    <tr>
+                      <td><%= meeting.meeting_date %></td>
+                      <td><%= meeting.meeting_title %></td>
+                      <td>-</td>
+                      <td><%= meeting.agenda ? 'Available' : '-' %></td>
+                      <td><%= meeting.decisions || '-' %></td>
+                      <td>-</td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">No past meeting records available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -60,22 +89,22 @@
             <div class="metrics-grid">
               <div class="metric-card">
                 <div class="metric-label">Total Meetings</div>
-                <div class="metric-value">-</div>
+                <div class="metric-value"><%= attendanceStats.totalMeetings %></div>
               </div>
 
               <div class="metric-card">
                 <div class="metric-label">Attended</div>
-                <div class="metric-value value-success">-</div>
+                <div class="metric-value value-success"><%= attendanceStats.attended %></div>
               </div>
 
               <div class="metric-card">
                 <div class="metric-label">Attendance Rate</div>
-                <div class="metric-value value-success">-</div>
+                <div class="metric-value value-success"><%= attendanceStats.rate %>%</div>
               </div>
 
               <div class="metric-card">
                 <div class="metric-label">Absent</div>
-                <div class="metric-value">-</div>
+                <div class="metric-value"><%= attendanceStats.absent %></div>
               </div>
             </div>
 
@@ -88,9 +117,28 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="3">No attendance records available.</td>
-                </tr>
+                <% if (pastMeetings && pastMeetings.length > 0) { %>
+                  <% pastMeetings.forEach(function(meeting) { %>
+                    <% var attStatus = attendanceMap[meeting.meeting_id]; %>
+                    <tr>
+                      <td><%= meeting.meeting_date %></td>
+                      <td><%= meeting.meeting_title || 'Meeting' %></td>
+                      <td>
+                        <% if (attStatus === 1) { %>
+                          <span style="color: #28a745; font-weight: 600;">&#10003; Present</span>
+                        <% } else if (attStatus === 0) { %>
+                          <span style="color: #dc3545; font-weight: 600;">&#10007; Absent</span>
+                        <% } else { %>
+                          <span style="color: #6c757d;">— Not Recorded</span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="3">No past meeting records available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>

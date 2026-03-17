@@ -26,11 +26,18 @@
           </div>
         </div>
 
+        <% if (success) { %>
+          <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
         <!-- Create New Meeting Section -->
         <section class="dashboard-section">
           <h2 class="h2">Create New Meeting Record</h2>
           <div class="card form-card">
-            <form class="form-group">
+            <form class="form-group" method="POST" action="/secretary/meetings/create">
               <div class="form-row">
                 <div class="form-col">
                   <label for="meeting-title" class="form-label"
@@ -39,6 +46,7 @@
                   <input
                     type="text"
                     id="meeting-title"
+                    name="meeting_title"
                     class="form-control"
                     placeholder="e.g., Monthly General Meeting"
                     required
@@ -51,6 +59,7 @@
                   <input
                     type="date"
                     id="meeting-date"
+                    name="meeting_date"
                     class="form-control"
                     required
                   />
@@ -65,6 +74,7 @@
                   <input
                     type="time"
                     id="meeting-time"
+                    name="meeting_time"
                     class="form-control"
                     required
                   />
@@ -76,6 +86,7 @@
                   <input
                     type="text"
                     id="meeting-location"
+                    name="meeting_location"
                     class="form-control"
                     placeholder="e.g., Community Hall"
                     required
@@ -90,6 +101,7 @@
                   >
                   <textarea
                     id="meeting-agenda"
+                    name="meeting_agenda"
                     class="form-control"
                     rows="4"
                     placeholder="Enter meeting agenda items..."
@@ -120,9 +132,29 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No meeting records available.</td>
-                </tr>
+                <% if (meetings && meetings.length > 0) { %>
+                  <% meetings.forEach(function(meeting) { %>
+                    <tr>
+                      <td><%= meeting.meeting_title %></td>
+                      <td><%= meeting.meeting_date %> <%= meeting.meeting_time || '' %></td>
+                      <td><%= meeting.location %></td>
+                      <td>
+                        <% if (meeting.meeting_status === 'upcoming') { %>
+                          <span class="badge badge-warning">Upcoming</span>
+                        <% } else { %>
+                          <span class="badge badge-success">Completed</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <a href="/secretary/meetings/<%= meeting.meeting_id %>" class="btn btn-secondary btn-sm">View</a>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No meeting records available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -140,6 +172,15 @@
                   >
                   <select id="minute-meeting" class="form-control" required>
                     <option value="">-- Select a meeting --</option>
+                    <% if (meetings && meetings.length > 0) { %>
+                      <% meetings.forEach(function(meeting) { %>
+                        <option value="<%= meeting.meeting_id %>">
+                          <%= meeting.meeting_title || ('Meeting #' + meeting.meeting_id) %>
+                          - <%= meeting.meeting_date %>
+                          <%= meeting.meeting_time ? (' ' + meeting.meeting_time) : '' %>
+                        </option>
+                      <% }); %>
+                    <% } %>
                   </select>
                 </div>
               </div>
@@ -183,49 +224,53 @@
           </div>
         </section>
 
-        <!-- Track Action Items -->
-        <section class="dashboard-section">
-          <h2 class="h2">Action Items from Meetings</h2>
-          <div class="card">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Action Item</th>
-                  <th>Assigned To</th>
-                  <th>Due Date</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="5">No action items available.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
-
         <!-- Mark Attendance -->
         <section class="dashboard-section">
           <h2 class="h2">Mark Attendance</h2>
           <div class="card form-card">
-            <form class="form-group">
+            <form class="form-group" method="POST" action="/secretary/meetings/attendance">
               <div class="form-row">
                 <div class="form-col">
                   <label for="attend-meeting" class="form-label"
                     >Select Meeting *</label
                   >
-                  <select id="attend-meeting" class="form-control" required>
+                  <select id="attend-meeting" name="meeting_id" class="form-control" required>
                     <option value="">-- Select a meeting --</option>
+                    <% if (meetings && meetings.length > 0) { %>
+                      <% meetings.forEach(function(meeting) { %>
+                        <option value="<%= meeting.meeting_id %>">
+                          <%= meeting.meeting_title || ('Meeting #' + meeting.meeting_id) %>
+                          - <%= meeting.meeting_date %>
+                          <%= meeting.meeting_time ? (' ' + meeting.meeting_time) : '' %>
+                        </option>
+                      <% }); %>
+                    <% } %>
                   </select>
                 </div>
               </div>
 
               <div class="attendance-grid">
                 <h3 class="h3">Select Members Present</h3>
+                <p class="text-muted" style="margin-bottom: 10px; font-size: 13px;">
+                  Selected Present: <strong id="present-count">0</strong>
+                  | Selected Absent: <strong id="absent-count"><%= members ? members.length : 0 %></strong>
+                </p>
                 <div class="member-checklist">
-                  <p>No members available.</p>
+                  <% if (members && members.length > 0) { %>
+                    <% members.forEach(function(member) { %>
+                      <label class="checkbox-item" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <input type="checkbox" class="attendance-checkbox" name="present_members" value="<%= member.user_id %>" />
+                        <span>
+                          <%= member.full_name %>
+                          <% if (member.role && member.role !== 'member') { %>
+                            (<%= member.role %>)
+                          <% } %>
+                        </span>
+                      </label>
+                    <% }); %>
+                  <% } else { %>
+                    <p>No members available.</p>
+                  <% } %>
                 </div>
               </div>
 
@@ -240,14 +285,33 @@
         <section class="dashboard-section">
           <h2 class="h2">Upload Meeting Attachments</h2>
           <div class="card form-card">
-            <form class="form-group">
+            <form
+              class="form-group"
+              method="POST"
+              action="/secretary/meetings/attachments"
+              enctype="multipart/form-data"
+            >
               <div class="form-row">
                 <div class="form-col">
                   <label for="attach-meeting" class="form-label"
                     >Select Meeting *</label
                   >
-                  <select id="attach-meeting" class="form-control" required>
+                  <select
+                    id="attach-meeting"
+                    name="meeting_id"
+                    class="form-control"
+                    required
+                  >
                     <option value="">-- Select a meeting --</option>
+                    <% if (meetings && meetings.length > 0) { %>
+                      <% meetings.forEach(function(meeting) { %>
+                        <option value="<%= meeting.meeting_id %>">
+                          <%= meeting.meeting_title || ('Meeting #' + meeting.meeting_id) %>
+                          - <%= meeting.meeting_date %>
+                          <%= meeting.meeting_time ? (' ' + meeting.meeting_time) : '' %>
+                        </option>
+                      <% }); %>
+                    <% } %>
                   </select>
                 </div>
               </div>
@@ -261,6 +325,7 @@
                     <input
                       type="file"
                       id="attachments"
+                      name="attachments"
                       class="form-control"
                       multiple
                       accept=".pdf,.doc,.docx,.xls,.xlsx"
@@ -278,8 +343,36 @@
             </form>
           </div>
         </section>
-
       </section>
     </main>
+
+    <script>
+      (function () {
+        const checkboxes = document.querySelectorAll(".attendance-checkbox");
+        const presentCountEl = document.getElementById("present-count");
+        const absentCountEl = document.getElementById("absent-count");
+
+        if (!checkboxes.length || !presentCountEl || !absentCountEl) {
+          return;
+        }
+
+        const totalMembers = checkboxes.length;
+
+        const refreshCounts = function () {
+          let present = 0;
+          checkboxes.forEach(function (checkbox) {
+            if (checkbox.checked) present += 1;
+          });
+          presentCountEl.textContent = String(present);
+          absentCountEl.textContent = String(totalMembers - present);
+        };
+
+        checkboxes.forEach(function (checkbox) {
+          checkbox.addEventListener("change", refreshCounts);
+        });
+
+        refreshCounts();
+      })();
+    </script>
   </body>
 </html>

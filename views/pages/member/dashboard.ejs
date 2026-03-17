@@ -41,8 +41,8 @@
 
             <div class="metric-card">
               <div class="metric-label">Next Due Date</div>
-              <div class="metric-value value-warning">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-warning"><%= contributionSummary?.nextDueDate || '-' %></div>
+              <div class="small" style="margin-top: 8px">Monthly contribution deadline</div>
             </div>
           </div>
         </section>
@@ -114,7 +114,23 @@
           <h2 class="h2">Upcoming Meetings</h2>
           <div class="card">
             <div class="meeting-list">
-              <p>No upcoming meetings available.</p>
+              <% if (upcomingMeetings && upcomingMeetings.length > 0) { %>
+                <% upcomingMeetings.forEach(function(meeting) { %>
+                  <div class="announcement-item" style="margin-bottom: 12px;">
+                    <div class="announcement-meta">
+                      <span class="announcement-title"><%= meeting.meeting_title || 'Meeting' %></span>
+                      <span class="announcement-badge badge-warning">Upcoming</span>
+                    </div>
+                    <p class="announcement-content">
+                      <strong>Date:</strong> <%= meeting.meeting_date %><% if (meeting.meeting_time) { %> at <%= meeting.meeting_time %><% } %><br />
+                      <% if (meeting.location) { %><strong>Location:</strong> <%= meeting.location %><br /><% } %>
+                      <% if (meeting.agenda) { %><strong>Agenda:</strong> <%= meeting.agenda %><% } %>
+                    </p>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <p>No upcoming meetings available.</p>
+              <% } %>
             </div>
             <div style="margin-top: 15px">
               <a href="/member/meetings" class="btn btn-primary"
