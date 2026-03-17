@@ -23,6 +23,13 @@
           </div>
         </div>
 
+        <% if (success) { %>
+          <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
         <section class="dashboard-section">
           <h2 class="h2">Recent Contributions</h2>
           <div class="card">
@@ -37,9 +44,21 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No contributions available.</td>
-                </tr>
+                <% if (recentContributions && recentContributions.length > 0) { %>
+                  <% recentContributions.forEach(function(tx) { %>
+                    <tr>
+                      <td><%= tx.contribution_date %></td>
+                      <td><%= tx.member_name %></td>
+                      <td>KES <%= Number(tx.amount).toLocaleString() %></td>
+                      <td><%= (tx.description || '').replace('Payment Method: ', '') || '-' %></td>
+                      <td><%= tx.status %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No contributions available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -48,27 +67,35 @@
         <section class="dashboard-section">
           <h2 class="h2">Actions</h2>
           <div class="card">
-            <form>
+            <form method="POST" action="/treasurer/contributions/record" id="record">
               <div class="form-grid">
                 <div class="form-group">
                   <label for="member">Member</label>
-                  <input id="member" placeholder="Search member" />
+                  <select id="member" name="user_id" required>
+                    <option value="">-- Select member --</option>
+                    <% if (members && members.length > 0) { %>
+                      <% members.forEach(function(member) { %>
+                        <option value="<%= member.user_id %>"><%= member.full_name %></option>
+                      <% }); %>
+                    <% } %>
+                  </select>
                 </div>
                 <div class="form-group">
                   <label for="amount">Amount (KES)</label>
-                  <input id="amount" type="number" />
+                  <input id="amount" name="amount" type="number" min="1" required />
                 </div>
                 <div class="form-group">
                   <label for="method">Payment Method</label>
-                  <select id="method">
-                    <option>M-Pesa</option>
-                    <option>Bank Transfer</option>
-                    <option>Cash</option>
+                  <select id="method" name="method" required>
+                    <option value="">-- Select payment method --</option>
+                    <option value="M-Pesa">M-Pesa</option>
+                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="Cash">Cash</option>
                   </select>
                 </div>
                 <div class="form-group">
                   <label for="date">Date</label>
-                  <input id="date" type="date" />
+                  <input id="date" name="contribution_date" type="date" required />
                 </div>
               </div>
 

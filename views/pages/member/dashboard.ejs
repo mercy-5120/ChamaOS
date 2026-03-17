@@ -25,14 +25,18 @@
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Total Contributed</div>
-              <div class="metric-value value-deep">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-deep">
+                KES <%= Number(contributionSummary?.total_contributed || 0).toLocaleString() %>
+              </div>
+              <div class="small" style="margin-top: 8px">
+                <%= contributionSummary?.transaction_count || 0 %> recorded payments
+              </div>
             </div>
 
             <div class="metric-card">
               <div class="metric-label">Last Payment</div>
-              <div class="metric-value value-success">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-success"><%= contributionSummary?.last_payment || '-' %></div>
+              <div class="small" style="margin-top: 8px">Date payment was made</div>
             </div>
 
             <div class="metric-card">
@@ -58,9 +62,21 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No active loans available.</td>
-                </tr>
+                <% if (activeLoans && activeLoans.length > 0) { %>
+                  <% activeLoans.forEach(function(loan) { %>
+                    <tr>
+                      <td><%= loan.loan_id %></td>
+                      <td>KES <%= Number(loan.amount).toLocaleString() %></td>
+                      <td>KES <%= Number(loan.amount - loan.remaining_balance).toLocaleString() %></td>
+                      <td>KES <%= Number(loan.remaining_balance).toLocaleString() %></td>
+                      <td><span class="badge badge-success">Active</span></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No active loans available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
             <div style="margin-top: 15px">
@@ -73,7 +89,23 @@
         <section class="dashboard-section">
           <h2 class="h2">Recent Announcements</h2>
           <div class="card announcement-box">
-            <p>No announcements available.</p>
+            <% if (announcements && announcements.length > 0) { %>
+              <% announcements.forEach(function(ann) { %>
+                <div class="announcement-item priority-<%= ann.priority %>">
+                  <div class="announcement-meta">
+                    <span class="announcement-title"><%= ann.title %></span>
+                    <span class="announcement-badge badge-<%= ann.priority %>"><%= ann.priority %></span>
+                  </div>
+                  <p class="announcement-content"><%= ann.content %></p>
+                  <div class="announcement-footer">
+                    <span>Posted by <%= ann.posted_by %></span>
+                    <span><%= ann.created_at %></span>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <p>No announcements available.</p>
+            <% } %>
           </div>
         </section>
 

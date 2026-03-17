@@ -9,6 +9,7 @@ CREATE TABLE Chama (
     description TEXT,
     meeting_day VARCHAR(15) NOT NULL,
     contribution_amount DECIMAL(10,2) NOT NULL,
+    contribution_due_day TINYINT DEFAULT 5,
     currency VARCHAR(10) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     is_active TINYINT(1) DEFAULT 1
@@ -75,6 +76,8 @@ CREATE TABLE Loans (
     due_date DATE NOT NULL,
     status VARCHAR(20) DEFAULT 'active',
     remaining_balance DECIMAL(10,2),
+    approved_at DATETIME NULL,
+    rejected_at DATETIME NULL,
 
     FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
@@ -116,7 +119,29 @@ CREATE TABLE Meeting_Attendance (
 ALTER TABLE Chama_Members ADD COLUMN email VARCHAR(100);
 ALTER TABLE Chama_Members ADD COLUMN phone_number VARCHAR(15);
 
+-- Migration: Add monthly contribution due day setting on Chama.
+ALTER TABLE Chama ADD COLUMN contribution_due_day TINYINT DEFAULT 5;
+
 UPDATE Chama_Members
 JOIN Users ON Users.user_id = Chama_Members.user_id
 SET Chama_Members.email = IFNULL(Chama_Members.email, Users.email),
     Chama_Members.phone_number = IFNULL(Chama_Members.phone_number, Users.phone_number);
+
+-- Migration: Add loan decision timestamps.
+-- If these columns already exist, skip the ALTER statement that fails with Duplicate column.
+ALTER TABLE Loans ADD COLUMN approved_at DATETIME NULL;
+ALTER TABLE Loans ADD COLUMN rejected_at DATETIME NULL;
+
+-- 8. Announcements table
+CREATE TABLE Announcements (
+    announcement_id INT PRIMARY KEY AUTO_INCREMENT,
+    chama_id INT NOT NULL,
+    posted_by INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    priority VARCHAR(20) DEFAULT 'normal',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    FOREIGN KEY (posted_by) REFERENCES Users(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB;

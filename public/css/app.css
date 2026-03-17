@@ -1005,3 +1005,89 @@ select:focus {
     max-width: none;
   }
 }
+
+/* ── Announcements ─────────────────────────────────────────── */
+.announcement-item {
+  padding: 14px 16px;
+  border-left: 4px solid var(--deep-teal, #0d6e6e);
+  background: #f9fbfb;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 12px;
+}
+.announcement-item:last-child {
+  margin-bottom: 0;
+}
+
+.announcement-item.priority-high {
+  border-left-color: #c0392b;
+  background: #fff8f8;
+}
+.announcement-item.priority-low {
+  border-left-color: #888;
+  background: #fafafa;
+}
+
+.announcement-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.announcement-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #1a2e2e;
+}
+.announcement-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: #dff0ef;
+  color: #0d6e6e;
+}
+.badge-high {
+  background: #fde8e8;
+  color: #c0392b;
+}
+.badge-low {
+  background: #ececec;
+  color: #666;
+}
+.badge-normal {
+  background: #dff0ef;
+  color: #0d6e6e;
+}
+
+.announcement-content {
+  font-size: 14px;
+  color: #3a5252;
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+.announcement-footer {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #888;
+}
+
+/* ── Flash alerts ──────────────────────────────────────────── */
+.alert {
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+.alert-success {
+  background: #dff0ef;
+  color: #0d5e5e;
+  border-left: 4px solid #0d6e6e;
+}
+.alert-error {
+  background: #fde8e8;
+  color: #7b1c1c;
+  border-left: 4px solid #c0392b;
+}

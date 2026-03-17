@@ -20,51 +20,54 @@
               details.
             </p>
           </div>
-          <div>
-            <button class="btn btn-primary" data-action="add-member">
-              + Add Member
-            </button>
-          </div>
         </div>
+
+        <% if (typeof success !== 'undefined' && success) { %>
+          <div class="alert alert-success" style="color:#1e6b41;background:#e8f7ee;border:1px solid #2a9d62;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= success %>
+          </div>
+        <% } %>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-error" style="color:#c0392b;background:#fdecea;border:1px solid #e74c3c;border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem;">
+            <%= error %>
+          </div>
+        <% } %>
 
         <!-- Add New Member -->
         <section class="dashboard-section">
           <h2 class="h2">Add New Member</h2>
-          <div class="card form-card">
-            <form class="form-group">
+          <div class="card form-card member-add-card">
+            <div class="member-add-header">
+              <p class="member-add-kicker">Quick Onboarding</p>
+              <p class="member-add-subtitle">
+                Add a member account to this chama. The account will be created as
+                <strong>member</strong> by default.
+              </p>
+            </div>
+
+            <form class="form-group member-add-form" action="/secretary/add-member" method="POST" autocomplete="on">
               <div class="form-row">
-                <div class="form-col">
-                  <label for="member-fname" class="form-label"
-                    >First Name *</label
-                  >
+                <div class="form-col full-width">
+                  <label for="member-full-name" class="form-label">Full Name *</label>
                   <input
                     type="text"
-                    id="member-fname"
+                    id="member-full-name"
+                    name="full_name"
                     class="form-control"
-                    placeholder="First name"
-                    required
-                  />
-                </div>
-                <div class="form-col">
-                  <label for="member-lname" class="form-label"
-                    >Last Name *</label
-                  >
-                  <input
-                    type="text"
-                    id="member-lname"
-                    class="form-control"
-                    placeholder="Last name"
+                    placeholder="e.g., John Kamau"
                     required
                   />
                 </div>
               </div>
 
-              <div class="form-row">
+              <div class="form-row member-add-grid">
                 <div class="form-col">
                   <label for="member-email" class="form-label">Email *</label>
                   <input
                     type="email"
                     id="member-email"
+                    name="email"
                     class="form-control"
                     placeholder="email@example.com"
                     required
@@ -77,6 +80,7 @@
                   <input
                     type="tel"
                     id="member-phone"
+                    name="phone_number"
                     class="form-control"
                     placeholder="+254 712 345 678"
                     required
@@ -85,49 +89,22 @@
               </div>
 
               <div class="form-row">
-                <div class="form-col">
-                  <label for="member-id-no" class="form-label">ID Number</label>
+                <div class="form-col full-width">
+                  <label for="member-password" class="form-label">Temporary Password *</label>
                   <input
-                    type="text"
-                    id="member-id-no"
+                    type="password"
+                    id="member-password"
+                    name="password"
                     class="form-control"
-                    placeholder="Member ID"
-                  />
-                </div>
-                <div class="form-col">
-                  <label for="member-dob" class="form-label"
-                    >Date of Birth</label
-                  >
-                  <input type="date" id="member-dob" class="form-control" />
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-col">
-                  <label for="member-join" class="form-label"
-                    >Join Date *</label
-                  >
-                  <input
-                    type="date"
-                    id="member-join"
-                    class="form-control"
+                    placeholder="Set a temporary password"
                     required
                   />
                 </div>
-                <div class="form-col">
-                  <label for="member-role" class="form-label">Role</label>
-                  <select id="member-role" class="form-control">
-                    <option value="">-- Select role --</option>
-                    <option value="member">Member</option>
-                    <option value="chairman">Chairman</option>
-                    <option value="secretary">Secretary</option>
-                    <option value="treasurer">Treasurer</option>
-                    <option value="auditor">Auditor</option>
-                  </select>
-                </div>
               </div>
 
-              <button type="submit" class="btn btn-primary">Add Member</button>
+              <div class="member-add-actions">
+                <button type="submit" class="btn btn-primary">Add Member</button>
+              </div>
             </form>
           </div>
         </section>
@@ -157,18 +134,28 @@
               <thead>
                 <tr>
                   <th>Name</th>
+                  <th>Role</th>
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Join Date</th>
-                  <th>Role</th>
-                  <th>Status</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="7">No member records available.</td>
-                </tr>
+                <% if (members && members.length > 0) { %>
+                  <% members.forEach((member) => { %>
+                    <tr>
+                      <td><%= member.full_name %></td>
+                      <td><%= member.role || 'member' %></td>
+                      <td><%= member.email || '-' %></td>
+                      <td><%= member.phone_number || '-' %></td>
+                      <td><%= member.joined_date || '-' %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No member records available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>

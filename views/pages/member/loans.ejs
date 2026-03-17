@@ -24,6 +24,13 @@
           </div>
         </div>
 
+        <% if (success) { %>
+          <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
         <!-- LOAN APPLICATION FORM -->
         <section
           class="dashboard-section"
@@ -32,12 +39,13 @@
         >
           <h2 class="h2">Apply for a New Loan</h2>
           <div class="card">
-            <form>
+            <form method="POST" action="/member/loans/apply">
               <div class="form-group">
                 <label for="loan-amount">Loan Amount (KES)</label>
                 <input
                   type="number"
                   id="loan-amount"
+                  name="loan_amount"
                   placeholder="Enter amount"
                   min="1000"
                   max="100000"
@@ -47,7 +55,7 @@
 
               <div class="form-group">
                 <label for="loan-reason">Reason for Loan</label>
-                <select id="loan-reason" required>
+                <select id="loan-reason" name="loan_reason" required>
                   <option value="">-- Select a reason --</option>
                   <option value="business">Business Investment</option>
                   <option value="education">Education</option>
@@ -62,6 +70,7 @@
                 <label for="loan-reason-detail">Detailed Description</label>
                 <textarea
                   id="loan-reason-detail"
+                  name="loan_reason_detail"
                   placeholder="Provide more details about your loan request"
                   rows="4"
                 ></textarea>
@@ -69,7 +78,7 @@
 
               <div class="form-group">
                 <label for="repayment-period">Repayment Period (months)</label>
-                <select id="repayment-period" required>
+                <select id="repayment-period" name="repayment_period" required>
                   <option value="">-- Select period --</option>
                   <option value="3">3 months</option>
                   <option value="6">6 months</option>
@@ -85,7 +94,15 @@
                   border-top: 1px solid #e0e0e0;
                 "
               >
-                <p><strong>Maximum Loan Amount:</strong> Not set</p>
+                <p>
+                  <strong>Monthly Contribution Target:</strong>
+                  KES
+                  <%= Number(contributionDueSettings?.contribution_amount || 0).toLocaleString() %>
+                </p>
+                <p>
+                  <strong>Next Contribution Due Date:</strong>
+                  <%= contributionDueSettings?.nextDueDate || '-' %> (5th)
+                </p>
                 <p><strong>Interest Rate:</strong> Not set</p>
                 <p><strong>Processing Fee:</strong> Not set</p>
               </div>
@@ -110,7 +127,36 @@
         <section class="dashboard-section">
           <h2 class="h2">Active Loans</h2>
           <div class="card">
-            <p>No active loans available.</p>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Loan ID</th>
+                  <th>Amount</th>
+                  <th>Balance</th>
+                  <th>Due Date</th>
+                  <th>Status</th>
+                  <th>Approved On</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (activeLoans && activeLoans.length > 0) { %>
+                  <% activeLoans.forEach(function(loan) { %>
+                    <tr>
+                      <td><%= loan.loan_id %></td>
+                      <td>KES <%= Number(loan.amount).toLocaleString() %></td>
+                      <td>KES <%= Number(loan.remaining_balance).toLocaleString() %></td>
+                      <td><%= loan.due_date %></td>
+                      <td><span class="badge badge-success">Active</span></td>
+                      <td><%= loan.approved_at || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">No active loans available.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -130,9 +176,22 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="6">No loan applications available.</td>
-                </tr>
+                <% if (pendingApplications && pendingApplications.length > 0) { %>
+                  <% pendingApplications.forEach(function(loan) { %>
+                    <tr>
+                      <td><%= loan.loan_id %></td>
+                      <td>KES <%= Number(loan.amount).toLocaleString() %></td>
+                      <td>Loan Request</td>
+                      <td><%= loan.applied_date %></td>
+                      <td><span class="badge badge-warning">Pending</span></td>
+                      <td>Awaiting treasurer review</td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">No loan applications available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -151,12 +210,27 @@
                   <th>Issued Date</th>
                   <th>Repaid Date</th>
                   <th>Status</th>
+                  <th>Decision Date</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="6">No loan history available.</td>
-                </tr>
+                <% if (loanHistory && loanHistory.length > 0) { %>
+                  <% loanHistory.forEach(function(loan) { %>
+                    <tr>
+                      <td><%= loan.loan_id %></td>
+                      <td>KES <%= Number(loan.amount).toLocaleString() %></td>
+                      <td>Loan Request</td>
+                      <td><%= loan.applied_date %></td>
+                      <td><%= loan.status === 'completed' ? loan.due_date : '-' %></td>
+                      <td><%= loan.status %></td>
+                      <td><%= loan.rejected_at || loan.approved_at || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="7">No loan history available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>

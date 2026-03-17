@@ -21,6 +21,13 @@
           </div>
         </div>
 
+        <% if (success) { %>
+          <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (error) { %>
+          <div class="alert alert-error"><%= error %></div>
+        <% } %>
+
         <section class="dashboard-section">
           <h2 class="h2">Pending Applications</h2>
           <div class="card">
@@ -36,9 +43,31 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="6">No pending applications available.</td>
-                </tr>
+                <% if (pendingLoans && pendingLoans.length > 0) { %>
+                  <% pendingLoans.forEach(function(loan) { %>
+                    <tr>
+                      <td><%= loan.loan_id %></td>
+                      <td><%= loan.member_name %></td>
+                      <td>KES <%= Number(loan.amount).toLocaleString() %></td>
+                      <td><%= loan.applied_date %></td>
+                      <td><span class="badge badge-warning">Pending</span></td>
+                      <td>
+                        <form method="POST" action="/treasurer/loans/<%= loan.loan_id %>/decision" style="display:inline-block; margin-right: 8px;">
+                          <input type="hidden" name="decision" value="approve" />
+                          <button type="submit" class="btn btn-primary btn-sm">Approve</button>
+                        </form>
+                        <form method="POST" action="/treasurer/loans/<%= loan.loan_id %>/decision" style="display:inline-block;">
+                          <input type="hidden" name="decision" value="disapprove" />
+                          <button type="submit" class="btn btn-secondary btn-sm">Disapprove</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">No pending applications available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -55,12 +84,62 @@
                   <th>Amount</th>
                   <th>Balance</th>
                   <th>Due Date</th>
+                  <th>Approved On</th>
                 </tr>
               </thead>
               <tbody>
+                <% if (activeLoans && activeLoans.length > 0) { %>
+                  <% activeLoans.forEach(function(loan) { %>
+                    <tr>
+                      <td><%= loan.loan_id %></td>
+                      <td><%= loan.member_name %></td>
+                      <td>KES <%= Number(loan.amount).toLocaleString() %></td>
+                      <td>KES <%= Number(loan.remaining_balance).toLocaleString() %></td>
+                      <td><%= loan.due_date %></td>
+                      <td><%= loan.approved_at || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">No active loans available.</td>
+                  </tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="dashboard-section">
+          <h2 class="h2">Rejected Applications</h2>
+          <div class="card">
+            <table class="table">
+              <thead>
                 <tr>
-                  <td colspan="5">No active loans available.</td>
+                  <th>Application ID</th>
+                  <th>Member</th>
+                  <th>Amount</th>
+                  <th>Applied</th>
+                  <th>Status</th>
+                  <th>Rejected On</th>
                 </tr>
+              </thead>
+              <tbody>
+                <% if (rejectedLoans && rejectedLoans.length > 0) { %>
+                  <% rejectedLoans.forEach(function(loan) { %>
+                    <tr>
+                      <td><%= loan.loan_id %></td>
+                      <td><%= loan.member_name %></td>
+                      <td>KES <%= Number(loan.amount).toLocaleString() %></td>
+                      <td><%= loan.applied_date %></td>
+                      <td><span class="badge badge-alert">Rejected</span></td>
+                      <td><%= loan.rejected_at || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="6">No rejected applications available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>

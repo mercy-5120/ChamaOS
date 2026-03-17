@@ -25,20 +25,26 @@
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Total Paid</div>
-              <div class="metric-value value-success">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-success">
+                KES <%= Number(contributionStats?.totalPaid || 0).toLocaleString() %>
+              </div>
+              <div class="small" style="margin-top: 8px">
+                <%= contributionStats?.paymentCount || 0 %> completed payments
+              </div>
             </div>
 
             <div class="metric-card">
               <div class="metric-label">Average Contribution</div>
-              <div class="metric-value value-deep">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-deep">
+                KES <%= Number(contributionStats?.averageContribution || 0).toLocaleString() %>
+              </div>
+              <div class="small" style="margin-top: 8px">Based on completed payments</div>
             </div>
 
             <div class="metric-card">
               <div class="metric-label">Payment Status</div>
-              <div class="metric-value value-info">-</div>
-              <div class="small" style="margin-top: 8px">No data yet</div>
+              <div class="metric-value value-info"><%= contributionStats?.paymentStatus || 'No payments yet' %></div>
+              <div class="small" style="margin-top: 8px">Live from recorded transactions</div>
             </div>
           </div>
         </section>
@@ -58,9 +64,21 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No contribution records available.</td>
-                </tr>
+                <% if (contributions && contributions.length > 0) { %>
+                  <% contributions.forEach(function(tx) { %>
+                    <tr>
+                      <td><%= tx.contribution_date %></td>
+                      <td>KES <%= Number(tx.amount).toLocaleString() %></td>
+                      <td><%= (tx.description || '').replace('Payment Method: ', '') || '-' %></td>
+                      <td><%= tx.status %></td>
+                      <td>TX-<%= tx.transaction_id %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No contribution records available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -85,7 +103,11 @@
               </thead>
               <tbody>
                 <tr>
-                  <td colspan="5">No contribution schedule available.</td>
+                  <td>Current Cycle</td>
+                  <td>KES <%= Number(contributionPlan?.contribution_amount || 0).toLocaleString() %></td>
+                  <td>KES <%= Number(contributionStats?.totalPaid || 0).toLocaleString() %></td>
+                  <td><%= (contributionStats?.paymentCount || 0) > 0 ? 'Partially/Fully Paid' : 'Pending' %></td>
+                  <td><%= contributionPlan?.nextDueDate || '-' %> (5th)</td>
                 </tr>
               </tbody>
             </table>
@@ -98,8 +120,14 @@
           <div class="card reminder-box">
             <div class="reminder-alert reminder-alert-warning">
               <strong>⏰ Upcoming Payment</strong>
-              <p>No upcoming payment reminder available.</p>
-              <p>Payment methods will appear once configured.</p>
+              <p>
+                Your next contribution due date is
+                <strong><%= contributionPlan?.nextDueDate || '-' %></strong>.
+              </p>
+              <p>
+                Monthly contribution target: KES
+                <strong><%= Number(contributionPlan?.contribution_amount || 0).toLocaleString() %></strong>.
+              </p>
             </div>
 
             <div style="margin-top: 20px">

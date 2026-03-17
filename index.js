@@ -155,6 +155,35 @@ function renderDbUnavailableForAuth(req, res) {
   return res.status(503).render("pages/user/500.ejs");
 }
 
+function toYmd(dateValue) {
+  const d = new Date(dateValue);
+  if (Number.isNaN(d.getTime())) return null;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function getNextMonthlyDueDate(dueDay, referenceDate = new Date()) {
+  const parsed = Number(dueDay);
+  const validDay = Number.isFinite(parsed)
+    ? Math.max(1, Math.min(28, parsed))
+    : 5;
+
+  let year = referenceDate.getFullYear();
+  let month = referenceDate.getMonth();
+
+  if (referenceDate.getDate() >= validDay) {
+    month += 1;
+    if (month > 11) {
+      month = 0;
+      year += 1;
+    }
+  }
+
+  return new Date(year, month, validDay);
+}
+
 app.use((req, res, next) => {
   const requiresDb =
     req.path === "/auth" ||
@@ -497,7 +526,92 @@ app.get("/admin/security-analytics", (req, res) => {
 
 //Member Routes
 app.get("/member/dashboard", (req, res) => {
-  res.render("pages/member/dashboard.ejs");
+  const chama_id = req.session.chama_id;
+  const user_id = req.session.user?.user_id;
+
+  if (!chama_id || !user_id) {
+    return res.render("pages/member/dashboard.ejs", {
+      announcements: [],
+      activeLoans: [],
+      contributionSummary: {
+        total_contributed: 0,
+        last_payment: null,
+        transaction_count: 0,
+      },
+    });
+  }
+
+  connection.query(
+    `SELECT a.title, a.content, a.priority,
+            DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i') AS created_at,
+            u.full_name AS posted_by
+     FROM Announcements a
+     JOIN Users u ON u.user_id = a.posted_by
+     WHERE a.chama_id = ?
+     ORDER BY a.created_at DESC
+     LIMIT 10`,
+    [chama_id],
+    (annError, announcements) => {
+      if (annError) {
+        console.log(
+          "Member dashboard announcements load error: " + annError.message,
+        );
+      }
+
+      connection.query(
+        `SELECT loan_id, amount,
+                IFNULL(remaining_balance, amount) AS remaining_balance,
+                DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date,
+                status
+         FROM Loans
+         WHERE chama_id = ? AND user_id = ? AND status = 'active'
+         ORDER BY due_date ASC, loan_id DESC`,
+        [chama_id, user_id],
+        (loanError, activeLoans) => {
+          if (loanError) {
+            console.log(
+              "Member dashboard active loans load error: " + loanError.message,
+            );
+          }
+
+          connection.query(
+            `SELECT IFNULL(SUM(amount), 0) AS total_contributed,
+                    DATE_FORMAT(MAX(created_at), '%Y-%m-%d') AS last_payment,
+                    COUNT(*) AS transaction_count
+             FROM Transactions
+             WHERE chama_id = ?
+               AND user_id = ?
+               AND transaction_type = 'contribution'
+               AND status = 'completed'`,
+            [chama_id, user_id],
+            (contribError, summaryRows) => {
+              if (contribError) {
+                console.log(
+                  "Member dashboard contribution summary load error: " +
+                    contribError.message,
+                );
+              }
+
+              const contributionSummary =
+                !contribError && summaryRows.length > 0
+                  ? summaryRows[0]
+                  : {
+                      total_contributed: 0,
+                      last_payment: null,
+                      transaction_count: 0,
+                    };
+
+              return res.render("pages/member/dashboard.ejs", {
+                announcements: annError ? [] : announcements,
+                activeLoans: loanError ? [] : activeLoans,
+                contributionSummary,
+              });
+            },
+          );
+        },
+      );
+    },
+  );
 });
 
 app.get("/member/memberdashboard", (req, res) => {
@@ -505,11 +619,217 @@ app.get("/member/memberdashboard", (req, res) => {
 });
 
 app.get("/member/contributions", (req, res) => {
-  res.render("pages/member/contributions.ejs");
+  if (!req.session.user) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const user_id = req.session.user.user_id;
+
+  connection.query(
+    `SELECT transaction_id, amount, status,
+            DATE_FORMAT(created_at, '%Y-%m-%d') AS contribution_date,
+            description
+     FROM Transactions
+     WHERE chama_id = ?
+       AND user_id = ?
+       AND transaction_type = 'contribution'
+     ORDER BY created_at DESC, transaction_id DESC`,
+    [chama_id, user_id],
+    (historyError, contributions) => {
+      if (historyError) {
+        console.log(
+          "Member contribution history load error: " + historyError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      const paidContributions = contributions.filter(
+        (tx) => tx.status === "completed",
+      );
+      const totalPaid = paidContributions.reduce(
+        (sum, tx) => sum + Number(tx.amount || 0),
+        0,
+      );
+      const averageContribution =
+        paidContributions.length > 0 ? totalPaid / paidContributions.length : 0;
+
+      connection.query(
+        `SELECT contribution_amount, IFNULL(contribution_due_day, 5) AS contribution_due_day
+         FROM Chama
+         WHERE chama_id = ?
+         LIMIT 1`,
+        [chama_id],
+        (settingsError, settingsRows) => {
+          if (settingsError) {
+            console.log(
+              "Member contribution settings load error: " +
+                settingsError.message,
+            );
+          }
+
+          const contribution_amount =
+            !settingsError && settingsRows.length > 0
+              ? Number(settingsRows[0].contribution_amount || 0)
+              : 0;
+          const contribution_due_day =
+            !settingsError && settingsRows.length > 0
+              ? Number(settingsRows[0].contribution_due_day || 5)
+              : 5;
+
+          const nextDueDate = toYmd(
+            getNextMonthlyDueDate(contribution_due_day, new Date()),
+          );
+
+          return res.render("pages/member/contributions.ejs", {
+            contributions,
+            contributionStats: {
+              totalPaid,
+              averageContribution,
+              paymentStatus:
+                paidContributions.length > 0 ? "On Record" : "No payments yet",
+              paymentCount: paidContributions.length,
+            },
+            contributionPlan: {
+              contribution_amount,
+              contribution_due_day,
+              nextDueDate,
+            },
+          });
+        },
+      );
+    },
+  );
 });
 
 app.get("/member/loans", (req, res) => {
-  res.render("pages/member/loans.ejs");
+  if (!req.session.user) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const user_id = req.session.user.user_id;
+
+  connection.query(
+    `SELECT loan_id, amount, DATE_FORMAT(issue_date, '%Y-%m-%d') AS applied_date,
+            DATE_FORMAT(due_date, '%Y-%m-%d') AS due_date, status,
+            DATE_FORMAT(approved_at, '%Y-%m-%d %H:%i') AS approved_at,
+            DATE_FORMAT(rejected_at, '%Y-%m-%d %H:%i') AS rejected_at,
+            IFNULL(remaining_balance, amount) AS remaining_balance
+     FROM Loans
+     WHERE chama_id = ? AND user_id = ?
+     ORDER BY issue_date DESC, loan_id DESC`,
+    [chama_id, user_id],
+    (loansError, loans) => {
+      if (loansError) {
+        console.log("Member loans load error: " + loansError.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      const activeLoans = loans.filter((loan) => loan.status === "active");
+      const pendingApplications = loans.filter(
+        (loan) => loan.status === "pending",
+      );
+      const loanHistory = loans.filter(
+        (loan) => loan.status !== "active" && loan.status !== "pending",
+      );
+
+      connection.query(
+        `SELECT contribution_amount, IFNULL(contribution_due_day, 5) AS contribution_due_day
+         FROM Chama
+         WHERE chama_id = ?
+         LIMIT 1`,
+        [chama_id],
+        (settingsError, settingsRows) => {
+          if (settingsError) {
+            console.log(
+              "Member loans settings load error: " + settingsError.message,
+            );
+          }
+
+          const contribution_amount =
+            !settingsError && settingsRows.length > 0
+              ? Number(settingsRows[0].contribution_amount || 0)
+              : 0;
+          const contribution_due_day =
+            !settingsError && settingsRows.length > 0
+              ? Number(settingsRows[0].contribution_due_day || 5)
+              : 5;
+          const nextDueDate = toYmd(
+            getNextMonthlyDueDate(contribution_due_day, new Date()),
+          );
+
+          return res.render("pages/member/loans.ejs", {
+            activeLoans,
+            pendingApplications,
+            loanHistory,
+            success: req.query.success || null,
+            error: req.query.error || null,
+            contributionDueSettings: {
+              contribution_amount,
+              contribution_due_day,
+              nextDueDate,
+            },
+          });
+        },
+      );
+    },
+  );
+});
+
+app.post("/member/loans/apply", (req, res) => {
+  if (!req.session.user || req.session.role !== "member") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const { loan_amount, repayment_period } = req.body;
+  const amount = Number(loan_amount);
+  const repaymentMonths = Number(repayment_period);
+  const chama_id = req.session.chama_id;
+  const user_id = req.session.user.user_id;
+
+  if (!amount || amount <= 0 || !repaymentMonths || repaymentMonths <= 0) {
+    return res.redirect(
+      "/member/loans?error=Enter a valid loan amount and repayment period.",
+    );
+  }
+
+  connection.query(
+    `SELECT loan_id FROM Loans
+     WHERE chama_id = ? AND user_id = ? AND status = 'pending'
+     LIMIT 1`,
+    [chama_id, user_id],
+    (existingError, existingRows) => {
+      if (existingError) {
+        console.log("Loan apply check error: " + existingError.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      if (existingRows.length > 0) {
+        return res.redirect(
+          "/member/loans?error=You already have a pending loan application.",
+        );
+      }
+
+      connection.query(
+        `INSERT INTO Loans (chama_id, user_id, amount, issue_date, due_date, status, remaining_balance)
+         VALUES (?, ?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL ? MONTH), 'pending', ?)`,
+        [chama_id, user_id, amount, repaymentMonths, amount],
+        (insertError) => {
+          if (insertError) {
+            console.log("Loan apply insert error: " + insertError.message);
+            return res.redirect(
+              "/member/loans?error=Could not submit loan application.",
+            );
+          }
+
+          return res.redirect(
+            "/member/loans?success=Loan application submitted successfully.",
+          );
+        },
+      );
+    },
+  );
 });
 
 app.get("/member/meetings", (req, res) => {
@@ -530,11 +850,252 @@ app.get("/treasurer/dashboard", (req, res) => {
 });
 
 app.get("/treasurer/contributions", (req, res) => {
-  res.render("pages/treasurer/contributions.ejs");
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+
+  connection.query(
+    `SELECT t.transaction_id, t.amount, t.status,
+            DATE_FORMAT(t.created_at, '%Y-%m-%d') AS contribution_date,
+            t.description,
+            u.full_name AS member_name
+     FROM Transactions t
+     JOIN Users u ON u.user_id = t.user_id
+     WHERE t.chama_id = ? AND t.transaction_type = 'contribution'
+     ORDER BY t.created_at DESC, t.transaction_id DESC
+     LIMIT 10`,
+    [chama_id],
+    (recentError, recentContributions) => {
+      if (recentError) {
+        console.log(
+          "Treasurer recent contributions load error: " + recentError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      connection.query(
+        `SELECT u.user_id, u.full_name
+         FROM Users u
+         JOIN Chama_Members cm ON cm.user_id = u.user_id
+         WHERE cm.chama_id = ?
+         ORDER BY u.full_name ASC`,
+        [chama_id],
+        (membersError, members) => {
+          if (membersError) {
+            console.log(
+              "Treasurer contribution members load error: " +
+                membersError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          return res.render("pages/treasurer/contributions.ejs", {
+            recentContributions,
+            members,
+            success: req.query.success || null,
+            error: req.query.error || null,
+          });
+        },
+      );
+    },
+  );
+});
+
+app.post("/treasurer/contributions/record", (req, res) => {
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const { user_id, amount, method, contribution_date } = req.body;
+  const numericAmount = Number(amount);
+
+  if (!user_id || !numericAmount || numericAmount <= 0 || !method) {
+    return res.redirect(
+      "/treasurer/contributions?error=Provide member, amount, and payment method.",
+    );
+  }
+
+  connection.query(
+    `SELECT member_id
+     FROM Chama_Members
+     WHERE chama_id = ? AND user_id = ?
+     LIMIT 1`,
+    [chama_id, user_id],
+    (memberError, memberRows) => {
+      if (memberError) {
+        console.log("Contribution member check error: " + memberError.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      if (memberRows.length === 0) {
+        return res.redirect(
+          "/treasurer/contributions?error=Selected user is not a member of this chama.",
+        );
+      }
+
+      const txDate = contribution_date
+        ? `${contribution_date} 12:00:00`
+        : new Date();
+      const txMonth = contribution_date
+        ? contribution_date.slice(0, 7)
+        : new Date().toISOString().slice(0, 7);
+
+      connection.query(
+        `INSERT INTO Transactions
+           (chama_id, user_id, transaction_type, amount, month, description, status, created_at)
+         VALUES
+           (?, ?, 'contribution', ?, ?, ?, 'completed', ?)`,
+        [
+          chama_id,
+          user_id,
+          numericAmount,
+          txMonth,
+          `Payment Method: ${method}`,
+          txDate,
+        ],
+        (insertError) => {
+          if (insertError) {
+            console.log("Contribution insert error: " + insertError.message);
+            return res.redirect(
+              "/treasurer/contributions?error=Could not record contribution.",
+            );
+          }
+
+          connection.query(
+            `UPDATE Chama_Members
+             SET total_contributions = IFNULL(total_contributions, 0) + ?
+             WHERE chama_id = ? AND user_id = ?`,
+            [numericAmount, chama_id, user_id],
+            (updateError) => {
+              if (updateError) {
+                console.log(
+                  "Contribution total update warning: " + updateError.message,
+                );
+              }
+
+              return res.redirect(
+                "/treasurer/contributions?success=Contribution recorded successfully.",
+              );
+            },
+          );
+        },
+      );
+    },
+  );
 });
 
 app.get("/treasurer/loans", (req, res) => {
-  res.render("pages/treasurer/loans.ejs");
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+
+  connection.query(
+    `SELECT l.loan_id, l.amount, l.status,
+            DATE_FORMAT(l.issue_date, '%Y-%m-%d') AS applied_date,
+            DATE_FORMAT(l.due_date, '%Y-%m-%d') AS due_date,
+            DATE_FORMAT(l.approved_at, '%Y-%m-%d %H:%i') AS approved_at,
+            DATE_FORMAT(l.rejected_at, '%Y-%m-%d %H:%i') AS rejected_at,
+            IFNULL(l.remaining_balance, l.amount) AS remaining_balance,
+            u.full_name AS member_name
+     FROM Loans l
+     JOIN Users u ON u.user_id = l.user_id
+     WHERE l.chama_id = ?
+     ORDER BY l.issue_date DESC, l.loan_id DESC`,
+    [chama_id],
+    (loansError, loans) => {
+      if (loansError) {
+        console.log("Treasurer loans load error: " + loansError.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      const pendingLoans = loans.filter((loan) => loan.status === "pending");
+      const activeLoans = loans.filter((loan) => loan.status === "active");
+      const rejectedLoans = loans.filter((loan) => loan.status === "rejected");
+
+      return res.render("pages/treasurer/loans.ejs", {
+        pendingLoans,
+        activeLoans,
+        rejectedLoans,
+        success: req.query.success || null,
+        error: req.query.error || null,
+      });
+    },
+  );
+});
+
+app.post("/treasurer/loans/:loanId/decision", (req, res) => {
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const { loanId } = req.params;
+  const { decision } = req.body;
+  const chama_id = req.session.chama_id;
+
+  if (!loanId || !decision) {
+    return res.redirect("/treasurer/loans?error=Invalid loan action.");
+  }
+
+  if (decision === "approve") {
+    connection.query(
+      `UPDATE Loans
+       SET status = 'active', approved_at = NOW(), rejected_at = NULL
+       WHERE loan_id = ? AND chama_id = ? AND status = 'pending'`,
+      [loanId, chama_id],
+      (updateError, updateResult) => {
+        if (updateError) {
+          console.log("Loan approve error: " + updateError.message);
+          return res.redirect("/treasurer/loans?error=Could not approve loan.");
+        }
+
+        if (updateResult.affectedRows === 0) {
+          return res.redirect(
+            "/treasurer/loans?error=Loan was not found in pending applications.",
+          );
+        }
+
+        return res.redirect(
+          "/treasurer/loans?success=Loan approved successfully.",
+        );
+      },
+    );
+    return;
+  }
+
+  if (decision === "disapprove") {
+    connection.query(
+      `UPDATE Loans
+       SET status = 'rejected', rejected_at = NOW(), approved_at = NULL
+       WHERE loan_id = ? AND chama_id = ? AND status = 'pending'`,
+      [loanId, chama_id],
+      (updateError, updateResult) => {
+        if (updateError) {
+          console.log("Loan disapprove error: " + updateError.message);
+          return res.redirect(
+            "/treasurer/loans?error=Could not disapprove loan.",
+          );
+        }
+
+        if (updateResult.affectedRows === 0) {
+          return res.redirect(
+            "/treasurer/loans?error=Loan was not found in pending applications.",
+          );
+        }
+
+        return res.redirect(
+          "/treasurer/loans?success=Loan disapproved and moved to rejected history.",
+        );
+      },
+    );
+    return;
+  }
+
+  return res.redirect("/treasurer/loans?error=Unknown decision provided.");
 });
 
 app.get("/treasurer/members", (req, res) => {
@@ -577,7 +1138,74 @@ app.get("/treasurer/reports", (req, res) => {
 });
 
 app.get("/treasurer/settings", (req, res) => {
-  res.render("pages/treasurer/settings.ejs");
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+
+  connection.query(
+    `SELECT contribution_amount,
+            IFNULL(contribution_due_day, 5) AS contribution_due_day,
+            currency
+     FROM Chama
+     WHERE chama_id = ?
+     LIMIT 1`,
+    [chama_id],
+    (settingsError, settingsRows) => {
+      if (settingsError || settingsRows.length === 0) {
+        console.log("Treasurer settings load error: " + settingsError?.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      const settings = settingsRows[0];
+      const nextDueDate = toYmd(
+        getNextMonthlyDueDate(settings.contribution_due_day, new Date()),
+      );
+
+      return res.render("pages/treasurer/settings.ejs", {
+        settings,
+        nextDueDate,
+        success: req.query.success || null,
+        error: req.query.error || null,
+      });
+    },
+  );
+});
+
+app.post("/treasurer/settings", (req, res) => {
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const contributionAmount = Number(req.body.contribution_amount);
+
+  if (!contributionAmount || contributionAmount <= 0) {
+    return res.redirect(
+      "/treasurer/settings?error=Enter a valid monthly contribution amount.",
+    );
+  }
+
+  // Business rule requested: contribution due day is fixed to the 5th.
+  connection.query(
+    `UPDATE Chama
+     SET contribution_amount = ?, contribution_due_day = 5
+     WHERE chama_id = ?`,
+    [contributionAmount, chama_id],
+    (updateError) => {
+      if (updateError) {
+        console.log("Treasurer settings update error: " + updateError.message);
+        return res.redirect(
+          "/treasurer/settings?error=Could not save settings.",
+        );
+      }
+
+      return res.redirect(
+        "/treasurer/settings?success=Settings saved successfully.",
+      );
+    },
+  );
 });
 
 // Secretary Routes
@@ -594,11 +1222,148 @@ app.get("/secretary/documents", (req, res) => {
 });
 
 app.get("/secretary/communications", (req, res) => {
-  res.render("pages/secretary/communications.ejs");
+  if (!req.session.user || req.session.role !== "secretary") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const success =
+    req.query.success === "1" ? "Announcement sent successfully." : null;
+  const error = req.query.error || null;
+
+  connection.query(
+    `SELECT a.announcement_id, a.title, a.content, a.priority,
+            DATE_FORMAT(a.created_at, '%Y-%m-%d %H:%i') AS created_at,
+            u.full_name AS posted_by
+     FROM Announcements a
+     JOIN Users u ON u.user_id = a.posted_by
+     WHERE a.chama_id = ?
+     ORDER BY a.created_at DESC`,
+    [chama_id],
+    (err, announcements) => {
+      res.render("pages/secretary/communications.ejs", {
+        announcements: err ? [] : announcements,
+        success,
+        error,
+      });
+    },
+  );
+});
+
+app.post("/secretary/send-announcement", (req, res) => {
+  if (!req.session.user || req.session.role !== "secretary") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const { title, content, priority } = req.body;
+  const chama_id = req.session.chama_id;
+  const posted_by = req.session.user.user_id;
+
+  if (!title || !title.trim() || !content || !content.trim()) {
+    return res.redirect(
+      "/secretary/communications?error=Title and content are required.",
+    );
+  }
+
+  connection.query(
+    "INSERT INTO Announcements (chama_id, posted_by, title, content, priority) VALUES (?, ?, ?, ?, ?)",
+    [chama_id, posted_by, title.trim(), content.trim(), priority || "normal"],
+    (err) => {
+      if (err) {
+        console.log("Announcement insert error: " + err.message);
+        return res.redirect(
+          "/secretary/communications?error=Could not save announcement. Please try again.",
+        );
+      }
+      return res.redirect("/secretary/communications?success=1");
+    },
+  );
 });
 
 app.get("/secretary/member-records", (req, res) => {
-  res.render("pages/secretary/member-records.ejs");
+  if (!req.session.user || req.session.role !== "secretary") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  if (!chama_id) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  connection.query(
+    `SELECT u.user_id, u.full_name, u.phone_number, u.email, cm.role,
+            DATE_FORMAT(cm.joined_date, '%Y-%m-%d') AS joined_date
+     FROM Users u
+     JOIN Chama_Members cm ON u.user_id = cm.user_id
+     WHERE cm.chama_id = ?
+     ORDER BY cm.joined_date ASC, u.full_name ASC`,
+    [chama_id],
+    (membersError, members) => {
+      if (membersError) {
+        console.log("Secretary members load error: " + membersError.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      return res.render("pages/secretary/member-records.ejs", {
+        members,
+        success: req.query.success || null,
+        error: req.query.error || null,
+      });
+    },
+  );
+});
+
+app.post("/secretary/add-member", (req, res) => {
+  if (!req.session.user || req.session.role !== "secretary") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const { full_name, phone_number, email, password } = req.body;
+  const chama_id = req.session.chama_id;
+
+  if (!full_name || !phone_number || !email || !password || !chama_id) {
+    return res.redirect(
+      "/secretary/member-records?error=Please fill in all required fields.",
+    );
+  }
+
+  bcrypt.hash(password, 10, (hashError, hash) => {
+    if (hashError) {
+      return res.status(500).render("pages/user/500.ejs");
+    }
+
+    connection.query(
+      "INSERT INTO Users (full_name, phone_number, email, password_hash, user_type) VALUES (?, ?, ?, ?, 'member')",
+      [full_name, phone_number, email, hash],
+      (userError, userResult) => {
+        if (userError) {
+          console.log("Secretary add member user error: " + userError.message);
+          return res.redirect(
+            "/secretary/member-records?error=Could not add member. Email or phone may already be registered.",
+          );
+        }
+
+        connection.query(
+          "INSERT INTO Chama_Members (user_id, chama_id, role, email, phone_number, joined_date) VALUES (?, ?, 'member', ?, ?, CURDATE())",
+          [userResult.insertId, chama_id, email, phone_number],
+          (memberError) => {
+            if (memberError) {
+              console.log(
+                "Secretary add member link error: " + memberError.message,
+              );
+              return res.redirect(
+                "/secretary/member-records?error=Could not link member to this Chama.",
+              );
+            }
+
+            return res.redirect(
+              "/secretary/member-records?success=Member added successfully.",
+            );
+          },
+        );
+      },
+    );
+  });
 });
 
 app.get("/secretary/calendar", (req, res) => {
