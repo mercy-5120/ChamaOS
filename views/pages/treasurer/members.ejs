@@ -28,16 +28,28 @@
               <thead>
                 <tr>
                   <th>Name</th>
+                  <th>Role</th>
                   <th>Phone</th>
                   <th>Email</th>
                   <th>Member Since</th>
-                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No members available.</td>
-                </tr>
+                <% if (members && members.length > 0) { %>
+                  <% members.forEach((member) => { %>
+                    <tr>
+                      <td><%= member.full_name %></td>
+                      <td><%= member.role || 'member' %></td>
+                      <td><%= member.phone_number || '-' %></td>
+                      <td><%= member.email || '-' %></td>
+                      <td><%= member.joined_date || '-' %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No members available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>

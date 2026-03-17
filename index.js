@@ -538,7 +538,34 @@ app.get("/treasurer/loans", (req, res) => {
 });
 
 app.get("/treasurer/members", (req, res) => {
-  res.render("pages/treasurer/members.ejs");
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  if (!chama_id) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  connection.query(
+    `SELECT u.user_id, u.full_name, u.phone_number, u.email, cm.role,
+            DATE_FORMAT(cm.joined_date, '%Y-%m-%d') AS joined_date
+     FROM Users u
+     JOIN Chama_Members cm ON u.user_id = cm.user_id
+     WHERE cm.chama_id = ?
+     ORDER BY cm.joined_date ASC, u.full_name ASC`,
+    [chama_id],
+    (membersError, members) => {
+      if (membersError) {
+        console.log("Treasurer members load error: " + membersError.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      return res.render("pages/treasurer/members.ejs", {
+        members,
+      });
+    },
+  );
 });
 
 app.get("/treasurer/reconciliation", (req, res) => {

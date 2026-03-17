@@ -70,6 +70,18 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.chairperson-sidebar .sidebar-logo-link {
+  display: inline-flex;
+  margin-bottom: 10px;
+}
+
+.chairperson-sidebar .sidebar-logo {
+  width: 150px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 .chairperson-sidebar .sidebar-header h3 {
   margin: 0;
   font-size: 18px;
