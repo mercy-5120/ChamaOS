@@ -197,7 +197,11 @@
                   <% governanceDocuments.forEach(function(doc) { %>
                     <li>
                       <a href="<%= doc.file_path %>" target="_blank" rel="noopener"><%= doc.file_name %></a>
-                      <span class="small"> (<%= doc.document_type === 'constitution' ? 'Constitution' : 'Bylaws' %>)</span>
+                      <span class="small">
+                        (
+                        <%= doc.document_type === 'constitution' ? 'Constitution' : (doc.document_type === 'bylaws' ? 'Bylaws' : 'Newsletter') %>
+                        )
+                      </span>
                     </li>
                   <% }); %>
                 </ul>

@@ -16,7 +16,7 @@
           <div>
             <h1 class="h1">Group Communications</h1>
             <p class="lead">
-              Send announcements, emails, SMS, newsletters, and manage contacts.
+              Send announcements, emails, newsletters, and manage contacts.
             </p>
           </div>
         </div>
@@ -191,77 +191,11 @@
           </div>
         </section>
 
-        <!-- Send SMS Reminders -->
-        <section class="dashboard-section">
-          <h2 class="h2">Send SMS Reminders</h2>
-          <div class="card form-card">
-            <div class="info-banner">
-              <p class="text-info">
-                SMS integration available for connected services. Contact admin
-                to setup.
-              </p>
-            </div>
-            <form class="form-group">
-              <div class="form-row">
-                <div class="form-col">
-                  <label for="sms-recipients" class="form-label"
-                    >Recipients *</label
-                  >
-                  <select id="sms-recipients" class="form-control" required>
-                    <option value="">-- Select recipients --</option>
-                    <option value="all">All Members with Phone Numbers</option>
-                    <option value="meeting">
-                      Members invited to next meeting
-                    </option>
-                    <option value="overdue">
-                      Members with overdue contributions
-                    </option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-col full-width">
-                  <label for="sms-message" class="form-label"
-                    >Message (160 Characters) *</label
-                  >
-                  <textarea
-                    id="sms-message"
-                    class="form-control"
-                    rows="3"
-                    maxlength="160"
-                    placeholder="Enter SMS message..."
-                    required
-                  ></textarea>
-                  <p class="text-muted text-sm">
-                    <span id="char-count">0</span>/160 characters
-                  </p>
-                </div>
-              </div>
-
-              <div class="form-row">
-                <div class="form-col">
-                  <label for="sms-schedule" class="form-label"
-                    >Schedule For</label
-                  >
-                  <input
-                    type="datetime-local"
-                    id="sms-schedule"
-                    class="form-control"
-                  />
-                </div>
-              </div>
-
-              <button type="submit" class="btn btn-primary">Send SMS</button>
-            </form>
-          </div>
-        </section>
-
         <!-- Create and Send Newsletters -->
         <section class="dashboard-section">
           <h2 class="h2">Create and Send Newsletter</h2>
           <div class="card form-card">
-            <form class="form-group">
+            <form class="form-group" method="POST" action="/secretary/send-newsletter">
               <div class="form-row">
                 <div class="form-col">
                   <label for="newsletter-title" class="form-label"
@@ -270,6 +204,7 @@
                   <input
                     type="text"
                     id="newsletter-title"
+                    name="title"
                     class="form-control"
                     placeholder="e.g., February 2026 Newsletter"
                     required
@@ -285,6 +220,7 @@
                   <input
                     type="month"
                     id="newsletter-month"
+                    name="period"
                     class="form-control"
                   />
                 </div>
@@ -295,6 +231,7 @@
                   <input
                     type="date"
                     id="newsletter-send"
+                    name="send_date"
                     class="form-control"
                   />
                 </div>
@@ -307,6 +244,7 @@
                   >
                   <textarea
                     id="newsletter-content"
+                    name="content"
                     class="form-control rich-editor"
                     rows="8"
                     placeholder="Add sections: Highlights, Upcoming events, Financial updates, etc..."
@@ -320,19 +258,19 @@
                   <label class="form-label">Include Sections</label>
                   <div class="section-checkboxes">
                     <label class="checkbox-item">
-                      <input type="checkbox" /> Meeting Summary
+                      <input type="checkbox" name="included_sections" value="Meeting Summary" /> Meeting Summary
                     </label>
                     <label class="checkbox-item">
-                      <input type="checkbox" /> Upcoming Events
+                      <input type="checkbox" name="included_sections" value="Upcoming Events" /> Upcoming Events
                     </label>
                     <label class="checkbox-item">
-                      <input type="checkbox" /> Financial Summary
+                      <input type="checkbox" name="included_sections" value="Financial Summary" /> Financial Summary
                     </label>
                     <label class="checkbox-item">
-                      <input type="checkbox" /> Member Spotlight
+                      <input type="checkbox" name="included_sections" value="Member Spotlight" /> Member Spotlight
                     </label>
                     <label class="checkbox-item">
-                      <input type="checkbox" /> Important Announcements
+                      <input type="checkbox" name="included_sections" value="Important Announcements" /> Important Announcements
                     </label>
                   </div>
                 </div>
@@ -345,56 +283,8 @@
           </div>
         </section>
 
-        <!-- Manage Contact List -->
-        <section class="dashboard-section">
-          <h2 class="h2">Contact List Management</h2>
-          <div class="card">
-            <div class="search-filter-bar">
-              <div class="search-box">
-                <input
-                  type="text"
-                  placeholder="Search members..."
-                  class="form-control"
-                />
-              </div>
-              <div class="filter-controls">
-                <select class="form-control form-control-sm">
-                  <option value="">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                </select>
-              </div>
-            </div>
-
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Phone</th>
-                  <th>Status</th>
-                  <th>Last Contact</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td colspan="6">No contact records available.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </section>
       </section>
     </main>
 
-    <script>
-      // Character counter for SMS
-      document
-        .getElementById("sms-message")
-        ?.addEventListener("input", function () {
-          document.getElementById("char-count").textContent = this.value.length;
-        });
-    </script>
   </body>
 </html>

@@ -27,19 +27,23 @@
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Recent Meetings</div>
-              <div class="metric-value value-info">-</div>
+              <div class="metric-value value-info"><%= recentMeetings.length %></div>
+              <div class="small" style="margin-top:8px">Past meetings on record</div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Upcoming Meetings</div>
-              <div class="metric-value value-warning">-</div>
+              <div class="metric-value value-warning"><%= upcomingMeetings.length %></div>
+              <div class="small" style="margin-top:8px">Scheduled ahead</div>
             </div>
             <div class="metric-card">
-              <div class="metric-label">Pending Documents</div>
-              <div class="metric-value value-coral">-</div>
+              <div class="metric-label">Uploaded Documents</div>
+              <div class="metric-value value-coral"><%= uploadedDocs %></div>
+              <div class="small" style="margin-top:8px">Governance files</div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Total Members</div>
-              <div class="metric-value value-success">-</div>
+              <div class="metric-value value-success"><%= totalMembers %></div>
+              <div class="small" style="margin-top:8px">Active in chama</div>
             </div>
           </div>
         </section>
@@ -56,15 +60,25 @@
                 <tr>
                   <th>Meeting Title</th>
                   <th>Date</th>
-                  <th>Attendees</th>
+                  <th>Attendees Present</th>
                   <th>Status</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No recent meetings available.</td>
-                </tr>
+                <% if (recentMeetings && recentMeetings.length > 0) { %>
+                  <% recentMeetings.forEach(function(meeting) { %>
+                    <tr>
+                      <td><%= meeting.meeting_title %></td>
+                      <td><%= meeting.meeting_date %></td>
+                      <td><%= meeting.attendee_count %></td>
+                      <td><span class="badge badge-success"><%= meeting.status %></span></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4">No recent meetings available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -74,7 +88,6 @@
         <section class="dashboard-section">
           <div class="section-header">
             <h2 class="h2">Upcoming Meetings (Next 3)</h2>
-            <a href="/secretary/calendar" class="btn btn-link">View Calendar</a>
           </div>
           <div class="card">
             <table class="table">
@@ -84,13 +97,23 @@
                   <th>Scheduled Date</th>
                   <th>Time</th>
                   <th>Location</th>
-                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No upcoming meetings available.</td>
-                </tr>
+                <% if (upcomingMeetings && upcomingMeetings.length > 0) { %>
+                  <% upcomingMeetings.forEach(function(meeting) { %>
+                    <tr>
+                      <td><%= meeting.meeting_title %></td>
+                      <td><%= meeting.meeting_date %></td>
+                      <td><%= meeting.meeting_time || '-' %></td>
+                      <td><%= meeting.location || '-' %></td>
+                    </tr>
+                  <% }); %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="4">No upcoming meetings scheduled.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>
@@ -99,14 +122,6 @@
         <!-- Pending Documents -->
         <section class="dashboard-section">
           <div class="section-header">
-            <h2 class="h2">Pending Documents to Upload</h2>
-            <a href="/secretary/documents" class="btn btn-link">Manage All</a>
-          </div>
-          <div class="card documents-list">
-            <p>No pending documents available.</p>
-          </div>
-        </section>
-
         <!-- Attendance Statistics -->
         <section class="dashboard-section">
           <div class="section-header">
@@ -115,28 +130,31 @@
               >View Details</a
             >
           </div>
-          <div class="card">
-            <div class="stats-grid">
-              <div class="stat-box">
-                <div class="stat-label">Average Attendance Rate</div>
-                <div class="stat-value">-</div>
-                <div class="stat-bar">
-                  <div class="stat-bar-fill" style="width: 0%"></div>
-                </div>
+          <div class="stats-grid">
+            <div class="stat-card stat-teal">
+              <div class="stat-card-label">Average Attendance Rate</div>
+              <div class="stat-card-value"><%= attendanceStats.avgRate %>%</div>
+              <div class="stat-card-sub">across all recorded meetings</div>
+              <div class="stat-card-bar">
+                <div class="stat-card-bar-fill" style="width: <%= attendanceStats.avgRate %>%"></div>
               </div>
-              <div class="stat-box">
-                <div class="stat-label">Members Present (Last Meeting)</div>
-                <div class="stat-value">-</div>
-                <div class="stat-bar">
-                  <div class="stat-bar-fill" style="width: 0%"></div>
-                </div>
+            </div>
+            <div class="stat-card stat-green">
+              <% const presentPct = totalMembers > 0 ? Math.round((attendanceStats.lastPresent / totalMembers) * 100) : 0; %>
+              <div class="stat-card-label">Members Present</div>
+              <div class="stat-card-value"><%= attendanceStats.lastPresent %></div>
+              <div class="stat-card-sub">Last meeting &bull; <%= presentPct %>% of members</div>
+              <div class="stat-card-bar">
+                <div class="stat-card-bar-fill" style="width: <%= presentPct %>%"></div>
               </div>
-              <div class="stat-box">
-                <div class="stat-label">Members Absent (Last Meeting)</div>
-                <div class="stat-value">-</div>
-                <div class="stat-bar">
-                  <div class="stat-bar-fill" style="width: 0%"></div>
-                </div>
+            </div>
+            <div class="stat-card stat-coral">
+              <% const absentPct = totalMembers > 0 ? Math.round((attendanceStats.lastAbsent / totalMembers) * 100) : 0; %>
+              <div class="stat-card-label">Members Absent</div>
+              <div class="stat-card-value"><%= attendanceStats.lastAbsent %></div>
+              <div class="stat-card-sub">Last meeting &bull; <%= absentPct %>% of members</div>
+              <div class="stat-card-bar">
+                <div class="stat-card-bar-fill" style="width: <%= absentPct %>%"></div>
               </div>
             </div>
           </div>
@@ -145,19 +163,34 @@
         <!-- Quick Actions -->
         <section class="dashboard-section">
           <h2 class="h2">Quick Actions</h2>
-          <div class="action-buttons">
-            <a href="/secretary/meetings" class="btn btn-primary"
-              >Create New Meeting</a
-            >
-            <a href="/secretary/documents" class="btn btn-primary"
-              >Upload Documents</a
-            >
-            <a href="/secretary/communications" class="btn btn-primary"
-              >Send Announcement</a
-            >
-            <a href="/secretary/calendar" class="btn btn-secondary"
-              >View Calendar</a
-            >
+          <div class="quick-actions-grid">
+            <a href="/secretary/meetings" class="quick-action-card">
+              <div class="quick-action-icon qa-teal">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              </div>
+              <div class="quick-action-body">
+                <div class="quick-action-title">Create Meeting</div>
+                <div class="quick-action-desc">Schedule a new group meeting</div>
+              </div>
+            </a>
+            <a href="/secretary/documents" class="quick-action-card">
+              <div class="quick-action-icon qa-green">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              </div>
+              <div class="quick-action-body">
+                <div class="quick-action-title">Upload Documents</div>
+                <div class="quick-action-desc">Add files to the group library</div>
+              </div>
+            </a>
+            <a href="/secretary/communications" class="quick-action-card">
+              <div class="quick-action-icon qa-gold">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+              </div>
+              <div class="quick-action-body">
+                <div class="quick-action-title">Send Announcement</div>
+                <div class="quick-action-desc">Communicate with all members</div>
+              </div>
+            </a>
           </div>
         </section>
       </section>

@@ -182,13 +182,7 @@ CREATE TABLE Group_Documents (
     document_id INT PRIMARY KEY AUTO_INCREMENT,
     chama_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
-    document_type ENUM('constitution', 'bylaws') NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    uploaded_by INT,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    document_type ENUM('constitution', 'bylaws', 'newsletter', 'financial', 'governance', 'welfare', 'policies', 'other') NOT NULL,
     FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
@@ -197,14 +191,13 @@ CREATE TABLE IF NOT EXISTS Group_Documents (
     document_id INT PRIMARY KEY AUTO_INCREMENT,
     chama_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
-    document_type ENUM('constitution', 'bylaws') NOT NULL,
-    file_name VARCHAR(255) NOT NULL,
-    file_path VARCHAR(500) NOT NULL,
-    uploaded_by INT,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (chama_id) REFERENCES Chama(chama_id) ON DELETE CASCADE,
+    document_type ENUM('constitution', 'bylaws', 'newsletter', 'financial', 'governance', 'welfare', 'policies', 'other') NOT NULL,
     FOREIGN KEY (uploaded_by) REFERENCES Users(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
+
+-- Migration: Extend Group_Documents type list to include newsletters.
+ALTER TABLE Group_Documents
+MODIFY COLUMN document_type ENUM('constitution', 'bylaws', 'newsletter', 'financial', 'governance', 'welfare', 'policies', 'other') NOT NULL;
 
 -- 11. Member contribution reminder preferences
 CREATE TABLE Member_Reminder_Preferences (

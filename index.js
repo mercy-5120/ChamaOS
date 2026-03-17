@@ -123,9 +123,9 @@ const secretaryRoutes = [
   "/secretary/dashboard",
   "/secretary/meetings",
   "/secretary/documents",
+  "/secretary/upload-document",
   "/secretary/communications",
   "/secretary/member-records",
-  "/secretary/calendar",
 ];
 const chairpersonRoutes = [
   "/chairperson/dashboard",
@@ -2067,7 +2067,256 @@ app.post("/treasurer/settings", (req, res) => {
 
 // Secretary Routes
 app.get("/secretary/dashboard", (req, res) => {
-  res.render("pages/secretary/dashboard.ejs");
+  if (!req.session.user || req.session.role !== "secretary") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+
+  if (!chama_id) {
+    return res.render("pages/secretary/dashboard.ejs", {
+      recentMeetings: [],
+      upcomingMeetings: [],
+      totalMembers: 0,
+      uploadedDocs: 0,
+      attendanceStats: { avgRate: 0, lastPresent: 0, lastAbsent: 0 },
+    });
+  }
+
+  connection.query(
+    `SELECT COUNT(*) AS total FROM Chama_Members WHERE chama_id = ?`,
+    [chama_id],
+    (membersError, membersRows) => {
+      if (membersError) {
+        console.log(
+          "Secretary dashboard members count error: " + membersError.message,
+        );
+      }
+      const totalMembers =
+        !membersError && membersRows.length > 0
+          ? Number(membersRows[0].total)
+          : 0;
+
+      connection.query(
+        `SELECT m.meeting_id,
+                IFNULL(m.meeting_title, 'Meeting') AS meeting_title,
+                DATE_FORMAT(m.meeting_date, '%Y-%m-%d') AS meeting_date,
+                IFNULL(m.status, 'completed') AS status,
+                (SELECT COUNT(*) FROM Meeting_Attendance ma
+                 WHERE ma.meeting_id = m.meeting_id AND IFNULL(ma.attended, 0) = 1) AS attendee_count
+         FROM Meetings m
+         WHERE m.chama_id = ?
+           AND (
+             m.meeting_date < CURDATE()
+             OR (
+               m.meeting_date = CURDATE()
+               AND (
+                 (m.meeting_time IS NOT NULL AND m.meeting_time <= CURTIME())
+                 OR EXISTS (
+                   SELECT 1
+                   FROM Meeting_Attendance ma
+                   WHERE ma.meeting_id = m.meeting_id
+                 )
+               )
+             )
+           )
+         ORDER BY m.meeting_date DESC, m.meeting_id DESC
+         LIMIT 3`,
+        [chama_id],
+        (recentError, recentMeetings) => {
+          if (recentError && recentError.code === "ER_BAD_FIELD_ERROR") {
+            return connection.query(
+              `SELECT m.meeting_id,
+                      'Meeting' AS meeting_title,
+                      DATE_FORMAT(m.meeting_date, '%Y-%m-%d') AS meeting_date,
+                      'completed' AS status,
+                      (SELECT COUNT(*) FROM Meeting_Attendance ma
+                       WHERE ma.meeting_id = m.meeting_id AND IFNULL(ma.attended, 0) = 1) AS attendee_count
+               FROM Meetings m
+               WHERE m.chama_id = ?
+                 AND (
+                   m.meeting_date < CURDATE()
+                   OR (
+                     m.meeting_date = CURDATE()
+                     AND EXISTS (
+                       SELECT 1
+                       FROM Meeting_Attendance ma
+                       WHERE ma.meeting_id = m.meeting_id
+                     )
+                   )
+                 )
+               ORDER BY m.meeting_date DESC, m.meeting_id DESC
+               LIMIT 3`,
+              [chama_id],
+              (fbError, fbMeetings) => {
+                loadUpcoming(fbError ? [] : fbMeetings);
+              },
+            );
+          }
+          if (recentError) {
+            console.log(
+              "Secretary dashboard recent meetings error: " +
+                recentError.message,
+            );
+          }
+          loadUpcoming(recentError ? [] : recentMeetings);
+        },
+      );
+
+      function loadUpcoming(recentData) {
+        connection.query(
+          `SELECT meeting_id,
+                  IFNULL(meeting_title, 'Meeting') AS meeting_title,
+                  DATE_FORMAT(meeting_date, '%Y-%m-%d') AS meeting_date,
+                  DATE_FORMAT(meeting_time, '%H:%i') AS meeting_time,
+                  IFNULL(location, '') AS location
+           FROM Meetings
+           WHERE chama_id = ?
+             AND (
+               meeting_date > CURDATE()
+               OR (
+                 meeting_date = CURDATE()
+                 AND (
+                   meeting_time IS NULL
+                   OR meeting_time > CURTIME()
+                 )
+                 AND NOT EXISTS (
+                   SELECT 1
+                   FROM Meeting_Attendance ma
+                   WHERE ma.meeting_id = Meetings.meeting_id
+                 )
+               )
+             )
+           ORDER BY meeting_date ASC, meeting_id ASC
+           LIMIT 3`,
+          [chama_id],
+          (upcomingError, upcomingMeetings) => {
+            if (upcomingError && upcomingError.code === "ER_BAD_FIELD_ERROR") {
+              return connection.query(
+                `SELECT meeting_id,
+                        'Meeting' AS meeting_title,
+                        DATE_FORMAT(meeting_date, '%Y-%m-%d') AS meeting_date,
+                        '' AS meeting_time,
+                        IFNULL(location, '') AS location
+                 FROM Meetings
+                 WHERE chama_id = ?
+                   AND (
+                     meeting_date > CURDATE()
+                     OR (
+                       meeting_date = CURDATE()
+                       AND NOT EXISTS (
+                         SELECT 1
+                         FROM Meeting_Attendance ma
+                         WHERE ma.meeting_id = Meetings.meeting_id
+                       )
+                     )
+                   )
+                 ORDER BY meeting_date ASC, meeting_id ASC
+                 LIMIT 3`,
+                [chama_id],
+                (fbError, fbMeetings) => {
+                  loadAttendanceStats(recentData, fbError ? [] : fbMeetings);
+                },
+              );
+            }
+            if (upcomingError) {
+              console.log(
+                "Secretary dashboard upcoming meetings error: " +
+                  upcomingError.message,
+              );
+            }
+            loadAttendanceStats(
+              recentData,
+              upcomingError ? [] : upcomingMeetings,
+            );
+          },
+        );
+      }
+
+      function loadAttendanceStats(recentData, upcomingData) {
+        connection.query(
+          `SELECT
+             COUNT(DISTINCT ma.meeting_id) AS meetings_with_attendance,
+             SUM(CASE WHEN IFNULL(ma.attended, 0) = 1 THEN 1 ELSE 0 END) AS total_present
+           FROM Meeting_Attendance ma
+           JOIN Meetings m ON m.meeting_id = ma.meeting_id
+           WHERE m.chama_id = ?
+             AND (
+               m.meeting_date < CURDATE()
+               OR (
+                 m.meeting_date = CURDATE()
+                 AND (
+                   (m.meeting_time IS NOT NULL AND m.meeting_time <= CURTIME())
+                   OR EXISTS (
+                     SELECT 1
+                     FROM Meeting_Attendance ma2
+                     WHERE ma2.meeting_id = m.meeting_id
+                   )
+                 )
+               )
+             )`,
+          [chama_id],
+          (attError, attRows) => {
+            if (attError) {
+              console.log(
+                "Secretary dashboard attendance stats error: " +
+                  attError.message,
+              );
+            }
+            const meetingsWithAttendance =
+              !attError && attRows.length > 0
+                ? Number(attRows[0].meetings_with_attendance || 0)
+                : 0;
+            const totalPresent =
+              !attError && attRows.length > 0
+                ? Number(attRows[0].total_present || 0)
+                : 0;
+            const avgRate =
+              totalMembers > 0 && meetingsWithAttendance > 0
+                ? Math.round(
+                    (totalPresent / (totalMembers * meetingsWithAttendance)) *
+                      100,
+                  )
+                : 0;
+            const lastPresent =
+              recentData.length > 0
+                ? Number(recentData[0].attendee_count || 0)
+                : 0;
+            const lastAbsent = Math.max(totalMembers - lastPresent, 0);
+
+            loadDocs(recentData, upcomingData, {
+              avgRate,
+              lastPresent,
+              lastAbsent,
+            });
+          },
+        );
+      }
+
+      function loadDocs(recentData, upcomingData, attendanceStats) {
+        connection.query(
+          `SELECT COUNT(*) AS total FROM Group_Documents WHERE chama_id = ?`,
+          [chama_id],
+          (docsError, docsRows) => {
+            if (docsError && docsError.code !== "ER_NO_SUCH_TABLE") {
+              console.log(
+                "Secretary dashboard docs count error: " + docsError.message,
+              );
+            }
+            const uploadedDocs =
+              !docsError && docsRows.length > 0 ? Number(docsRows[0].total) : 0;
+            return res.render("pages/secretary/dashboard.ejs", {
+              recentMeetings: recentData,
+              upcomingMeetings: upcomingData,
+              totalMembers,
+              uploadedDocs,
+              attendanceStats,
+            });
+          },
+        );
+      }
+    },
+  );
 });
 
 app.get("/secretary/meetings", (req, res) => {
@@ -2111,7 +2360,15 @@ app.get("/secretary/meetings", (req, res) => {
             location,
             agenda,
             CASE
-              WHEN meeting_date >= CURDATE() THEN 'upcoming'
+              WHEN meeting_date > CURDATE() THEN 'upcoming'
+              WHEN meeting_date = CURDATE()
+                   AND (meeting_time IS NULL OR meeting_time > CURTIME())
+                   AND NOT EXISTS (
+                     SELECT 1
+                     FROM Meeting_Attendance ma
+                     WHERE ma.meeting_id = Meetings.meeting_id
+                   )
+                THEN 'upcoming'
               ELSE 'completed'
             END AS meeting_status
      FROM Meetings
@@ -2129,7 +2386,14 @@ app.get("/secretary/meetings", (req, res) => {
                     location,
                     agenda,
                     CASE
-                      WHEN meeting_date >= CURDATE() THEN 'upcoming'
+                      WHEN meeting_date > CURDATE() THEN 'upcoming'
+                      WHEN meeting_date = CURDATE()
+                           AND NOT EXISTS (
+                             SELECT 1
+                             FROM Meeting_Attendance ma
+                             WHERE ma.meeting_id = Meetings.meeting_id
+                           )
+                        THEN 'upcoming'
                       ELSE 'completed'
                     END AS meeting_status
              FROM Meetings
@@ -2618,8 +2882,97 @@ app.post("/secretary/meetings/create", (req, res) => {
 });
 
 app.get("/secretary/documents", (req, res) => {
-  res.render("pages/secretary/documents.ejs");
+  if (!req.session.user || req.session.role !== "secretary") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+
+  connection.query(
+    `SELECT document_id, title, document_type, file_name, file_path,
+            DATE_FORMAT(uploaded_at, '%Y-%m-%d %H:%i') AS uploaded_at
+     FROM Group_Documents
+     WHERE chama_id = ?
+     ORDER BY uploaded_at DESC, document_id DESC`,
+    [chama_id],
+    (docsError, documents) => {
+      if (docsError && docsError.code !== "ER_NO_SUCH_TABLE") {
+        console.log("Secretary documents load error: " + docsError.message);
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      return res.render("pages/secretary/documents.ejs", {
+        documents:
+          docsError && docsError.code === "ER_NO_SUCH_TABLE" ? [] : documents,
+        success: req.query.success || null,
+        error: req.query.error || null,
+      });
+    },
+  );
 });
+
+app.post(
+  "/secretary/upload-document",
+  governanceDocsUpload.single("doc_file"),
+  (req, res) => {
+    if (!req.session.user || req.session.role !== "secretary") {
+      return res.status(401).render("pages/user/401.ejs");
+    }
+
+    const { doc_title, doc_type } = req.body;
+    const chama_id = req.session.chama_id;
+    const uploaded_by = req.session.user.user_id;
+
+    if (!doc_title || !doc_title.trim() || !doc_type) {
+      return res.redirect(
+        "/secretary/documents?error=Document name and type are required.",
+      );
+    }
+
+    if (!req.file) {
+      return res.redirect(
+        "/secretary/documents?error=Please select a file to upload.",
+      );
+    }
+
+    const file_name = req.file.originalname;
+    const file_path = `/uploads/governance/${req.file.filename}`;
+
+    connection.query(
+      `INSERT INTO Group_Documents (chama_id, title, document_type, file_name, file_path, uploaded_by)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [chama_id, doc_title.trim(), doc_type, file_name, file_path, uploaded_by],
+      (insertError) => {
+        if (insertError) {
+          console.log(
+            "Document upload error [" +
+              insertError.code +
+              "]: " +
+              insertError.message,
+          );
+          if (
+            insertError.code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD" ||
+            insertError.code === "ER_WARN_DATA_TRUNCATED" ||
+            insertError.code === "ER_DATA_TRUNCATED" ||
+            insertError.code === "ER_NO_SUCH_TABLE"
+          ) {
+            return res.redirect(
+              "/secretary/documents?error=Database schema is outdated. Run the latest DB migration to add new document types.",
+            );
+          }
+          return res.redirect(
+            "/secretary/documents?error=Could not save document record: " +
+              insertError.message,
+          );
+        }
+
+        return res.redirect(
+          "/secretary/documents?success=Document uploaded successfully.",
+        );
+      },
+    );
+  },
+);
 
 app.get("/secretary/communications", (req, res) => {
   if (!req.session.user || req.session.role !== "secretary") {
@@ -2628,7 +2981,9 @@ app.get("/secretary/communications", (req, res) => {
 
   const chama_id = req.session.chama_id;
   const success =
-    req.query.success === "1" ? "Announcement sent successfully." : null;
+    req.query.success === "1"
+      ? "Announcement sent successfully."
+      : req.query.success || null;
   const error = req.query.error || null;
 
   connection.query(
@@ -2676,6 +3031,99 @@ app.post("/secretary/send-announcement", (req, res) => {
         );
       }
       return res.redirect("/secretary/communications?success=1");
+    },
+  );
+});
+
+app.post("/secretary/send-newsletter", (req, res) => {
+  if (!req.session.user || req.session.role !== "secretary") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const uploaded_by = req.session.user.user_id;
+  const title = String(req.body.title || "").trim();
+  const period = String(req.body.period || "").trim();
+  const send_date = String(req.body.send_date || "").trim();
+  const content = String(req.body.content || "").trim();
+  const included_sections_raw = req.body.included_sections;
+  const included_sections = Array.isArray(included_sections_raw)
+    ? included_sections_raw
+    : included_sections_raw
+      ? [included_sections_raw]
+      : [];
+
+  if (!title || !content) {
+    return res.redirect(
+      "/secretary/communications?error=Newsletter title and content are required.",
+    );
+  }
+
+  const safeBase = title
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
+  const savedFileName = `${Date.now()}-${safeBase || "newsletter"}.txt`;
+  const absoluteFilePath = path.join(governanceDocsUploadDir, savedFileName);
+  const file_path = `/uploads/governance/${savedFileName}`;
+
+  const lines = [
+    `Newsletter Title: ${title}`,
+    `Period: ${period || "N/A"}`,
+    `Send Date: ${send_date || "N/A"}`,
+    "",
+    "Included Sections:",
+    included_sections.length > 0
+      ? included_sections.map((s) => `- ${s}`).join("\n")
+      : "- None selected",
+    "",
+    "Content:",
+    content,
+  ];
+
+  try {
+    fs.mkdirSync(governanceDocsUploadDir, { recursive: true });
+    fs.writeFileSync(absoluteFilePath, lines.join("\n"), "utf8");
+  } catch (fileError) {
+    console.log("Newsletter file write error: " + fileError.message);
+    return res.redirect(
+      "/secretary/communications?error=Could not generate newsletter file.",
+    );
+  }
+
+  connection.query(
+    `INSERT INTO Group_Documents
+     (chama_id, title, document_type, file_name, file_path, uploaded_by)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [
+      chama_id,
+      title,
+      "newsletter",
+      `${safeBase || "newsletter"}.txt`,
+      file_path,
+      uploaded_by,
+    ],
+    (insertError) => {
+      if (insertError) {
+        if (
+          insertError.code === "ER_NO_SUCH_TABLE" ||
+          insertError.code === "ER_TRUNCATED_WRONG_VALUE_FOR_FIELD"
+        ) {
+          return res.redirect(
+            "/secretary/communications?error=Documents schema is outdated. Run latest DB migration.",
+          );
+        }
+
+        console.log("Newsletter save error: " + insertError.message);
+        return res.redirect(
+          "/secretary/communications?error=Could not save newsletter.",
+        );
+      }
+
+      return res.redirect(
+        "/secretary/communications?success=Newsletter sent and saved to documents.",
+      );
     },
   );
 });
@@ -2764,10 +3212,6 @@ app.post("/secretary/add-member", (req, res) => {
       },
     );
   });
-});
-
-app.get("/secretary/calendar", (req, res) => {
-  res.render("pages/secretary/calendar.ejs");
 });
 
 // Chairperson Routes
