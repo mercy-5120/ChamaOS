@@ -21,6 +21,8 @@
           </div>
         </div>
 
+        <% const money = (value) => Number(value || 0).toLocaleString(); %>
+
         <section class="dashboard-section">
           <h2 class="h2">Member Directory</h2>
           <div class="card">
@@ -32,6 +34,7 @@
                   <th>Phone</th>
                   <th>Email</th>
                   <th>Member Since</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -43,16 +46,147 @@
                       <td><%= member.phone_number || '-' %></td>
                       <td><%= member.email || '-' %></td>
                       <td><%= member.joined_date || '-' %></td>
+                      <td>
+                        <a href="/treasurer/members?statement_user_id=<%= member.user_id %>" class="btn btn-secondary btn-sm">View Statement</a>
+                      </td>
                     </tr>
                   <% }) %>
                 <% } else { %>
                   <tr>
-                    <td colspan="5">No members available.</td>
+                    <td colspan="6">No members available.</td>
                   </tr>
                 <% } %>
               </tbody>
             </table>
           </div>
+        </section>
+
+        <section class="dashboard-section" id="member-statement">
+          <h2 class="h2">Individual Member Statement</h2>
+          <div class="card form-card" style="margin-bottom: 16px;">
+            <form method="GET" action="/treasurer/members">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="statement-user">Select Member</label>
+                  <select id="statement-user" name="statement_user_id" required>
+                    <option value="">-- Select member --</option>
+                    <% if (members && members.length > 0) { %>
+                      <% members.forEach((member) => { %>
+                        <option value="<%= member.user_id %>" <%= statementSelectedMember && Number(statementSelectedMember.user_id) === Number(member.user_id) ? 'selected' : '' %>>
+                          <%= member.full_name %>
+                        </option>
+                      <% }) %>
+                    <% } %>
+                  </select>
+                </div>
+              </div>
+              <div style="margin-top: 16px;">
+                <button type="submit" class="btn btn-primary">Generate Statement</button>
+              </div>
+            </form>
+          </div>
+
+          <% if (statementError) { %>
+            <div class="alert alert-error"><%= statementError %></div>
+          <% } %>
+
+          <% if (statementSelectedMember && statementSummary) { %>
+            <div class="card" style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h3 style="margin: 0;"><%= statementSelectedMember.full_name %> - Summary</h3>
+                <div>
+                  <a href="/treasurer/member-statement/export?user_id=<%= statementSelectedMember.user_id %>&format=csv" class="btn btn-secondary btn-sm" download>
+                    Export CSV
+                  </a>
+                </div>
+              </div>
+              <div class="metrics-grid">
+                <div class="metric-card">
+                  <div class="metric-label">Total Contributed</div>
+                  <div class="metric-value value-success">KES <%= money(statementSummary.totalContributed) %></div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">Total Loaned</div>
+                  <div class="metric-value value-warning">KES <%= money(statementSummary.totalLoaned) %></div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">Outstanding Balance</div>
+                  <div class="metric-value value-deep">KES <%= money(statementSummary.totalOutstanding) %></div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-label">Loan Repaid</div>
+                  <div class="metric-value value-info">KES <%= money(statementSummary.totalLoanRepaid) %></div>
+                </div>
+              </div>
+              <p style="margin: 14px 0 0 0; color: #888; font-size: 13px;">
+                Transactions: <%= statementSummary.transactionCount %> | Loans: <%= statementSummary.loanCount %>
+              </p>
+            </div>
+
+            <div class="card" style="margin-bottom: 16px;">
+              <h3 style="margin: 0 0 16px 0;">Transaction History</h3>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (statementTransactions && statementTransactions.length > 0) { %>
+                    <% statementTransactions.forEach((tx) => { %>
+                      <tr>
+                        <td><%= tx.transaction_date %></td>
+                        <td style="text-transform: capitalize;"><%= (tx.transaction_type || '').replace('_', ' ') %></td>
+                        <td>KES <%= money(tx.amount) %></td>
+                        <td style="text-transform: capitalize;"><%= tx.status || '-' %></td>
+                        <td><%= tx.description || '-' %></td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5">No transactions found for this member.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card">
+              <h3 style="margin: 0 0 16px 0;">Loan History</h3>
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Issue Date</th>
+                    <th>Due Date</th>
+                    <th>Amount</th>
+                    <th>Remaining Balance</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if (statementLoans && statementLoans.length > 0) { %>
+                    <% statementLoans.forEach((loan) => { %>
+                      <tr>
+                        <td><%= loan.issue_date || '-' %></td>
+                        <td><%= loan.due_date || '-' %></td>
+                        <td>KES <%= money(loan.amount) %></td>
+                        <td>KES <%= money(loan.remaining_balance) %></td>
+                        <td style="text-transform: capitalize;"><%= loan.status || '-' %></td>
+                      </tr>
+                    <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="5">No loans found for this member.</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
         </section>
       </section>
     </main>

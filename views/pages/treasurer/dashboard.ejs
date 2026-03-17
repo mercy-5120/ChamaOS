@@ -12,12 +12,19 @@
       <%- include('../partials/treasurersidebar') %>
 
       <section class="dashboard-content">
+        <% const money = (value) => Number(value || 0).toLocaleString(); %>
+        <% const trendLabel = (trend) => {
+             if (!trend || trend.direction === 'flat') return 'No change vs last month';
+             const movement = trend.direction === 'up' ? 'Up' : 'Down';
+             return `${movement} ${trend.pct}% vs last month`;
+           }; %>
         <div class="page-header">
           <div>
             <h1 class="h1">Treasurer Dashboard</h1>
             <p class="lead">
               Group cash position, loans, approvals and recent activity.
             </p>
+            <p class="treasurer-asof">As of <%= asOfDateTime %></p>
           </div>
         </div>
 
@@ -26,19 +33,23 @@
           <div class="metrics-grid">
             <div class="metric-card">
               <div class="metric-label">Total Contributions</div>
-              <div class="metric-value value-success">-</div>
+              <div class="metric-value value-success">KES <%= money(dashboard.totalContributions) %></div>
+              <div class="metric-trend trend-<%= trends.totalContributions.direction %>"><%= trendLabel(trends.totalContributions) %></div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Available Cash</div>
-              <div class="metric-value value-deep">-</div>
+              <div class="metric-value value-deep">KES <%= money(dashboard.availableCash) %></div>
+              <div class="metric-trend trend-<%= trends.availableCash.direction %>"><%= trendLabel(trends.availableCash) %></div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Outstanding Loans</div>
-              <div class="metric-value value-warning">-</div>
+              <div class="metric-value value-warning">KES <%= money(dashboard.outstandingLoans) %></div>
+              <div class="metric-trend trend-<%= trends.outstandingLoans.direction %>"><%= trendLabel(trends.outstandingLoans) %></div>
             </div>
             <div class="metric-card">
               <div class="metric-label">Pending Approvals</div>
-              <div class="metric-value value-info">-</div>
+              <div class="metric-value value-info"><%= dashboard.pendingApprovals %></div>
+              <div class="metric-trend trend-<%= trends.pendingApprovals.direction %>"><%= trendLabel(trends.pendingApprovals) %></div>
             </div>
           </div>
         </section>
@@ -57,9 +68,21 @@
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td colspan="5">No recent transactions available.</td>
-                </tr>
+                <% if (recentTransactions && recentTransactions.length > 0) { %>
+                  <% recentTransactions.forEach((tx) => { %>
+                    <tr>
+                      <td><%= tx.transaction_date %></td>
+                      <td><%= tx.member_name %></td>
+                      <td>KES <%= money(tx.amount) %></td>
+                      <td style="text-transform: capitalize;"><%= tx.method || '-' %></td>
+                      <td><%= tx.reference %></td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr>
+                    <td colspan="5">No recent transactions available.</td>
+                  </tr>
+                <% } %>
               </tbody>
             </table>
           </div>

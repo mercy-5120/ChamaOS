@@ -1653,7 +1653,186 @@ app.post("/member/profile/update", (req, res) => {
 
 // Treasurer Routes
 app.get("/treasurer/dashboard", (req, res) => {
-  res.render("pages/treasurer/dashboard.ejs");
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const now = new Date();
+  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  const previousMonthDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const previousMonth = `${previousMonthDate.getFullYear()}-${String(previousMonthDate.getMonth() + 1).padStart(2, "0")}`;
+
+  const buildTrend = (currentValue, previousValue) => {
+    const current = Number(currentValue || 0);
+    const previous = Number(previousValue || 0);
+    const delta = current - previous;
+    const direction = delta > 0 ? "up" : delta < 0 ? "down" : "flat";
+    const pct =
+      previous === 0
+        ? current > 0
+          ? 100
+          : 0
+        : Math.round((Math.abs(delta) / Math.abs(previous)) * 100);
+    return { direction, pct, delta };
+  };
+
+  connection.query(
+    `SELECT IFNULL(SUM(amount), 0) AS total_contributions
+     FROM Transactions
+     WHERE chama_id = ?
+       AND transaction_type = 'contribution'
+       AND status = 'completed'`,
+    [chama_id],
+    (contribError, contribRows) => {
+      if (contribError) {
+        console.log(
+          "Treasurer dashboard contributions error: " + contribError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      const totalContributions = Number(
+        contribRows[0]?.total_contributions || 0,
+      );
+
+      connection.query(
+        `SELECT IFNULL(SUM(IFNULL(remaining_balance, amount)), 0) AS outstanding_loans,
+                SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) AS pending_approvals
+         FROM Loans
+         WHERE chama_id = ? AND status != 'rejected'`,
+        [chama_id],
+        (loanStatsError, loanStatsRows) => {
+          if (loanStatsError) {
+            console.log(
+              "Treasurer dashboard loan stats error: " + loanStatsError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          const outstandingLoans = Number(
+            loanStatsRows[0]?.outstanding_loans || 0,
+          );
+          const pendingApprovals = Number(
+            loanStatsRows[0]?.pending_approvals || 0,
+          );
+          const availableCash = totalContributions - outstandingLoans;
+
+          connection.query(
+            `SELECT DATE_FORMAT(t.created_at, '%Y-%m-%d') AS transaction_date,
+                    u.full_name AS member_name,
+                    t.amount,
+                    CASE
+                      WHEN t.description LIKE 'Payment Method:%'
+                        THEN TRIM(SUBSTRING_INDEX(t.description, ':', -1))
+                      ELSE REPLACE(t.transaction_type, '_', ' ')
+                    END AS method,
+                    CONCAT('TX-', t.transaction_id) AS reference
+             FROM Transactions t
+             JOIN Users u ON u.user_id = t.user_id
+             WHERE t.chama_id = ?
+             ORDER BY t.created_at DESC, t.transaction_id DESC
+             LIMIT 8`,
+            [chama_id],
+            (txError, recentTransactions) => {
+              if (txError) {
+                console.log(
+                  "Treasurer dashboard transactions error: " + txError.message,
+                );
+                return res.status(500).render("pages/user/500.ejs");
+              }
+
+              connection.query(
+                `SELECT
+                   IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = ? THEN amount ELSE 0 END), 0) AS current_contributions,
+                   IFNULL(SUM(CASE WHEN DATE_FORMAT(created_at, '%Y-%m') = ? THEN amount ELSE 0 END), 0) AS previous_contributions
+                 FROM Transactions
+                 WHERE chama_id = ?
+                   AND transaction_type = 'contribution'
+                   AND status = 'completed'`,
+                [currentMonth, previousMonth, chama_id],
+                (monthlyContribError, monthlyContribRows) => {
+                  if (monthlyContribError) {
+                    console.log(
+                      "Treasurer dashboard monthly contributions error: " +
+                        monthlyContribError.message,
+                    );
+                    return res.status(500).render("pages/user/500.ejs");
+                  }
+
+                  connection.query(
+                    `SELECT
+                       IFNULL(SUM(CASE WHEN DATE_FORMAT(issue_date, '%Y-%m') = ? AND status = 'active' THEN amount ELSE 0 END), 0) AS current_loan_disbursed,
+                       IFNULL(SUM(CASE WHEN DATE_FORMAT(issue_date, '%Y-%m') = ? AND status = 'active' THEN amount ELSE 0 END), 0) AS previous_loan_disbursed,
+                       IFNULL(SUM(CASE WHEN DATE_FORMAT(issue_date, '%Y-%m') = ? AND status = 'pending' THEN 1 ELSE 0 END), 0) AS current_pending_count,
+                       IFNULL(SUM(CASE WHEN DATE_FORMAT(issue_date, '%Y-%m') = ? AND status = 'pending' THEN 1 ELSE 0 END), 0) AS previous_pending_count
+                     FROM Loans
+                     WHERE chama_id = ?`,
+                    [
+                      currentMonth,
+                      previousMonth,
+                      currentMonth,
+                      previousMonth,
+                      chama_id,
+                    ],
+                    (monthlyLoanError, monthlyLoanRows) => {
+                      if (monthlyLoanError) {
+                        console.log(
+                          "Treasurer dashboard monthly loan trend error: " +
+                            monthlyLoanError.message,
+                        );
+                        return res.status(500).render("pages/user/500.ejs");
+                      }
+
+                      const monthlyContrib = monthlyContribRows[0] || {};
+                      const monthlyLoan = monthlyLoanRows[0] || {};
+                      const currentNetCash =
+                        Number(monthlyContrib.current_contributions || 0) -
+                        Number(monthlyLoan.current_loan_disbursed || 0);
+                      const previousNetCash =
+                        Number(monthlyContrib.previous_contributions || 0) -
+                        Number(monthlyLoan.previous_loan_disbursed || 0);
+
+                      const trends = {
+                        totalContributions: buildTrend(
+                          monthlyContrib.current_contributions,
+                          monthlyContrib.previous_contributions,
+                        ),
+                        availableCash: buildTrend(
+                          currentNetCash,
+                          previousNetCash,
+                        ),
+                        outstandingLoans: buildTrend(
+                          monthlyLoan.current_loan_disbursed,
+                          monthlyLoan.previous_loan_disbursed,
+                        ),
+                        pendingApprovals: buildTrend(
+                          monthlyLoan.current_pending_count,
+                          monthlyLoan.previous_pending_count,
+                        ),
+                      };
+
+                      return res.render("pages/treasurer/dashboard.ejs", {
+                        dashboard: {
+                          totalContributions,
+                          availableCash,
+                          outstandingLoans,
+                          pendingApprovals,
+                        },
+                        trends,
+                        asOfDateTime: `${toYmd(now)} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`,
+                        recentTransactions,
+                      });
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    },
+  );
 });
 
 app.get("/treasurer/contributions", (req, res) => {
@@ -1915,6 +2094,8 @@ app.get("/treasurer/members", (req, res) => {
     return res.status(401).render("pages/user/401.ejs");
   }
 
+  const statementUserId = Number(req.query.statement_user_id || 0);
+
   connection.query(
     `SELECT u.user_id, u.full_name, u.phone_number, u.email, cm.role,
             DATE_FORMAT(cm.joined_date, '%Y-%m-%d') AS joined_date
@@ -1929,9 +2110,286 @@ app.get("/treasurer/members", (req, res) => {
         return res.status(500).render("pages/user/500.ejs");
       }
 
-      return res.render("pages/treasurer/members.ejs", {
-        members,
-      });
+      if (!statementUserId) {
+        return res.render("pages/treasurer/members.ejs", {
+          members,
+          statementSelectedMember: null,
+          statementSummary: null,
+          statementTransactions: [],
+          statementLoans: [],
+          statementError: null,
+        });
+      }
+
+      const selectedMember = members.find(
+        (member) => Number(member.user_id) === statementUserId,
+      );
+
+      if (!selectedMember) {
+        return res.render("pages/treasurer/members.ejs", {
+          members,
+          statementSelectedMember: null,
+          statementSummary: null,
+          statementTransactions: [],
+          statementLoans: [],
+          statementError: "Selected member was not found in this chama.",
+        });
+      }
+
+      connection.query(
+        `SELECT DATE_FORMAT(t.created_at, '%Y-%m-%d') AS transaction_date,
+                t.transaction_type,
+                t.amount,
+                t.status,
+                t.description
+         FROM Transactions t
+         WHERE t.chama_id = ? AND t.user_id = ?
+         ORDER BY t.created_at DESC, t.transaction_id DESC
+         LIMIT 50`,
+        [chama_id, statementUserId],
+        (txError, statementTransactions) => {
+          if (txError) {
+            console.log(
+              "Treasurer member statement tx error: " + txError.message,
+            );
+            return res.status(500).render("pages/user/500.ejs");
+          }
+
+          connection.query(
+            `SELECT DATE_FORMAT(l.issue_date, '%Y-%m-%d') AS issue_date,
+                    DATE_FORMAT(l.due_date, '%Y-%m-%d') AS due_date,
+                    l.amount,
+                    IFNULL(l.remaining_balance, l.amount) AS remaining_balance,
+                    l.status
+             FROM Loans l
+             WHERE l.chama_id = ? AND l.user_id = ? AND l.status != 'rejected'
+             ORDER BY l.issue_date DESC, l.loan_id DESC`,
+            [chama_id, statementUserId],
+            (loanError, statementLoans) => {
+              if (loanError) {
+                console.log(
+                  "Treasurer member statement loans error: " +
+                    loanError.message,
+                );
+                return res.status(500).render("pages/user/500.ejs");
+              }
+
+              connection.query(
+                `SELECT
+                   IFNULL(SUM(CASE WHEN transaction_type = 'contribution' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_contributed,
+                   IFNULL(SUM(CASE WHEN transaction_type = 'loan_repayment' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_loan_repaid,
+                   COUNT(*) AS transaction_count
+                 FROM Transactions
+                 WHERE chama_id = ? AND user_id = ?`,
+                [chama_id, statementUserId],
+                (summaryTxError, txSummaryRows) => {
+                  if (summaryTxError) {
+                    console.log(
+                      "Treasurer member statement summary tx error: " +
+                        summaryTxError.message,
+                    );
+                    return res.status(500).render("pages/user/500.ejs");
+                  }
+
+                  connection.query(
+                    `SELECT
+                       IFNULL(SUM(CASE WHEN status != 'rejected' THEN amount ELSE 0 END), 0) AS total_loaned,
+                       IFNULL(SUM(CASE WHEN status = 'active' THEN IFNULL(remaining_balance, amount) ELSE 0 END), 0) AS total_outstanding,
+                       SUM(CASE WHEN status != 'rejected' THEN 1 ELSE 0 END) AS loan_count
+                     FROM Loans
+                     WHERE chama_id = ? AND user_id = ?`,
+                    [chama_id, statementUserId],
+                    (summaryLoanError, loanSummaryRows) => {
+                      if (summaryLoanError) {
+                        console.log(
+                          "Treasurer member statement summary loan error: " +
+                            summaryLoanError.message,
+                        );
+                        return res.status(500).render("pages/user/500.ejs");
+                      }
+
+                      const txSummary = txSummaryRows[0] || {};
+                      const loanSummary = loanSummaryRows[0] || {};
+
+                      return res.render("pages/treasurer/members.ejs", {
+                        members,
+                        statementSelectedMember: selectedMember,
+                        statementSummary: {
+                          totalContributed: Number(
+                            txSummary.total_contributed || 0,
+                          ),
+                          totalLoanRepaid: Number(
+                            txSummary.total_loan_repaid || 0,
+                          ),
+                          totalLoaned: Number(loanSummary.total_loaned || 0),
+                          totalOutstanding: Number(
+                            loanSummary.total_outstanding || 0,
+                          ),
+                          transactionCount: Number(
+                            txSummary.transaction_count || 0,
+                          ),
+                          loanCount: Number(loanSummary.loan_count || 0),
+                        },
+                        statementTransactions,
+                        statementLoans,
+                        statementError: null,
+                      });
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
+    },
+  );
+});
+
+app.get("/treasurer/member-statement/export", (req, res) => {
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const chama_id = req.session.chama_id;
+  const statementUserId = Number(req.query.user_id || 0);
+  const format = req.query.format || "csv";
+
+  if (!statementUserId) {
+    return res.status(400).json({ error: "Member ID required" });
+  }
+
+  connection.query(
+    `SELECT u.user_id, u.full_name, u.phone_number, u.email
+     FROM Users u
+     JOIN Chama_Members cm ON u.user_id = cm.user_id
+     WHERE cm.chama_id = ? AND u.user_id = ?
+     LIMIT 1`,
+    [chama_id, statementUserId],
+    (memberError, memberRows) => {
+      if (memberError || memberRows.length === 0) {
+        return res.status(404).json({ error: "Member not found" });
+      }
+
+      const selectedMember = memberRows[0];
+
+      connection.query(
+        `SELECT DATE_FORMAT(t.created_at, '%Y-%m-%d') AS transaction_date,
+                t.transaction_type,
+                t.amount,
+                t.status,
+                t.description
+         FROM Transactions t
+         WHERE t.chama_id = ? AND t.user_id = ?
+         ORDER BY t.created_at DESC, t.transaction_id DESC
+         LIMIT 100`,
+        [chama_id, statementUserId],
+        (txError, statementTransactions) => {
+          if (txError) {
+            return res
+              .status(500)
+              .json({ error: "Failed to fetch transactions" });
+          }
+
+          connection.query(
+            `SELECT DATE_FORMAT(l.issue_date, '%Y-%m-%d') AS issue_date,
+                    DATE_FORMAT(l.due_date, '%Y-%m-%d') AS due_date,
+                    l.amount,
+                    IFNULL(l.remaining_balance, l.amount) AS remaining_balance,
+                    l.status
+             FROM Loans l
+             WHERE l.chama_id = ? AND l.user_id = ? AND l.status != 'rejected'
+             ORDER BY l.issue_date DESC, l.loan_id DESC`,
+            [chama_id, statementUserId],
+            (loanError, statementLoans) => {
+              if (loanError) {
+                return res.status(500).json({ error: "Failed to fetch loans" });
+              }
+
+              connection.query(
+                `SELECT
+                   IFNULL(SUM(CASE WHEN transaction_type = 'contribution' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_contributed,
+                   IFNULL(SUM(CASE WHEN transaction_type = 'loan_repayment' AND status = 'completed' THEN amount ELSE 0 END), 0) AS total_loan_repaid
+                 FROM Transactions
+                 WHERE chama_id = ? AND user_id = ?`,
+                [chama_id, statementUserId],
+                (summaryTxError, txSummaryRows) => {
+                  if (summaryTxError) {
+                    return res
+                      .status(500)
+                      .json({ error: "Failed to fetch summary" });
+                  }
+
+                  connection.query(
+                    `SELECT
+                       IFNULL(SUM(CASE WHEN status != 'rejected' THEN amount ELSE 0 END), 0) AS total_loaned,
+                       IFNULL(SUM(CASE WHEN status = 'active' THEN IFNULL(remaining_balance, amount) ELSE 0 END), 0) AS total_outstanding
+                     FROM Loans
+                     WHERE chama_id = ? AND user_id = ?`,
+                    [chama_id, statementUserId],
+                    (summaryLoanError, loanSummaryRows) => {
+                      if (summaryLoanError) {
+                        return res
+                          .status(500)
+                          .json({ error: "Failed to fetch loan summary" });
+                      }
+
+                      const txSummary = txSummaryRows[0] || {};
+                      const loanSummary = loanSummaryRows[0] || {};
+
+                      if (format === "csv") {
+                        const now = new Date();
+                        const reportDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+                        const filename = `Statement-${selectedMember.full_name.replace(/\s+/g, "_")}-${reportDate}.csv`;
+
+                        let csv = "";
+                        csv += "MEMBER STATEMENT REPORT\n";
+                        csv += `Generated: ${reportDate}\n\n`;
+                        csv += `Member: ${selectedMember.full_name}\n`;
+                        csv += `Email: ${selectedMember.email || "N/A"}\n`;
+                        csv += `Phone: ${selectedMember.phone_number || "N/A"}\n\n`;
+
+                        csv += "SUMMARY\n";
+                        csv += `Total Contributed,"KES ${Number(txSummary.total_contributed || 0).toLocaleString()}"\n`;
+                        csv += `Total Loaned,"KES ${Number(loanSummary.total_loaned || 0).toLocaleString()}"\n`;
+                        csv += `Outstanding Balance,"KES ${Number(loanSummary.total_outstanding || 0).toLocaleString()}"\n`;
+                        csv += `Loan Repaid,"KES ${Number(txSummary.total_loan_repaid || 0).toLocaleString()}"\n\n`;
+
+                        csv += "TRANSACTION HISTORY\n";
+                        csv += "Date,Type,Amount,Status,Description\n";
+                        statementTransactions.forEach((tx) => {
+                          csv += `${tx.transaction_date},${tx.transaction_type},${tx.amount},${tx.status},"${(tx.description || "").replace(/"/g, '""')}"\n`;
+                        });
+
+                        csv += "\nLOAN HISTORY\n";
+                        csv +=
+                          "Issue Date,Due Date,Amount,Remaining Balance,Status\n";
+                        statementLoans.forEach((loan) => {
+                          csv += `${loan.issue_date},${loan.due_date},${loan.amount},${loan.remaining_balance},${loan.status}\n`;
+                        });
+
+                        res.setHeader(
+                          "Content-Type",
+                          "text/csv; charset=utf-8",
+                        );
+                        res.setHeader(
+                          "Content-Disposition",
+                          `attachment; filename="${filename}"`,
+                        );
+                        return res.send(csv);
+                      }
+
+                      return res
+                        .status(400)
+                        .json({ error: "Format not supported" });
+                    },
+                  );
+                },
+              );
+            },
+          );
+        },
+      );
     },
   );
 });
