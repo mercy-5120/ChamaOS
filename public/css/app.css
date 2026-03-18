@@ -456,6 +456,11 @@ select:focus {
   font-size: 14px;
   color: #f4b942;
 }
+.footer-contact h4 {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #f4b942;
+}
 .footer-links a {
   display: block;
   color: rgba(244, 248, 252, 0.9);
@@ -470,7 +475,8 @@ select:focus {
 .footer-contact .social-icons {
   display: flex;
   gap: 8px;
-  margin-top: 8px;
+  margin-top: 0;
+  margin-left: 12px;
 }
 .social-icon {
   display: inline-flex;

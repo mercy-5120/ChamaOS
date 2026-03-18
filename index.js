@@ -4,7 +4,7 @@ const express = require("express");
 const session = require("express-session");
 const bcrypt = require("bcrypt");
 const multer = require("multer");
-const path = require("path");
+const path = require("path"); //allows us to work with file and directory paths in a way that is compatible across different operating systems
 const fs = require("fs");
 const app = express();
 
@@ -83,7 +83,7 @@ app.use(
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 1000,
+      maxAge: 60 * 60 * 1000 * 24, // 24 hours
     },
   }),
 );
@@ -92,10 +92,12 @@ const publicRoutes = [
   "/landing page",
   "/services",
   "/about",
+  "/privacy",
   "/signup",
   "/login",
   "/join",
   "/forgot-password",
+  "/contact",
 ];
 const adminRoutes = [
   "/admin/dashboard",
@@ -166,6 +168,7 @@ app.use((req, res, next) => {
     res.status(401).render("pages/user/401.ejs");
   }
 });
+app.use(express.json()); // Middleware to parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies (form data)
 app.use(express.static("public")); // serve static assets (CSS, images, JS)
 
@@ -258,6 +261,65 @@ app.get("/services", (req, res) => {
 
 app.get("/about", (req, res) => {
   res.render("pages/user/about.ejs");
+});
+
+app.get("/privacy", (req, res) => {
+  res.render("pages/user/privacy.ejs");
+});
+
+app.post("/contact", (req, res) => {
+  const { contact_name, contact_email, contact_message } = req.body;
+
+  // Validation
+  if (!contact_name || !contact_email || !contact_message) {
+    return res.status(400).json({
+      success: false,
+      error: "Please fill in all fields.",
+    });
+  }
+
+  // Trim values
+  const name = String(contact_name).trim();
+  const email = String(contact_email).trim();
+  const message = String(contact_message).trim();
+
+  // Validate email format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({
+      success: false,
+      error: "Please enter a valid email address.",
+    });
+  }
+
+  // Validate message length
+  if (message.length < 10) {
+    return res.status(400).json({
+      success: false,
+      error: "Message must be at least 10 characters long.",
+    });
+  }
+
+  // Store contact message in database
+  connection.query(
+    `INSERT INTO Contact_Messages (contact_name, contact_email, message, status)
+     VALUES (?, ?, ?, 'new')`,
+    [name, email, message],
+    (insertError) => {
+      if (insertError) {
+        console.log("Contact form submission error: " + insertError.message);
+        return res.status(500).json({
+          success: false,
+          error: "Failed to send message. Please try again later.",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Thank you for your message. We will get back to you soon!",
+      });
+    },
+  );
 });
 
 app.get("/signup", (req, res) => {
@@ -1928,6 +1990,109 @@ app.post("/member/profile/update", (req, res) => {
   );
 });
 
+app.post("/member/profile/change-password", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const user_id = req.session.user?.user_id;
+  if (!user_id) {
+    return res.redirect(
+      `/member/profile?error=${encodeURIComponent("Unable to identify your account.")}`,
+    );
+  }
+
+  const { current_password, new_password, confirm_password } = req.body;
+
+  // Validation
+  if (!current_password || !new_password || !confirm_password) {
+    return res.redirect(
+      `/member/profile?error=${encodeURIComponent("Please fill in all password fields.")}`,
+    );
+  }
+
+  if (new_password !== confirm_password) {
+    return res.redirect(
+      `/member/profile?error=${encodeURIComponent("New passwords do not match.")}`,
+    );
+  }
+
+  // Validate password strength: at least 8 characters, uppercase, lowercase, numbers, and symbols
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[a-zA-Z\d@$!%*?&]{8,}$/;
+  if (!passwordRegex.test(new_password)) {
+    return res.redirect(
+      `/member/profile?error=${encodeURIComponent("Password must be at least 8 characters and include uppercase, lowercase, numbers, and symbols.")}`,
+    );
+  }
+
+  // Get current password hash from database
+  connection.query(
+    `SELECT password_hash FROM Users WHERE user_id = ?`,
+    [user_id],
+    (selectError, selectRows) => {
+      if (selectError) {
+        console.log("Password change select error: " + selectError.message);
+        return res.redirect(
+          `/member/profile?error=${encodeURIComponent("Failed to retrieve account. Please try again.")}`,
+        );
+      }
+
+      if (!selectRows || selectRows.length === 0) {
+        return res.redirect(
+          `/member/profile?error=${encodeURIComponent("Account not found.")}`,
+        );
+      }
+
+      const storedHash = selectRows[0].password_hash;
+
+      // Compare current password with stored hash
+      bcrypt.compare(current_password, storedHash, (compareError, isMatch) => {
+        if (compareError) {
+          console.log("Password comparison error: " + compareError.message);
+          return res.redirect(
+            `/member/profile?error=${encodeURIComponent("Failed to verify password. Please try again.")}`,
+          );
+        }
+
+        if (!isMatch) {
+          return res.redirect(
+            `/member/profile?error=${encodeURIComponent("Current password is incorrect.")}`,
+          );
+        }
+
+        // Hash new password
+        bcrypt.hash(new_password, 10, (hashError, newHash) => {
+          if (hashError) {
+            console.log("Password hash error: " + hashError.message);
+            return res.redirect(
+              `/member/profile?error=${encodeURIComponent("Failed to process new password. Please try again.")}`,
+            );
+          }
+
+          // Update password in database
+          connection.query(
+            `UPDATE Users SET password_hash = ? WHERE user_id = ?`,
+            [newHash, user_id],
+            (updateError) => {
+              if (updateError) {
+                console.log("Password update error: " + updateError.message);
+                return res.redirect(
+                  `/member/profile?error=${encodeURIComponent("Failed to update password. Please try again.")}`,
+                );
+              }
+
+              return res.redirect(
+                `/member/profile?success=${encodeURIComponent("Password changed successfully.")}`,
+              );
+            },
+          );
+        });
+      });
+    },
+  );
+});
+
 // Treasurer Routes
 app.get("/treasurer/dashboard", (req, res) => {
   if (!req.session.user || req.session.role !== "treasurer") {
@@ -2359,6 +2524,138 @@ app.post("/treasurer/loans/:loanId/decision", (req, res) => {
   }
 
   return res.redirect("/treasurer/loans?error=Unknown decision provided.");
+});
+
+app.post("/treasurer/loans/:loanId/repayment", (req, res) => {
+  if (!req.session.user || req.session.role !== "treasurer") {
+    return res.status(401).json({ success: false, error: "Unauthorized" });
+  }
+
+  const loanId = Number(req.params.loanId);
+  const chamaId = Number(req.session.chama_id);
+  const repaymentAmount = Number(req.body.repayment_amount);
+  const repaymentDescription =
+    (req.body.repayment_description || "").toString().trim() ||
+    "Loan repayment";
+
+  if (
+    !loanId ||
+    !chamaId ||
+    !Number.isFinite(repaymentAmount) ||
+    repaymentAmount <= 0
+  ) {
+    return res
+      .status(400)
+      .json({ success: false, error: "Invalid repayment details." });
+  }
+
+  connection.query(
+    `SELECT loan_id, user_id, amount, IFNULL(remaining_balance, amount) AS remaining_balance, status
+     FROM Loans
+     WHERE loan_id = ? AND chama_id = ?
+     LIMIT 1`,
+    [loanId, chamaId],
+    (loanError, loanRows) => {
+      if (loanError) {
+        console.log("Repayment loan lookup error: " + loanError.message);
+        return res
+          .status(500)
+          .json({ success: false, error: "Failed to load loan record." });
+      }
+
+      if (!loanRows || loanRows.length === 0) {
+        return res
+          .status(404)
+          .json({ success: false, error: "Loan not found for this chama." });
+      }
+
+      const loan = loanRows[0];
+      const currentBalance = Number(loan.remaining_balance || 0);
+
+      if (loan.status !== "active") {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            error: "Only active loans can receive repayments.",
+          });
+      }
+
+      if (repaymentAmount > currentBalance) {
+        return res.status(400).json({
+          success: false,
+          error:
+            "Repayment amount cannot exceed outstanding balance (KES " +
+            currentBalance.toLocaleString() +
+            ").",
+        });
+      }
+
+      const nextBalance = Number((currentBalance - repaymentAmount).toFixed(2));
+      const nextStatus = nextBalance <= 0 ? "completed" : "active";
+
+      connection.query(
+        `INSERT INTO Transactions
+           (chama_id, user_id, transaction_type, amount, description, status, loan_id, created_at)
+         VALUES (?, ?, 'loan_repayment', ?, ?, 'completed', ?, NOW())`,
+        [chamaId, loan.user_id, repaymentAmount, repaymentDescription, loanId],
+        (txError) => {
+          if (txError) {
+            console.log(
+              "Repayment transaction insert error: " + txError.message,
+            );
+            return res
+              .status(500)
+              .json({
+                success: false,
+                error: "Failed to save repayment transaction.",
+              });
+          }
+
+          connection.query(
+            `UPDATE Loans
+             SET remaining_balance = ?, status = ?
+             WHERE loan_id = ? AND chama_id = ?`,
+            [Math.max(0, nextBalance), nextStatus, loanId, chamaId],
+            (updateError, updateResult) => {
+              if (updateError) {
+                console.log(
+                  "Repayment loan update error: " + updateError.message,
+                );
+                return res
+                  .status(500)
+                  .json({
+                    success: false,
+                    error: "Failed to update loan balance.",
+                  });
+              }
+
+              if (!updateResult || updateResult.affectedRows === 0) {
+                return res
+                  .status(500)
+                  .json({
+                    success: false,
+                    error: "Loan update was not applied.",
+                  });
+              }
+
+              return res.json({
+                success: true,
+                message:
+                  "Repayment recorded successfully." +
+                  (nextStatus === "completed"
+                    ? " Loan has been fully repaid."
+                    : ""),
+                loan_id: loanId,
+                remaining_balance: Math.max(0, nextBalance),
+                loan_status: nextStatus,
+              });
+            },
+          );
+        },
+      );
+    },
+  );
 });
 
 app.get("/treasurer/members", (req, res) => {

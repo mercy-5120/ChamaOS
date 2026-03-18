@@ -240,3 +240,13 @@ CREATE TABLE Welfare_Requests (
     FOREIGN KEY (reviewed_by) REFERENCES Users(user_id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
+-- 14. Contact messages (landing page contact form submissions)
+CREATE TABLE Contact_Messages (
+    message_id INT PRIMARY KEY AUTO_INCREMENT,
+    contact_name VARCHAR(100) NOT NULL,
+    contact_email VARCHAR(100) NOT NULL,
+    message TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'new',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+

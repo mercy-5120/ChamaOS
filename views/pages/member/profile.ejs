@@ -135,9 +135,6 @@
             <button class="tab-button" onclick="switchTab('change-password')">
               Change Password
             </button>
-            <button class="tab-button" onclick="switchTab('notifications')">
-              Notifications
-            </button>
           </div>
 
           <!-- EDIT PERSONAL INFORMATION -->
@@ -250,11 +247,12 @@
             style="display: none"
           >
             <h3>Change Your Password</h3>
-            <form style="margin-top: 20px">
+            <form method="POST" action="/member/profile/change-password" style="margin-top: 20px">
               <div class="form-group">
                 <label for="current-password">Current Password</label>
                 <input
                   type="password"
+                  name="current_password"
                   id="current-password"
                   placeholder="Enter your current password"
                   required
@@ -265,6 +263,7 @@
                 <label for="new-password">New Password</label>
                 <input
                   type="password"
+                  name="new_password"
                   id="new-password"
                   placeholder="Enter a new password"
                   required
@@ -279,6 +278,7 @@
                 <label for="confirm-password">Confirm New Password</label>
                 <input
                   type="password"
+                  name="confirm_password"
                   id="confirm-password"
                   placeholder="Re-enter your new password"
                   required
@@ -323,108 +323,7 @@
             </form>
           </div>
 
-          <!-- NOTIFICATIONS -->
-          <div
-            id="notifications"
-            class="tab-content card"
-            style="display: none"
-          >
-            <h3>Notification Preferences</h3>
 
-            <div style="margin-top: 20px">
-              <h4>Recent Notifications</h4>
-              <div class="notification-list">
-                <p>No notifications available.</p>
-              </div>
-            </div>
-
-            <div
-              style="
-                margin-top: 30px;
-                padding-top: 30px;
-                border-top: 1px solid #e0e0e0;
-              "
-            >
-              <h4>Notification Settings</h4>
-
-              <div style="margin-top: 15px">
-                <label
-                  style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 15px;
-                  "
-                >
-                  <input type="checkbox" /> Email notifications for contribution
-                  reminders
-                </label>
-
-                <label
-                  style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 15px;
-                  "
-                >
-                  <input type="checkbox" /> SMS notifications for urgent updates
-                </label>
-
-                <label
-                  style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 15px;
-                  "
-                >
-                  <input type="checkbox" /> Email notifications for meeting
-                  schedules
-                </label>
-
-                <label
-                  style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 15px;
-                  "
-                >
-                  <input type="checkbox" /> Email notifications for loan status
-                  updates
-                </label>
-
-                <label
-                  style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 15px;
-                  "
-                >
-                  <input type="checkbox" /> SMS notifications for all updates
-                </label>
-
-                <label
-                  style="
-                    display: flex;
-                    align-items: center;
-                    gap: 10px;
-                    margin-bottom: 15px;
-                  "
-                >
-                  <input type="checkbox" /> In-app notifications
-                </label>
-              </div>
-
-              <div style="margin-top: 25px">
-                <button class="btn btn-primary">
-                  Save Notification Settings
-                </button>
-              </div>
-            </div>
-          </div>
         </section>
 
         <div style="margin-top: 30px; padding-bottom: 30px">

@@ -85,6 +85,7 @@
                   <th>Balance</th>
                   <th>Due Date</th>
                   <th>Approved On</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -97,11 +98,16 @@
                       <td>KES <%= Number(loan.remaining_balance).toLocaleString() %></td>
                       <td><%= loan.due_date %></td>
                       <td><%= loan.approved_at || '-' %></td>
+                      <td>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="openRepaymentModal(<%= loan.loan_id %>, '<%= loan.member_name %>', <%= loan.remaining_balance %>)">
+                          Record Repayment
+                        </button>
+                      </td>
                     </tr>
                   <% }); %>
                 <% } else { %>
                   <tr>
-                    <td colspan="6">No active loans available.</td>
+                    <td colspan="7">No active loans available.</td>
                   </tr>
                 <% } %>
               </tbody>
@@ -146,5 +152,145 @@
         </section>
       </section>
     </main>
+
+    <div id="repaymentModal" class="modal-overlay" style="display: none;">
+      <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="repaymentModalTitle">
+        <div class="modal-head" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3 id="repaymentModalTitle" style="margin: 0;">Record Loan Repayment</h3>
+          <button type="button" onclick="closeRepaymentModal()" class="btn btn-secondary btn-sm" aria-label="Close">Close</button>
+        </div>
+
+        <div id="repaymentStatus" style="display: none; margin-bottom: 12px; padding: 10px; border-radius: 6px;"></div>
+
+        <form id="repaymentForm">
+          <input type="hidden" id="loanId" name="loan_id" />
+
+          <div style="margin-bottom: 12px;">
+            <label for="memberName" style="display:block; margin-bottom: 6px;">Member</label>
+            <input id="memberName" type="text" readonly style="width: 100%; padding: 10px; border: 1px solid #d9d9d9; border-radius: 6px; background: #f9f9f9;" />
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label for="balanceDisplay" style="display:block; margin-bottom: 6px;">Outstanding Balance</label>
+            <input id="balanceDisplay" type="text" readonly style="width: 100%; padding: 10px; border: 1px solid #d9d9d9; border-radius: 6px; background: #f9f9f9;" />
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label for="repaymentAmount" style="display:block; margin-bottom: 6px;">Repayment Amount (KES)</label>
+            <input id="repaymentAmount" name="repayment_amount" type="number" min="0.01" step="0.01" required style="width: 100%; padding: 10px; border: 1px solid #d9d9d9; border-radius: 6px;" />
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label for="repaymentDescription" style="display:block; margin-bottom: 6px;">Description (optional)</label>
+            <textarea id="repaymentDescription" name="repayment_description" rows="3" style="width: 100%; padding: 10px; border: 1px solid #d9d9d9; border-radius: 6px; resize: vertical;"></textarea>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-secondary" onclick="closeRepaymentModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Record Repayment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      function openRepaymentModal(loanId, memberName, balance) {
+        var modal = document.getElementById("repaymentModal");
+        document.getElementById("loanId").value = loanId;
+        document.getElementById("memberName").value = memberName;
+        document.getElementById("balanceDisplay").value = "KES " + Number(balance).toLocaleString();
+        document.getElementById("repaymentAmount").value = "";
+        document.getElementById("repaymentDescription").value = "";
+        document.getElementById("repaymentStatus").style.display = "none";
+        modal.style.display = "flex";
+      }
+
+      function closeRepaymentModal() {
+        document.getElementById("repaymentModal").style.display = "none";
+      }
+
+      function showRepaymentStatus(message, success) {
+        var status = document.getElementById("repaymentStatus");
+        status.textContent = message;
+        status.style.display = "block";
+        status.style.background = success ? "#e8f7ee" : "#fdebec";
+        status.style.color = success ? "#1f6b3a" : "#9d1c1c";
+        status.style.border = success ? "1px solid #bfe4cc" : "1px solid #f3c4c7";
+      }
+
+      document.getElementById("repaymentForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        var loanId = document.getElementById("loanId").value;
+        var amount = parseFloat(document.getElementById("repaymentAmount").value);
+        var description = document.getElementById("repaymentDescription").value.trim();
+
+        if (!amount || amount <= 0) {
+          showRepaymentStatus("Enter a valid repayment amount.", false);
+          return;
+        }
+
+        try {
+          var response = await fetch("/treasurer/loans/" + loanId + "/repayment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              repayment_amount: amount,
+              repayment_description: description,
+            }),
+          });
+
+          var payload = null;
+          try {
+            payload = await response.json();
+          } catch (parseErr) {
+            payload = null;
+          }
+
+          if (!response.ok || !payload.success) {
+            var fallbackMsg = "Failed to record repayment.";
+            if (!response.ok && response.status === 401) {
+              fallbackMsg = "Your session may have expired. Please sign in again.";
+            }
+            showRepaymentStatus((payload && payload.error) || fallbackMsg, false);
+            return;
+          }
+
+          showRepaymentStatus(payload.message || "Repayment recorded.", true);
+          setTimeout(function () {
+            window.location.reload();
+          }, 900);
+        } catch (err) {
+          showRepaymentStatus("Unexpected error while recording repayment.", false);
+        }
+      });
+
+      document.getElementById("repaymentModal").addEventListener("click", function (e) {
+        if (e.target.id === "repaymentModal") {
+          closeRepaymentModal();
+        }
+      });
+    </script>
+
+    <style>
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 999;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .modal-card {
+        width: 100%;
+        max-width: 520px;
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 18px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+    </style>
   </body>
 </html>
