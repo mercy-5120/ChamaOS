@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ChamaOS — Privacy & Terms</title>
+    <link rel="stylesheet" href="/css/app.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      main {
+        background:
+          radial-gradient(
+            circle at 10% 8%,
+            rgba(42, 111, 75, 0.16),
+            transparent 30%
+          ),
+          radial-gradient(
+            circle at 90% 6%,
+            rgba(244, 185, 66, 0.2),
+            transparent 26%
+          ),
+          linear-gradient(
+            180deg,
+            rgba(11, 79, 108, 0.04),
+            rgba(42, 111, 75, 0.03)
+          );
+        max-width: 100%;
+        width: 100%;
+        padding: 0;
+      }
+
+      .privacy-hero {
+        background: linear-gradient(
+          135deg,
+          rgba(14, 66, 44, 0.85),
+          rgba(11, 79, 108, 0.75)
+        );
+        padding: 80px 20px;
+        text-align: center;
+        margin-bottom: 60px;
+        width: 100%;
+      }
+
+      .privacy-hero h1 {
+        color: #fff;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        margin-bottom: 16px;
+      }
+
+      .privacy-hero p {
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 1.05rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .privacy-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 0 20px 60px;
+      }
+
+      .privacy-tabs {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 32px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .privacy-tab-button {
+        padding: 12px 24px;
+        border: 2px solid #e0e0e0;
+        background: #fff;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #0b4f6c;
+        transition: all 180ms ease;
+        font-size: 0.95rem;
+      }
+
+      .privacy-tab-button:hover {
+        border-color: #0b4f6c;
+        background: rgba(11, 79, 108, 0.05);
+      }
+
+      .privacy-tab-button.active {
+        background: #0b4f6c;
+        color: #fff;
+        border-color: #0b4f6c;
+      }
+
+      .privacy-section-card {
+        background: linear-gradient(180deg, #ffffff, #fcfdfa);
+        border-radius: 16px;
+        border: 1px solid rgba(11, 79, 108, 0.14);
+        border-top: 4px solid var(--deep-teal);
+        padding: 32px;
+        box-shadow: 0 14px 28px rgba(15, 34, 46, 0.08);
+        margin-bottom: 32px;
+      }
+
+      .privacy-section {
+        margin-bottom: 0;
+      }
+
+      .privacy-section h2 {
+        color: #0b4f6c;
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-size: 1.8rem;
+        font-weight: 600;
+      }
+
+      .privacy-section h3 {
+        color: #2a6f4b;
+        margin-top: 28px;
+        margin-bottom: 14px;
+        font-size: 1.15rem;
+        font-weight: 600;
+      }
+
+      .privacy-section h3:first-child {
+        margin-top: 0;
+      }
+
+      .privacy-section p {
+        line-height: 1.8;
+        margin-bottom: 14px;
+        color: #333;
+        font-size: 0.95rem;
+      }
+
+      .privacy-section ul {
+        margin-left: 24px;
+        margin-bottom: 16px;
+      }
+
+      .privacy-section li {
+        margin-bottom: 10px;
+        line-height: 1.7;
+        color: #333;
+        font-size: 0.95rem;
+      }
+
+      .effective-date {
+        color: #999;
+        font-size: 0.9rem;
+        margin-bottom: 0;
+        font-style: italic;
+      }
+
+      .section-divider {
+        height: 1px;
+        background: rgba(42, 111, 75, 0.15);
+        margin: 32px 0;
+      }
+
+      .footer-nav {
+        margin-top: 60px;
+        text-align: center;
+        padding-top: 32px;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .footer-nav a {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #0b4f6c;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 12px 24px;
+        border-radius: 8px;
+        transition: all 180ms ease;
+      }
+
+      .footer-nav a:hover {
+        background: rgba(11, 79, 108, 0.08);
+      }
+
+      @media (max-width: 768px) {
+        .privacy-section-card {
+          padding: 24px;
+        }
+
+        .privacy-section h2 {
+          font-size: 1.5rem;
+        }
+
+        .privacy-section h3 {
+          font-size: 1.05rem;
+        }
+
+        .privacy-tabs {
+          justify-content: flex-start;
+          overflow-x: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <%- include('../partials/header') %>
+
+      <div class="privacy-hero">
+        <h1>Privacy Policy & Terms of Service</h1>
+        <p>
+          Your privacy and rights matter to us. Here's everything you need to
+          know about how we protect your data and the terms of using ChamaOS.
+        </p>
+      </div>
+
+      <div class="privacy-container">
+        <div class="privacy-tabs">
+          <button
+            class="privacy-tab-button active"
+            onclick="showSection('privacy-policy')"
+          >
+            <i class="fas fa-shield-alt"></i> Privacy Policy
+          </button>
+          <button
+            class="privacy-tab-button"
+            onclick="showSection('terms-service')"
+          >
+            <i class="fas fa-file-contract"></i> Terms of Service
+          </button>
+        </div>
+
+        <!-- Privacy Policy Section -->
+        <div id="privacy-policy" class="privacy-policy-content">
+          <div class="privacy-section-card">
+            <div class="privacy-section">
+              <h2>Privacy Policy</h2>
+              <p class="effective-date">Last updated: March 2026</p>
+
+              <h3>1. Introduction</h3>
+              <p>
+                ChamaOS ("we," "us," "our," or "Company") is committed to
+                protecting your privacy. This Privacy Policy explains how we
+                collect, use, disclose, and safeguard your information when you
+                visit our website and use our services.
+              </p>
+
+              <h3>2. Information We Collect</h3>
+              <p>
+                We may collect information about you in a variety of ways. The
+                information we may collect on the site includes:
+              </p>
+              <ul>
+                <li>
+                  <strong>Personal Data:</strong> Name, email address, phone
+                  number, location, and other information you provide when
+                  creating an account or using our services.
+                </li>
+                <li>
+                  <strong>Financial Information:</strong> Contribution amounts,
+                  loan details, and transaction history related to your chama
+                  group.
+                </li>
+                <li>
+                  <strong>Usage Data:</strong> Information about how you
+                  interact with our platform, including IP addresses, browser
+                  type, pages visited, and time spent on pages.
+                </li>
+                <li>
+                  <strong>Cookies:</strong> We use cookies to enhance your user
+                  experience and analyze site usage.
+                </li>
+              </ul>
+
+              <h3>3. How We Use Your Information</h3>
+              <p>We use the information we collect to:</p>
+              <ul>
+                <li>Provide, maintain, and improve our services</li>
+                <li>Process transactions and send related information</li>
+                <li>Send administrative information and updates</li>
+                <li>Respond to your inquiries and provide customer support</li>
+                <li>Monitor and analyze trends, usage, and activities</li>
+                <li>Detect, prevent, and address fraud and security issues</li>
+                <li>Comply with legal obligations</li>
+              </ul>
+
+              <h3>4. Data Security</h3>
+              <p>
+                We implement appropriate technical and organizational measures
+                to protect your personal data against unauthorized access,
+                alteration, disclosure, or destruction. Your account password is
+                encrypted, and sensitive financial data is securely stored in
+                our database.
+              </p>
+
+              <h3>5. Sharing Your Information</h3>
+              <p>
+                We do not sell, trade, or rent your personal information to
+                third parties. We may share your information only in the
+                following circumstances:
+              </p>
+              <ul>
+                <li>With your explicit consent</li>
+                <li>
+                  To comply with legal obligations, court orders, or government
+                  requests
+                </li>
+                <li>To protect our rights, privacy, safety, or property</li>
+                <li>To prevent fraud or other illegal activities</li>
+              </ul>
+
+              <h3>6. Your Rights</h3>
+              <p>
+                You have the right to access, update, or delete your personal
+                information at any time. You can manage your account settings or
+                contact us at support@chamaos.com with your request.
+              </p>
+
+              <h3>7. Cookies</h3>
+              <p>
+                Our website uses cookies to enhance your experience. You can
+                choose to disable cookies through your browser settings, but
+                this may limit your ability to use certain features of our
+                platform.
+              </p>
+
+              <h3>8. Changes to This Privacy Policy</h3>
+              <p>
+                We may update this Privacy Policy from time to time to reflect
+                changes in our practices or for other operational, legal, or
+                regulatory reasons. We will notify you of any material changes
+                by updating the "Last Updated" date of this Privacy Policy.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms of Service Section -->
+        <div
+          id="terms-service"
+          class="terms-service-content"
+          style="display: none"
+        >
+          <div class="privacy-section-card">
+            <div class="privacy-section">
+              <h2>Terms of Service</h2>
+              <p class="effective-date">Last updated: March 2026</p>
+
+              <h3>1. Acceptance of Terms</h3>
+              <p>
+                By accessing and using ChamaOS, you accept and agree to be bound
+                by the terms and provision of this agreement. If you do not
+                agree to abide by the above, please do not use this service.
+              </p>
+
+              <h3>2. Use License</h3>
+              <p>
+                Permission is granted to temporarily download one copy of the
+                materials (information or software) on ChamaOS for personal,
+                non-commercial transitory viewing only. This is the grant of a
+                license, not a transfer of title, and under this license you may
+                not:
+              </p>
+              <ul>
+                <li>Modify or copy the materials</li>
+                <li>
+                  Use the materials for any commercial purpose or for any public
+                  display
+                </li>
+                <li>
+                  Attempt to decompile or reverse engineer any software
+                  contained on ChamaOS
+                </li>
+                <li>
+                  Remove any copyright or other proprietary notations from the
+                  materials
+                </li>
+                <li>
+                  Transfer the materials to another person or "mirror" the
+                  materials on any other server
+                </li>
+                <li>Violate any applicable laws or regulations</li>
+              </ul>
+
+              <h3>3. Disclaimer</h3>
+              <p>
+                The materials on ChamaOS are provided on an 'as is' basis.
+                ChamaOS makes no warranties, expressed or implied, and hereby
+                disclaims and negates all other warranties including, without
+                limitation, implied warranties or conditions of merchantability,
+                fitness for a particular purpose, or non-infringement of
+                intellectual property or other violation of rights.
+              </p>
+
+              <h3>4. Limitations</h3>
+              <p>
+                In no event shall ChamaOS or its suppliers be liable for any
+                damages (including, without limitation, damages for loss of data
+                or profit, or due to business interruption) arising out of the
+                use or inability to use the materials on ChamaOS, even if
+                ChamaOS or an authorized representative has been notified orally
+                or in writing of the possibility of such damage.
+              </p>
+
+              <h3>5. Accuracy of Materials</h3>
+              <p>
+                The materials appearing on ChamaOS could include technical,
+                typographical, or photographic errors. ChamaOS does not warrant
+                that any of the materials on our website are accurate, complete,
+                or current. ChamaOS may make changes to the materials contained
+                on our website at any time without notice.
+              </p>
+
+              <h3>6. Links</h3>
+              <p>
+                ChamaOS has not reviewed all of the sites linked to our website
+                and is not responsible for the contents of any such linked site.
+                The inclusion of any link does not imply endorsement by ChamaOS
+                of the site. Use of any such linked website is at the user's own
+                risk.
+              </p>
+
+              <h3>7. Modifications</h3>
+              <p>
+                ChamaOS may revise these terms of service for our website at any
+                time without notice. By using this website, you are agreeing to
+                be bound by the then current version of these terms of service.
+              </p>
+
+              <h3>8. Governing Law</h3>
+              <p>
+                These terms and conditions are governed by and construed in
+                accordance with the laws of Kenya, and you irrevocably submit to
+                the exclusive jurisdiction of the courts in that location.
+              </p>
+
+              <h3>9. User Conduct</h3>
+              <p>
+                You agree not to engage in any activity that interferes with or
+                disrupts ChamaOS's services. This includes:
+              </p>
+              <ul>
+                <li>Unauthorized access to user accounts</li>
+                <li>Harassment or discrimination of other users</li>
+                <li>Posting false or misleading information</li>
+                <li>Attempting to circumvent security measures</li>
+              </ul>
+
+              <h3>10. Contact Information</h3>
+              <p>
+                If you have any questions about these Privacy Policy and Terms
+                of Service, please contact us at:
+              </p>
+              <ul>
+                <li><strong>Email:</strong> support@chamaos.com</li>
+                <li><strong>Phone:</strong> +254 700 000 000</li>
+                <li><strong>WhatsApp:</strong> +254 700 000 000</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-nav">
+        <a href="/">
+          <i class="fas fa-arrow-left"></i>
+          Back to Home
+        </a>
+      </div>
+
+      <%- include('../partials/footer') %>
+    </main>
+
+    <script>
+      function showSection(sectionId) {
+        // Hide all sections
+        document
+          .querySelectorAll(".privacy-policy-content, .terms-service-content")
+          .forEach((el) => {
+            el.style.display = "none";
+          });
+
+        // Remove active class from all buttons
+        document.querySelectorAll(".privacy-tab-button").forEach((btn) => {
+          btn.classList.remove("active");
+        });
+
+        // Show selected section
+        document.getElementById(sectionId).style.display = "block";
+
+        // Add active class to clicked button
+        event.target.classList.add("active");
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
