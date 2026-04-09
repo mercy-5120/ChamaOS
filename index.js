@@ -79,11 +79,12 @@ app.use(
     secret: "encryptionKey",
     resave: false,
     saveUninitialized: false,
+    rolling: true,
     cookie: {
       httpOnly: true,
       sameSite: "lax",
       secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 1000 * 24, // 24 hours
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
     },
   }),
 );
@@ -2573,12 +2574,10 @@ app.post("/treasurer/loans/:loanId/repayment", (req, res) => {
       const currentBalance = Number(loan.remaining_balance || 0);
 
       if (loan.status !== "active") {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            error: "Only active loans can receive repayments.",
-          });
+        return res.status(400).json({
+          success: false,
+          error: "Only active loans can receive repayments.",
+        });
       }
 
       if (repaymentAmount > currentBalance) {
@@ -2604,12 +2603,10 @@ app.post("/treasurer/loans/:loanId/repayment", (req, res) => {
             console.log(
               "Repayment transaction insert error: " + txError.message,
             );
-            return res
-              .status(500)
-              .json({
-                success: false,
-                error: "Failed to save repayment transaction.",
-              });
+            return res.status(500).json({
+              success: false,
+              error: "Failed to save repayment transaction.",
+            });
           }
 
           connection.query(
@@ -2622,21 +2619,17 @@ app.post("/treasurer/loans/:loanId/repayment", (req, res) => {
                 console.log(
                   "Repayment loan update error: " + updateError.message,
                 );
-                return res
-                  .status(500)
-                  .json({
-                    success: false,
-                    error: "Failed to update loan balance.",
-                  });
+                return res.status(500).json({
+                  success: false,
+                  error: "Failed to update loan balance.",
+                });
               }
 
               if (!updateResult || updateResult.affectedRows === 0) {
-                return res
-                  .status(500)
-                  .json({
-                    success: false,
-                    error: "Loan update was not applied.",
-                  });
+                return res.status(500).json({
+                  success: false,
+                  error: "Loan update was not applied.",
+                });
               }
 
               return res.json({
@@ -4692,6 +4685,48 @@ app.get("/chairperson/members", (req, res) => {
             },
           );
         },
+      );
+    },
+  );
+});
+
+app.post("/chairperson/disciplinary-records/close", (req, res) => {
+  if (!req.session.user || req.session.role !== "chairperson") {
+    return res.status(401).render("pages/user/401.ejs");
+  }
+
+  const chama_id = req.session.chama_id;
+  const record_id = Number(req.body.record_id || 0);
+
+  if (!chama_id || !record_id) {
+    return res.redirect(
+      "/chairperson/members?error=Invalid disciplinary record selection.",
+    );
+  }
+
+  connection.query(
+    `UPDATE Disciplinary_Records
+     SET status = 'closed'
+     WHERE record_id = ?
+       AND chama_id = ?
+       AND status != 'closed'`,
+    [record_id, chama_id],
+    (updateError, result) => {
+      if (updateError) {
+        console.log(
+          "Chairperson disciplinary record close error: " + updateError.message,
+        );
+        return res.status(500).render("pages/user/500.ejs");
+      }
+
+      if (!result || result.affectedRows === 0) {
+        return res.redirect(
+          "/chairperson/members?error=Unable to close the selected disciplinary issue.",
+        );
+      }
+
+      return res.redirect(
+        "/chairperson/members?success=Disciplinary issue closed successfully.",
       );
     },
   );

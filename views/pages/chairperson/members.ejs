@@ -183,6 +183,7 @@
                   <th>Issue</th>
                   <th>Reported On</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -197,11 +198,21 @@
                       </td>
                       <td><%= record.created_at || '-' %></td>
                       <td style="text-transform: capitalize;"><%= record.status || 'open' %></td>
+                      <td>
+                        <% if (record.status === 'open') { %>
+                          <form action="/chairperson/disciplinary-records/close" method="POST" style="margin:0;">
+                            <input type="hidden" name="record_id" value="<%= record.record_id %>">
+                            <button type="submit" class="btn btn-small" style="padding:6px 10px;font-size:0.9rem;">Close</button>
+                          </form>
+                        <% } else { %>
+                          <span style="color:#7f8c8d;">-</span>
+                        <% } %>
+                      </td>
                     </tr>
                   <% }); %>
                 <% } else { %>
                   <tr>
-                    <td colspan="5" class="no-data">
+                    <td colspan="6" class="no-data">
                       <p>No disciplinary records.</p>
                     </td>
                   </tr>
