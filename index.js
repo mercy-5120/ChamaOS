@@ -1,11 +1,13 @@
-//1.Import and configure package modulesat the top of the file
-const mysql = require("mysql2");
-const express = require("express");
-const session = require("express-session");
-const bcrypt = require("bcrypt");
-const multer = require("multer");
-const path = require("path"); //allows us to work with file and directory paths in a way that is compatible across different operating systems
-const fs = require("fs");
+//1. Import and configure package modules at the top of the file
+require("dotenv").config(); // Load environment variables from .env file
+const mysql = require("mysql2"); // MySQL database driver
+const express = require("express"); // Web framework for Node.js
+const session = require("express-session"); // Session management middleware
+const bcrypt = require("bcrypt"); // Password hashing library
+const multer = require("multer"); // File upload handling middleware
+const path = require("path"); // Utilities for working with file and directory paths
+const fs = require("fs"); // File system operations
+const nodemailer = require("nodemailer"); // Email sending library
 const app = express();
 
 const meetingUploadDir = path.join(__dirname, "public", "uploads", "meetings");
@@ -43,15 +45,19 @@ const governanceDocsStorage = multer.diskStorage({
 
 const governanceDocsUpload = multer({ storage: governanceDocsStorage });
 
+// Database connection configuration using environment variables with fallbacks
 const connection = mysql.createConnection({
-  host: "localhost",
-  database: "chamaos",
-  user: "root",
-  password: "sonnie2006.",
-  port: 3306,
+  host: process.env.DB_HOST || "localhost", // Database server hostname
+  database: process.env.DB_NAME || "chamaos", // Database name
+  user: process.env.DB_USER || "root", // Database username
+  password: process.env.DB_PASSWORD || "sonnie2006.", // Database password
+  port: process.env.DB_PORT || 3306, // Database port
 });
 
+// Database health monitoring variable
 let isDbHealthy = false;
+
+// Initial database connection attempt
 connection.connect((connectError) => {
   if (connectError) {
     console.log("Database connection error: " + connectError.message);
@@ -62,6 +68,7 @@ connection.connect((connectError) => {
   console.log("Database connected successfully.");
 });
 
+// Periodic database health check every 60 seconds
 setInterval(() => {
   connection.ping((pingError) => {
     if (pingError) {
@@ -73,10 +80,22 @@ setInterval(() => {
     isDbHealthy = true;
   });
 }, 60 * 1000).unref();
+
+// Email configuration for sending contact form notifications
+// Uses Gmail SMTP service with authentication from environment variables
+const emailTransporter = nodemailer.createTransport({
+  service: "gmail", // Gmail's SMTP service
+  auth: {
+    user: process.env.EMAIL_USER || "support.chamaos@gmail.com", // Gmail address for sending emails
+    pass: process.env.EMAIL_PASSWORD || "your-app-password", // Gmail app password (not regular password)
+  },
+});
+
 //2. Register middleware functions to handle incoming requests and responses
+// Middleware processes requests before they reach route handlers
 app.use(
   session({
-    secret: "encryptionKey",
+    secret: process.env.SESSION_SECRET || "encryptionKey",
     resave: false,
     saveUninitialized: false,
     rolling: true,
@@ -269,9 +288,10 @@ app.get("/privacy", (req, res) => {
 });
 
 app.post("/contact", (req, res) => {
+  // Extract form data from the request body
   const { contact_name, contact_email, contact_message } = req.body;
 
-  // Validation
+  // Validate that all required fields are provided
   if (!contact_name || !contact_email || !contact_message) {
     return res.status(400).json({
       success: false,
@@ -279,12 +299,12 @@ app.post("/contact", (req, res) => {
     });
   }
 
-  // Trim values
+  // Sanitize input data by trimming whitespace
   const name = String(contact_name).trim();
   const email = String(contact_email).trim();
   const message = String(contact_message).trim();
 
-  // Validate email format
+  // Validate email format using regex pattern
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({
@@ -293,7 +313,7 @@ app.post("/contact", (req, res) => {
     });
   }
 
-  // Validate message length
+  // Validate message length to prevent spam and ensure meaningful content
   if (message.length < 10) {
     return res.status(400).json({
       success: false,
@@ -301,10 +321,10 @@ app.post("/contact", (req, res) => {
     });
   }
 
-  // Store contact message in database
+  // Store contact message in database for record keeping
   connection.query(
     `INSERT INTO Contact_Messages (contact_name, contact_email, message, status)
-     VALUES (?, ?, ?, 'new')`,
+     VALUES (?, ?, ?, 'new')`, // Status 'new' indicates unread message
     [name, email, message],
     (insertError) => {
       if (insertError) {
@@ -315,6 +335,33 @@ app.post("/contact", (req, res) => {
         });
       }
 
+      // Send email notification to administrators about new contact form submission
+      const mailOptions = {
+        from: "support.chamaos@gmail.com", // Sender email address
+        to: "support.chamaos@gmail.com", // Recipient email address (can be changed to admin email)
+        subject: `New Contact Form Message from ${name}`, // Dynamic subject with sender's name
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message.replace(/\n/g, "<br>")}</p>
+          <hr>
+          <p><em>This message was sent from the ChamaOS contact form.</em></p>
+        `,
+      };
+
+      // Send the email using the configured transporter
+      emailTransporter.sendMail(mailOptions, (emailError, info) => {
+        if (emailError) {
+          console.log("Email sending error: " + emailError.message);
+          // Don't fail the request if email fails, just log it for debugging
+        } else {
+          console.log("Contact form email sent: " + info.messageId);
+        }
+      });
+
+      // Return success response to the user (regardless of email sending status)
       return res.status(200).json({
         success: true,
         message: "Thank you for your message. We will get back to you soon!",
@@ -5474,4 +5521,4 @@ app.listen(3002, () => {
   console.log("Server running on port 3002");
 });
 
-//look at bcrypt to hash and encrypt passwords before storing them in the database.
+// Note: Passwords are hashed using bcrypt before storing in database for security

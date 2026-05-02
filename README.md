@@ -47,15 +47,37 @@ npm install
 1. Create a MySQL database named `chamaos`.
 2. Apply the schema from `db.sql`.
 
-> Note: The current database connection parameters are defined in `index.js`:
->
-> - host: `localhost`
-> - port: `3306`
-> - database: `chamaos`
-> - user: `root`
-> - password: `sonnie2006.`
+### Environment Variables
 
-Update these values in `index.js` before running the app in your own environment.
+Create a `.env` file in the root directory with the following variables:
+
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_mysql_password
+DB_NAME=chamaos
+DB_PORT=3306
+
+# Email Configuration (Gmail)
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-gmail-app-password
+
+# Session Secret
+SESSION_SECRET=your-secure-session-secret
+```
+
+### Email Setup
+
+The contact form sends email notifications to administrators. To set this up:
+
+1. Use a Gmail account for sending emails
+2. Enable 2-factor authentication on the Gmail account
+3. Generate an App Password:
+   - Go to Google Account settings
+   - Security → 2-Step Verification → App passwords
+   - Generate a password for "Mail"
+4. Add the Gmail address and app password to your `.env` file
 
 ### Run the app
 

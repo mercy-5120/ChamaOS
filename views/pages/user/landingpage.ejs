@@ -35,7 +35,7 @@
         inset: 0;
         background: radial-gradient(circle at top left, rgba(244, 185, 66, 0.24), transparent 18%),
                     radial-gradient(circle at top right, rgba(42, 111, 75, 0.18), transparent 22%),
-                    linear-gradient(180deg, rgba(6, 24, 44, 0.64), rgba(6, 24, 44, 0.40));
+                    linear-gradient(180deg, rgba(97, 121, 149, 0.64), rgba(6, 24, 44, 0.40));
         z-index: 1;
       }
 
@@ -336,10 +336,8 @@
       }
 
       .contact-grid {
-        display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-        margin-top: 14px;
+          margin-top: 14px;
       }
 
       .contact-item {
@@ -632,7 +630,11 @@
               <div class="contact-item">
                 <img src="/images/email.png" alt="Email icon" class="icon" />
                 <div class="small">Email</div>
-                <strong>support@chamaos.com</strong>
+                <strong>
+                  <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support.chamaos@gmail.com" target="_blank" rel="noopener noreferrer">
+                    support.chamaos@gmail.com
+                  </a>
+                </strong>
               </div>
               <div class="contact-item">
                 <img src="/images/phone.png" alt="Phone icon" class="icon" />
