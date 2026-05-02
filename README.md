@@ -47,6 +47,35 @@ npm install
 1. Create a MySQL database named `chamaos`.
 2. Apply the schema from `db.sql`.
 
+#### Database Migrations
+
+This project uses `db-migrate` for database version control. Migrations allow you to:
+
+- Track database schema changes
+- Roll back changes safely
+- Maintain consistent schemas across environments
+
+**Available migration commands:**
+
+```bash
+# Run all pending migrations
+npm run migrate
+
+# Rollback the last migration
+npm run migrate:down
+
+# Create a new migration file
+npm run migrate:create migration_name
+
+# Reset all migrations (drops all tables)
+npm run migrate:reset
+```
+
+**Migration files are located in:**
+
+- `migrations/` - Migration JavaScript files
+- `migrations/sqls/` - SQL up/down files
+
 ### Environment Variables
 
 Create a `.env` file in the root directory with the following variables:
