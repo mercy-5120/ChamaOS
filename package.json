@@ -16,7 +16,11 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "migrate": "db-migrate up --config database.json --env dev",
+    "migrate:down": "db-migrate down --config database.json --env dev",
+    "migrate:create": "db-migrate create",
+    "migrate:reset": "db-migrate reset --config database.json --env dev"
   },
   "repository": {
     "type": "git",
@@ -29,5 +33,9 @@
   "bugs": {
     "url": "https://github.com/mercy-5120/ChamaOS/issues"
   },
-  "homepage": "https://github.com/mercy-5120/ChamaOS#readme"
+  "homepage": "https://github.com/mercy-5120/ChamaOS#readme",
+  "devDependencies": {
+    "db-migrate": "^0.11.14",
+    "db-migrate-mysql": "^3.0.0"
+  }
 }
